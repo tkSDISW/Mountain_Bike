@@ -14,39 +14,45 @@ import yaml
 from pydantic import BaseModel
 
 from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langgraph.prebuilt import create_react_agent
 from langchain_core.tools import StructuredTool
+from langgraph.checkpoint.memory import MemorySaver
 
 
 
 # --- Agent tool registry (unchanged from your pattern) ---
 from agent.tool_registry import ToolRegistry, ToolInfo, build_list_tools_tool
-from agent.tools import (
+
+# Optional registry (nice-to-have). If you prefer pure list, you can remove this import and related use.
+try:
+    from agent.tool_registry import ToolRegistry, build_list_tools_tool, ToolInfo
+    _HAS_REGISTRY = True
+except Exception:
+    _HAS_REGISTRY = False
+
+from agent.tools.csv_tools import (
     write_csv,
     read_csv,
     write_leveled_csv,
     read_leveled_csv,
-    # stubs / optional
-    search_model_object,
-    bpmn_to_capella,
-    capella_to_bpmn,
+)
+from agent.tools.capella_tools import (
     apply_description,
     add_logical_components,
     show_context_diagram,
 )
-# direct YAML (stateless core function + args)
-from agent.tools.yaml_tools import (
-    DirectYamlQueryArgs,
-    direct_yaml_query,  # the stateless function we wrap with fallback
+from agent.tools.bpmn_tools import (
+    bpmn_to_capella,
+    capella_to_bpmn,
 )
+from agent.tools.search_tools import (
+    search_model_object,
+)
+# direct YAML (stateless core function + args)
+from agent.tools.yaml_tools import direct_yaml_query_function  # the stateless function we wrap with fallback
 
-# Optional registry (nice-to-have). If you prefer pure list, you can remove this import and related use.
-try:
-    from agent.tool_registry import ToolRegistry, build_list_tools_tool
-    _HAS_REGISTRY = True
-except Exception:
-    _HAS_REGISTRY = False
+
 
 # ============================
 # Standalone MBSE Agent
@@ -60,7 +66,9 @@ class MBSEAgent:
     - Provides CSV tools + optional Capella/BPMN stubs
     - Interactive chat with file-loader wired to the agent's context
     """
-
+    # inside class MBSEAgent:
+    
+  
     # -------------
     # Construction
     # -------------
@@ -74,8 +82,12 @@ class MBSEAgent:
         config_name: str | None = None,
         debug: bool = False,
     ):
+        # inside MBSEAgent.__init__ (very top of the method)
+        #self.extra_context_msgs: list[tuple[str, str]] = []
+        self.extra_context_msgs = []
+        self.yaml_content: Optional[str] = yaml_content
         self.debug = debug
-        self.yaml_content: str | None = yaml_content
+
         
 
         # --- Secrets / model config resolution ---
@@ -111,8 +123,33 @@ class MBSEAgent:
             base_url=self.llm_url,
             temperature=0,
         )
-        from agent.tools.yaml_tools import direct_yaml_query, DirectYamlQueryArgs
-        from .tool_registry import ToolInfo
+
+
+        
+        self.prompt = ChatPromptTemplate.from_messages([
+            ("system",
+             "You are an MBSE assistant. Prefer calling tools to read or transform data.\n"
+             "IMPORTANT:\n"
+             "• When you use a tool, ALWAYS pass arguments as valid JSON matching the tool's args schema.\n"
+             "• If the user gives informal text (e.g., Read file name \"drone.csv\"), convert it to JSON\n"
+             "  (e.g., {{\"filename\":\"drone.csv\"}}) before calling the tool.\n"
+             "• If YAML is loaded in memory, use `direct_yaml_query` rather than asking to reload it.\n"
+             "\n"
+             "Examples of valid tool JSON:\n"
+             "• Read CSV  {{\"filename\":\"test_simple.csv\"}}\n"
+             "• Write CSV {{\"filename\":\"test_simple.csv\",\"data\":[{{\"ReqID\":\"R1\",\"Text\":\"Brake\"}}]}}\n"
+             "• Load YAML {{\"filename\":\"capella_model.yaml\"}}\n"
+             "• direct_yaml_query {{\"prompt\":\"List all Logical Components\"}}\n"
+            ),
+            MessagesPlaceholder("messages"),
+        ])
+
+
+        # --- Conversation memory ---
+        self.checkpointer = MemorySaver()
+        # Use a stable thread id for a session; callers may overwrite if desired
+        self.thread_id = f"mbse-{int(time.time())}"
+
         # --- Tool registry ---
         self.registry = ToolRegistry()
         # CSV tools
@@ -131,157 +168,162 @@ class MBSEAgent:
             self.registry.add(ToolInfo("add_logical_components", add_logical_components, "capella", ["create", "structure"]))
         if show_context_diagram is not None:
             self.registry.add(ToolInfo("show_context_diagram", show_context_diagram, "capella", ["visualize", "context"]))
-        self.registry.add(ToolInfo(
-            name="direct_yaml_query",
-            tool=direct_yaml_query,
-            category="YAML",
-            tags=["direct", "rag", "yaml"],
-            description="Query YAML content directly using RAG Manager."
-        ))
+
         # Built-in list_tools (zero-arg)
         self.list_tools = build_list_tools_tool(self.registry)
 
+
+
+
+        
+
+
+        
         # YAML context helper tools (agent-callable)
         self._register_yaml_context_tools()
 
         # Final toolset
-        self.tools = self.registry.all() + [self.list_tools, self.set_yaml_context, self.load_yaml_file, self.direct_yaml_query]  
+        self.tools = self.registry.all() + [
+            self.list_tools, 
+            self.set_yaml_context, 
+            self.load_yaml_file, 
+            self.direct_yaml_query]  
 
-
-        # --- Static prompt (no dynamic injection) ---
-        self.prompt = ChatPromptTemplate.from_messages([
-            ("system",
-             "You are an MBSE assistant. Prefer calling tools to read or transform data. "
-             "If YAML detail is needed, call `direct_yaml_query`, `set_yaml_context`, or `load_yaml_file`. "
-             "Ask for missing paths or inputs explicitly."
-            ),
-            ("placeholder", "{messages}"),
-        ])
-
-        # --- YAML helper tools (stateful bindings) ---
-        self._register_yaml_context_tools()
-
-        # --- Assemble tools ---
-        tool_list = [
-            # CSV tools
-            write_csv, read_csv, write_leveled_csv, read_leveled_csv,
-            # Search / BPMN / Capella tools (stubs or real)
-            search_model_object, bpmn_to_capella, capella_to_bpmn,
-            apply_description, add_logical_components, show_context_diagram,
-            # YAML tools (stateful)
-            self.set_yaml_context, self.load_yaml_file, self.direct_yaml_query,
-        ]
-
-    
 
         # --- Build agent ---
         self.agent = create_react_agent(
             self.langchain_llm,
             self.tools,
             prompt=self.prompt,
+            checkpointer=self.checkpointer,
         )
 
-    # -----------------------------
-    # YAML helper tools (bound)
-    # -----------------------------
     def _register_yaml_context_tools(self):
-        # set_yaml_context
+        # --- set_yaml_context ---
         class _SetYamlArgs(BaseModel):
             yaml_text: str
-
+    
         def _set_yaml_ctx(yaml_text: str):
             self.yaml_content = yaml_text
             return {"ok": True, "message": "YAML context set.", "bytes": len(yaml_text)}
-
+    
         self.set_yaml_context = StructuredTool.from_function(
             func=_set_yaml_ctx,
             name="set_yaml_context",
-            description="Load YAML text into the agent's in-memory context (fallback for other tools).",
+            description=(
+                "Load YAML text into the agent's in-memory context. "
+                "Other YAML tools will use this as fallback if no yaml_content is provided."
+            ),
             args_schema=_SetYamlArgs,
         )
-
-        # load_yaml_file
+    
+        # --- load_yaml_file ---
         class _LoadYamlArgs(BaseModel):
             filename: str
-
+    
         def _load_yaml_file(filename: str):
             if not os.path.exists(filename):
-                return {"ok": False, "message": f"File not found: {filename}"}
+                yamls = [f for f in os.listdir(os.getcwd()) if f.lower().endswith((".yaml", ".yml"))]
+                return {"ok": False, "message": f"File not found: {filename}", "cwd_yamls": yamls}
             with open(filename, "r", encoding="utf-8") as f:
                 text = f.read()
             self.yaml_content = text
+            # short status line for next turn (avoid bloat)
+            self.extra_context_msgs.append((
+                "system",
+                f"[status] Loaded YAML from {filename} (~{len(text)} bytes)."
+            ))
             return {"ok": True, "message": f"Loaded YAML from {filename}", "bytes": len(text)}
-
+    
         self.load_yaml_file = StructuredTool.from_function(
             func=_load_yaml_file,
             name="load_yaml_file",
             description="Read a YAML file from disk and set it as the agent's YAML context.",
             args_schema=_LoadYamlArgs,
         )
-
-        # direct_yaml_query (bound with fallback to self.yaml_content)
+    
+        # --- direct_yaml_query (bound) ---
+        class _DirectYamlArgs(BaseModel):
+            prompt: str
+            yaml_content: Optional[str] = None
+    
         def _direct_yaml_query_bound(prompt: str, yaml_content: Optional[str] = None) -> str:
+            # fallback to in-memory YAML if not provided
             yml = yaml_content if yaml_content is not None else (self.yaml_content or "")
-            if not yml:
-                return ("⚠️ No YAML is available. "
-                        "Provide 'yaml_content' in the tool call, or load it via "
-                        "load_yaml_file/set_yaml_context first.")
+            # IMPORTANT: call the function directly, don’t call a BaseTool
             return direct_yaml_query_function(prompt=prompt, yaml_content=yml)
-
-        class _DirectArgs(DirectYamlQueryArgs):
-            """Inherit schema so agent tool-calling stays consistent."""
-            pass
-
+    
         self.direct_yaml_query = StructuredTool.from_function(
             func=_direct_yaml_query_bound,
             name="direct_yaml_query",
             description=(
-                "Run a direct RAG-style query over YAML. "
-                "Args: {'prompt': str, 'yaml_content'?: str}. "
+                "Run a direct RAG-style query over YAML. Args: {\"prompt\": str, \"yaml_content\"?: str}. "
                 "If 'yaml_content' is omitted, uses the agent's current YAML context."
             ),
-            args_schema=_DirectArgs,
+            args_schema=_DirectYamlArgs,
         )
-
+ 
     # -----------------------------
-    # Simple list_tools if registry not used
+    # Low-level invoke/stream wrappers
     # -----------------------------
-    def _build_simple_list_tools(self) -> StructuredTool:
-        class _NoArgs(BaseModel):
-            pass
-
-        def _list_tools_noargs():
-            items = []
-            for t in getattr(self, "tools", []):
-                # skip itself later (after creation we reinsert; safe to include)
-                name = getattr(t, "name", None) or getattr(t, "__name__", str(t))
-                desc = getattr(t, "description", "") or ""
-                items.append({"name": name, "description": desc})
-            # Remove this tool from the listing by name
-            items = [x for x in items if x["name"] != "list_tools"]
-            return {"message": "Available tools:", "tools": items}
-
-        return StructuredTool.from_function(
-            func=_list_tools_noargs,
-            name="list_tools",
-            description="List all available MBSE tools and their descriptions.",
-            args_schema=_NoArgs,
+    def _invoke(self, messages):
+        """Always invoke with the persistent thread_id."""
+        # messages must be a list of (role, content) tuples or BaseMessage objects
+        return self.agent.invoke(
+            {"messages": messages},
+            config={
+                "configurable": {"thread_id": self.thread_id},
+                # optional: keep your recursion cap if you set it in __init__
+                # "recursion_limit": self.recursion_limit,
+            },
         )
-
+    
+    def _stream(self, messages):
+        """Always stream with the persistent thread_id."""
+        return self.agent.stream(
+            {"messages": messages},
+            config={
+                "configurable": {"thread_id": self.thread_id},
+                # "recursion_limit": self.recursion_limit,
+            },
+        )
+    
+    
     # -----------------------------
     # Agent run
     # -----------------------------
-    def run_agent(self, task: str):
-        """Invoke the agent with a user task."""
-        if self.debug:
+    def run_agent(self, task: str) -> str:
+        # Defensive init
+        if not hasattr(self, "extra_context_msgs"):
+            self.extra_context_msgs = []
+    
+        status_msgs: list[tuple[str, str]] = []
+        if getattr(self, "yaml_content", None):
+            status_msgs.append((
+                "system",
+                f"[status] YAML is loaded in memory (~{len(self.yaml_content)} bytes). "
+                "Use `direct_yaml_query` for details."
+            ))
+    
+        if self.extra_context_msgs:
+            status_msgs.extend(self.extra_context_msgs)
+            # keep only the last couple to avoid bloat
+            self.extra_context_msgs = self.extra_context_msgs[-2:]
+    
+        msgs = status_msgs + [("human", task)]
+    
+        if getattr(self, "debug", False):
             print("🔎 Debug mode ON — streaming steps...")
-            for step in self.agent.stream({"messages": [("human", task)]}):
+            for step in self._stream(msgs):
                 print("Step:", step)
-        result = self.agent.invoke({"messages": [("human", task)]})
+    
+        result = self._invoke(msgs)
         if isinstance(result, dict) and "messages" in result and result["messages"]:
-            return result["messages"][-1].content
+            last = result["messages"][-1]
+            return last.content if hasattr(last, "content") else str(last)
         return str(result)
-
+    
+    
     # -----------------------------
     # Interactive chat (Agent-only)
     # -----------------------------
@@ -290,7 +332,7 @@ class MBSEAgent:
         ALLOWED_EXTENSIONS = [".txt", ".yaml", ".yml", ".csv", ".json", ".md"]
         print("Starting interactive chat (Agent mode)...")
         self.chat_active = True
-
+    
         chat_history = widgets.Output()
         user_input = widgets.Textarea(
             placeholder="Type your prompt...",
@@ -306,7 +348,7 @@ class MBSEAgent:
         )
         send_button = widgets.Button(description="Execute", button_style="primary")
         exit_button = widgets.Button(description="Exit", button_style="danger")
-
+    
         # File dropdown (wired to prompt context)
         file_list = [
             f for f in os.listdir(os.getcwd())
@@ -317,7 +359,7 @@ class MBSEAgent:
             description="Load file:",
             layout=widgets.Layout(width="auto"),
         )
-
+    
         def load_file(_):
             filename = file_dropdown.value
             if not filename:
@@ -326,16 +368,16 @@ class MBSEAgent:
                 ext = os.path.splitext(filename)[1].lower()
                 with open(filename, "r", encoding="utf-8") as f:
                     text = f.read()
-                # If YAML, set as YAML context; otherwise attach as extra system context
                 if ext in {".yaml", ".yml"}:
                     self.yaml_content = text
                     attach_msg = f"✅ **YAML loaded as agent context:** `{filename}`"
                 else:
-                    # Keep a short system attachment; truncate to avoid token bloat
-                    snippet = text if len(text) <= 4000 else text[:4000] + "# [truncated]"
+                    if not hasattr(self, "extra_context_msgs"):
+                        self.extra_context_msgs = []
+                    snippet = text if len(text) <= 4000 else text[:4000] + "\n# [truncated]"
                     self.extra_context_msgs.append((
                         "system",
-                        f"Attached file `{filename}` content for reference (truncated if large):{snippet}",
+                        f"Attached file `{filename}` content for reference (truncated if large):\n{snippet}",
                     ))
                     attach_msg = f"✅ **File attached to context:** `{filename}`"
                 with chat_history:
@@ -343,9 +385,9 @@ class MBSEAgent:
             except Exception as e:
                 with chat_history:
                     display(Markdown(f"❌ Error reading `{filename}`: {e}"))
-
+    
         file_dropdown.observe(load_file, names="value")
-
+    
         def send_message(_):
             prompt = user_input.value.strip()
             if not prompt:
@@ -354,7 +396,21 @@ class MBSEAgent:
                 display(Markdown(f"**You:** {prompt}"))
                 display(Markdown("**Agent reasoning...**"))
                 try:
-                    result = self.agent.invoke({"messages": [("human", prompt)]})
+                    # Build status context (same as run_agent)
+                    status_msgs: list[tuple[str, str]] = []
+                    if getattr(self, "yaml_content", None):
+                        status_msgs.append((
+                            "system",
+                            f"[status] YAML is loaded in memory (~{len(self.yaml_content)} bytes). "
+                            "Use `direct_yaml_query` for details."
+                        ))
+                    if hasattr(self, "extra_context_msgs") and self.extra_context_msgs:
+                        status_msgs.extend(self.extra_context_msgs[-2:])
+    
+                    msgs = status_msgs + [("human", prompt)]
+    
+                    # IMPORTANT: pass a list, do NOT double-wrap
+                    result = self._invoke(msgs)
                     if isinstance(result, dict) and "messages" in result and result["messages"]:
                         chatbot_response = result["messages"][-1].content
                     else:
@@ -363,13 +419,13 @@ class MBSEAgent:
                     chatbot_response = f"⚠️ Agent error: {e}"
                 display(Markdown(f"**Assistant:** {chatbot_response}"))
             user_input.value = ""
-
+    
         def exit_chat(_):
             self.chat_active = False
-
+    
         send_button.on_click(send_message)
         exit_button.on_click(exit_chat)
-
+    
         display(chat_history, user_input, widgets.HBox([send_button, exit_button]), file_dropdown)
         print("Waiting for chat interactions...")
         from jupyter_ui_poll import ui_events
