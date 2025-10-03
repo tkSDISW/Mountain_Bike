@@ -1,0 +1,15 @@
+Level,Name,Description
+1,Hobby Drone,Top-level system for a typical hobby drone
+2,Frame,Supports all components and provides structure
+2,Propulsion System,Includes motors and propellers for flight
+3,Motor,Drives the propellers
+3,Propeller,Generates lift for the drone
+2,Control System,Manages flight control and stability
+3,Flight Controller,Central unit for controlling the drone
+3,Sensors,Provides data for navigation and stability
+2,Power System,Supplies power to all components
+3,Battery,Stores and provides electrical energy
+3,Power Distribution Board,Distributes power to various components
+2,Communication System,Enables remote control and telemetry
+3,Receiver,Receives control signals from the transmitter
+3,Transmitter,Sends control signals to the drone
