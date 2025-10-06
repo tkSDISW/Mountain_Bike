@@ -11,7 +11,7 @@ from IPython.display import display, Markdown
 from jupyter_ui_poll import ui_events
 
 import yaml
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
@@ -19,8 +19,8 @@ from langgraph.prebuilt import create_react_agent
 from langchain_core.tools import StructuredTool
 from langgraph.checkpoint.memory import MemorySaver
 
-
-
+# --- Agent MCP ---
+from agent.mcp import MCPStore
 # --- Agent tool registry (unchanged from your pattern) ---
 from agent.tool_registry import ToolRegistry, ToolInfo, build_list_tools_tool
 
@@ -67,7 +67,22 @@ class MBSEAgent:
     - Interactive chat with file-loader wired to the agent's context
     """
     # inside class MBSEAgent:
+    class _MCPCreateArgs(BaseModel):
+        id: str = Field(..., description="Unique identifier for the MCP, e.g., 'bike@main'")
+        notes: Optional[str] = None
     
+    class _MCPUseArgs(BaseModel):
+        id: str = Field(..., description="MCP id to select as current")
+    
+    class _MCPSetArtifactsArgs(BaseModel):
+        id: Optional[str] = Field(None, description="MCP id (defaults to current)")
+        capella_project: Optional[str] = None
+        resources_dir: Optional[str] = None
+        embeddings_index: Optional[str] = None
+        yaml_snapshot: Optional[str] = None
+    
+    class _MCPGetInfoArgs(BaseModel):
+        id: Optional[str] = None    
   
     # -------------
     # Construction
@@ -150,6 +165,14 @@ class MBSEAgent:
         # Use a stable thread id for a session; callers may overwrite if desired
         self.thread_id = f"mbse-{int(time.time())}"
 
+        # --- MCP store ---
+        self.mcp_store = MCPStore()
+        self.mcp_store.ensure_default()  # auto-create 'default'
+
+        # MCP state (Model Context Packages)
+        self.mcp_store: Dict[str, Dict[str, Any]] = {}
+        self.current_mcp_id: Optional[str] = None
+        
         # --- Tool registry ---
         self.registry = ToolRegistry()
         # CSV tools
@@ -176,7 +199,8 @@ class MBSEAgent:
 
 
         
-
+        # Register MCP management tools
+        self._register_mcp_tools()
 
         
         # YAML context helper tools (agent-callable)
@@ -187,7 +211,12 @@ class MBSEAgent:
             self.list_tools, 
             self.set_yaml_context, 
             self.load_yaml_file, 
-            self.direct_yaml_query]  
+            self.direct_yaml_query,
+            self.mcp_create,
+            self.mcp_use,
+            self.mcp_list,
+            self.mcp_set_artifacts,
+            self.mcp_get_info]  
 
 
         # --- Build agent ---
@@ -198,6 +227,10 @@ class MBSEAgent:
             checkpointer=self.checkpointer,
         )
 
+    
+    #-------------
+    # Yaml tools
+    #-------------
     def _register_yaml_context_tools(self):
         # --- set_yaml_context ---
         class _SetYamlArgs(BaseModel):
@@ -262,7 +295,106 @@ class MBSEAgent:
             ),
             args_schema=_DirectYamlArgs,
         )
- 
+
+    
+    #-------------
+    # MCP tools
+    #-------------        
+
+    def _mcp_create(self, id: str, notes: Optional[str] = None) -> dict:
+        if id in self.mcp_store:
+            return {"ok": False, "error": f"MCP '{id}' already exists."}
+        self.mcp_store[id] = {
+            "id": id,
+            "notes": notes or "",
+            # slots we may fill later
+            "model_path": None,          # path to .aird / Capella project
+            "resources": None,           # capellambse resources map if used
+            "json_index_path": None,     # embeddings / index path
+            "yaml": None,                # last YAML snapshot
+            "artifacts": {},             # any derived outputs
+        }
+        self.current_mcp_id = id
+        # reflect in chat context
+        self.extra_context_msgs.append(("system", f"[status] MCP created and selected: {id}"))
+        return {"ok": True, "message": f"Created MCP '{id}' and set as current."}
+    
+    def _mcp_use(self, id: str) -> dict:
+        if id not in self.mcp_store:
+            return {"ok": False, "error": f"MCP '{id}' not found."}
+        self.current_mcp_id = id
+        self.extra_context_msgs.append(("system", f"[status] MCP selected: {id}"))
+        return {"ok": True, "message": f"Using MCP '{id}'."}
+    
+    def _mcp_list(self) -> dict:
+        items = []
+        for k, v in self.mcp_store.items():
+            items.append({
+                "id": k,
+                "current": (k == self.current_mcp_id),
+                "notes": v.get("notes") or "",
+                "model_path": v.get("model_path"),
+                "json_index_path": v.get("json_index_path"),
+                "has_yaml": bool(v.get("yaml")),
+                "artifacts": list((v.get("artifacts") or {}).keys()),
+            })
+        return {"ok": True, "mcps": items}
+            
+
+    
+    def _mcp_set_artifacts(
+        self,
+        id: Optional[str] = None,
+        capella_project: Optional[str] = None,
+        resources_dir: Optional[str] = None,
+        embeddings_index: Optional[str] = None,
+        yaml_snapshot: Optional[str] = None,
+    ):
+        self.mcp_store.set_artifacts(
+            id,
+            capella_project=capella_project,
+            resources_dir=resources_dir,
+            embeddings_index=embeddings_index,
+            yaml_snapshot=yaml_snapshot,
+        )
+        m = self.mcp_store.current() if id is None else self.mcp_store.get(id)
+        return {"ok": True, "message": f"Updated artifacts for MCP '{m.id}'.", "mcp": m.__dict__}
+    
+    def _mcp_get_info(self, id: Optional[str] = None):
+        m = self.mcp_store.current() if id is None else self.mcp_store.get(id)
+        return {"ok": True, "mcp": m.__dict__}
+    
+    def _register_mcp_tools(self):
+        self.mcp_create = StructuredTool.from_function(
+            func=lambda id, notes=None: self._mcp_create(id=id, notes=notes),
+            name="mcp_create",
+            description="Create a new Model Context Package (MCP) and set it current.",
+            args_schema= MBSEAgent._MCPCreateArgs,
+        )
+        self.mcp_use = StructuredTool.from_function(
+            func=lambda id: self._mcp_use(id=id),
+            name="mcp_use",
+            description="Switch current MCP.",
+            args_schema=  MBSEAgent._MCPUseArgs,
+        )
+        self.mcp_list = StructuredTool.from_function(
+            func=lambda : self._mcp_list(),
+            name="mcp_list",
+            description="List all MCPs with current flag and key artifacts."
+        )
+        self.mcp_set_artifacts = StructuredTool.from_function(
+            func=lambda **kw: self._mcp_set_artifacts(**kw),
+            name="mcp_set_artifacts",
+            description=("Set artifact paths on an MCP: capella_project, resources_dir, "
+                         "embeddings_index, yaml_snapshot. Omit 'id' to update current."),
+            args_schema=  MBSEAgent._MCPSetArtifactsArgs,
+        )
+        self.mcp_get_info = StructuredTool.from_function(
+            func=lambda id=None: self._mcp_get_info(id=id),
+            name="mcp_get_info",
+            description="Show full details of an MCP (defaults to current).",
+            args_schema=  MBSEAgent._MCPGetInfoArgs,
+        )
     # -----------------------------
     # Low-level invoke/stream wrappers
     # -----------------------------

@@ -335,6 +335,7 @@ class AgentCore:
         self.chat_history_msgs = [{"role": "system", "content": enriched_context}]
         def send_message(_):
             prompt = user_input.value.strip()
+            user_input.value = ""  # ✅ immediately clear before doing anything
             if not prompt:
                 return
             with chat_history:
@@ -347,7 +348,18 @@ class AgentCore:
                     payload = json.loads(payload_str)
                     tool_result = self.run(cmd, package_name, input_data=payload)
                     with chat_history:
-                        display(Markdown(f"**Tool `{cmd}` output:**\n```json\n{json.dumps(tool_result, indent=2)}\n```"))
+                        #display(Markdown(f"**Executed {tool_name} result:**"))
+                    
+                        # If the tool produced an artifact announcement, just show that
+                        if isinstance(result, dict) and "artifact_message" in result:
+                            display(Markdown(result["artifact_message"]))
+                        elif isinstance(result, dict) and "message" in result:
+                            display(Markdown(result["message"]))
+                        else:
+                            # Optional: only show JSON if no friendly text is available
+                            display(Markdown("✅ Tool executed successfully."))
+
+                
                 except Exception as e:
                     with chat_history:
                         display(Markdown(f"❌ Tool invocation failed: {e}"))
@@ -389,7 +401,16 @@ class AgentCore:
                         payload = json.loads(payload_str)
                         tool_result = self.run(cmd, package_name, input_data=payload)
                         with chat_history:
-                            display(Markdown(f"**Executed `{cmd}` result:**\n```json\n{json.dumps(tool_result, indent=2)}\n```"))
+                            #display(Markdown(f"**Executed {tool_name} result:**"))     
+                            # If the tool produced an artifact announcement, just show that
+                            if isinstance(result, dict) and "artifact_message" in tool_result:
+                                display(Markdown(result["artifact_message"]))
+                            elif isinstance(result, dict) and "message" in result:
+                                display(Markdown(result["message"]))
+                            else:
+                                # Optional: only show JSON if no friendly text is available
+                                display(Markdown("✅ Tool executed successfully."))
+    
                     except Exception as e:
                         with chat_history:
                             display(Markdown(f"❌ Failed to execute tool from assistant output: {e}"))
@@ -400,7 +421,7 @@ class AgentCore:
                     display(Markdown(tool_result["artifact_message"]))   
             # 🔹 Always clear input box after execution
             user_input.value = ""
-            
+            user_input.placeholder = "Type your prompt..."  # ensures prompt redisplays
 
 
         

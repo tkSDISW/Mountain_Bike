@@ -16,6 +16,10 @@ class Artifact:
         self.content = content
         self.metadata = metadata or {}
 
+    @property
+    def alias(self) -> Optional[str]:
+        return self.metadata.get("alias")
+    
     def to_dict(self) -> Dict:
         return {
             "id": self.id,
@@ -41,18 +45,24 @@ class ArtifactPackage:
         self.artifacts: Dict[str, Artifact] = {}
         self.pipelines: List[Dict] = []  # Each pipeline = list of steps
 
+
+
+
+    
     def add_artifact(self, artifact: "Artifact") -> "Artifact":
         self.artifacts[artifact.id] = artifact
-
+    
         # Attach a short, human-friendly announcement to the artifact itself
         artifact._announce = (
-            f"📌 Artifact created: type='{artifact.type}' in package '{self.name}' "
-            f"({datetime.utcnow().isoformat(timespec='seconds')}Z)"
+            f"📌 Artifact created: id='{artifact.id[:8]}' "
+            f"type='{artifact.type}' in package '{self.name}'"
         )
-        # Optional: also store the timestamp (handy for sorting/retrieving)
-        artifact._created_at = datetime.utcnow().isoformat(timespec="seconds") + "Z"
-
-        # Console signal (you can keep or remove)
+        if artifact.alias:
+            artifact._announce += f" (alias='{artifact.alias}')"
+    
+        # Store timestamp
+        artifact._created_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    
         print(artifact._announce)
         return artifact
 
@@ -74,6 +84,22 @@ class ArtifactPackage:
         for pl in data.get("pipelines", []):
             pkg.add_pipeline(pl)
         return pkg
+
+    def get_by_id(self, artifact_id: str):
+        """Return an artifact by its unique id, or None if not found."""
+        return self.artifacts.get(artifact_id)
+
+    def get_by_alias(self, alias: str):
+        """Return the most recent artifact with the given alias, or None."""
+        matches = [a for a in self.artifacts.values() if a.alias == alias]
+        return matches[-1] if matches else None
+
+    def list_artifacts(self, type_filter: str = None):
+        """Return a list of artifacts, optionally filtered by type."""
+        if type_filter:
+            return [a for a in self.artifacts.values() if a.type == type_filter]
+        return list(self.artifacts.values())
+
 
 
 class ArtifactRegistry:
@@ -154,7 +180,8 @@ class ArtifactRegistry:
         for a in pkg.artifacts.values():
             out.append({
                 "id": getattr(a, "id", None),
-                "type": getattr(a, "type", None),
+                "type": getattr(a, "type", None),            
+                "alias": a.alias,
                 "created_at": getattr(a, "_created_at", None),
                 "metadata": getattr(a, "metadata", None),
             })
@@ -166,4 +193,26 @@ class ArtifactRegistry:
         pkg = self.get_package(package_name)
         if not pkg:
             return None
-        return pkg.artifacts.get(artifact_id)        
+        return pkg.artifacts.get(artifact_id)    
+
+    def alias_artifact(self, package_name: str, artifact_type: str, alias: str) -> Optional[Artifact]:
+        """Assign an alias to the most recent artifact of a given type in a package."""
+        pkg = self.get_package(package_name)
+        if not pkg:
+            raise ValueError(f"Package '{package_name}' not found.")
+    
+        # filter artifacts by type
+        arts = [a for a in pkg.artifacts.values() if a.type == artifact_type]
+        if not arts:
+            return None
+    
+        # pick latest
+        arts.sort(key=lambda a: getattr(a, "_created_at", ""), reverse=True)
+        target = arts[0]
+        target.metadata["alias"] = alias
+        target._announce = (
+            f"📌 Alias '{alias}' assigned to artifact id='{target.id[:8]}' "
+            f"type='{target.type}' in package '{pkg.name}'"
+        )
+        print(target._announce)
+        return target

@@ -14,14 +14,10 @@ import yaml  # ✅ REQUIRED
 
 import yaml
 
-def direct_yaml_query_function(prompt: str, yaml_content: str) -> str:
-    if not yaml_content:
-        return "No YAML content is loaded."
-    try:
-        data = yaml.safe_load(yaml_content)
-    except Exception as e:
-        return f"YAML parse error: {e}"
-
+def direct_yaml_query_function(prompt: str, yaml_content: Optional[str] = None) -> str:
+    yml = yaml_content if yaml_content is not None else (self.yaml_content or "")
+    if not yml:
+        return "No YAML is loaded. Use load_yaml_file or set_yaml_context first."
     # VERY simple demo: you can expand this later
     text = yaml_content.lower()
     if "logical component" in prompt.lower():

@@ -1,6 +1,5 @@
 import csv
 from rag_manager.core.tool_registry import BaseTool
-from rag_manager.mcp.artifact_registry import Artifact
 
 class ReadLeveledCSVTool(BaseTool):
     name = "read_leveled_csv"
@@ -9,35 +8,35 @@ class ReadLeveledCSVTool(BaseTool):
     def run(self, input_data, artifacts=None, package_name=None, **kwargs):
         filename = input_data.get("filename")
         if not filename:
-            raise ValueError("Filename is required for read_leveled_csv")
+            return {"message": "❌ No filename provided."}
 
         hierarchy = []
         with open(filename, newline="", encoding="utf-8") as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 hierarchy.append({
-                    "level": int(row["Level"]),
-                    "name": row["Name"],
-                    "description": row["Description"],
-                    "parent": None  # optional, depends on format
+                    "level": int(row.get("Level", 0)),
+                    "name": row.get("Name", ""),
+                    "description": row.get("Description", ""),
+                    "parent": None  # keep placeholder for parent if needed
                 })
 
-        # 🔹 Save hierarchy into artifact memory
-        if artifacts and package_name:
-            pkg = artifacts.get_package(package_name)
-            if pkg:
-                pkg.add_artifact(
-                    Artifact(
-                        type_="hierarchy",
-                        content=hierarchy,
-                        metadata={"source_file": filename}
-                    )
-                )
+        # ✅ Save full hierarchy as artifact
+        if artifacts:
+            art = artifacts.add_artifact(
+                package_name,
+                type_="hierarchy",
+                content=hierarchy,
+                metadata={"source_file": filename}
+            )
 
+        # ✅ Only return summary + preview
+        preview = hierarchy[:10]  # first 10 rows
         return {
-            "message": f"📂 Loaded leveled CSV from {filename}",
-            "rows": len(hierarchy),
-            "columns": ["Level", "Name", "Description"],
-            "hierarchy_preview": hierarchy[:10],
-            "hierarchy_full": hierarchy,
+            "message": f"📂 Loaded leveled CSV '{filename}' into hierarchy artifact.",
+            #"rows": len(hierarchy),
+            #"columns": ["Level", "Name", "Description"],
+            #"preview": preview,
+            "artifact_message": getattr(art, "_announce", None) if artifacts else None
         }
+
