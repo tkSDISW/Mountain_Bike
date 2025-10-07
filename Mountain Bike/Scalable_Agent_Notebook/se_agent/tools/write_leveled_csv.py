@@ -1,6 +1,6 @@
 import csv
-from rag_manager.core.tool_registry import BaseTool
-from rag_manager.mcp.artifact_registry import ArtifactRegistry, ArtifactPackage, Artifact  
+from se_agent.core.tool_registry import BaseTool
+from se_agent.mcp.artifact_registry import ArtifactRegistry, ArtifactPackage, Artifact  
 class WriteLeveledCSVTool(BaseTool):
     name = "write_leveled_csv"
     description = "Write a hierarchical breakdown into a CSV (Level, Name, Description)."

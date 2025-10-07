@@ -1,10 +1,10 @@
-# rag_manager/core/agent.py
-
+# se_agent/core/agent.py
+import re
 import json
 from pathlib import Path
 from typing import Any, Optional
-from rag_manager.mcp.artifact_registry import ArtifactRegistry, ArtifactPackage
-from rag_manager.core.tool_registry import ToolRegistry
+from se_agent.mcp.artifact_registry import ArtifactRegistry, ArtifactPackage
+from se_agent.core.tool_registry import ToolRegistry
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
 import os, time
@@ -248,12 +248,18 @@ class AgentCore:
     
         # 3) Interaction contract
         contract = [
-            "You are a systems engineering assistant.",
-            "When a user asks for an action that matches a tool, DO NOT explain it in words.",
-            "Instead, respond with exactly: run:<tool_name> {json_input}",
-            'Example: run:read_leveled_csv {"filename":"requirements.csv"}',
-            "Keep JSON valid and minimal. Only use natural language if no tool can handle the request."
-        ]
+            "You are a systems engineering assistant with access to tools.",
+            "When a user makes a request:",
+            "1. Briefly reason in natural language what needs to happen.",
+            "2. Reply with a JSON object containing an 'actions' list describing the tools to call in order.",
+            "   Example:",
+            '   {"actions": [',
+            '       {"tool": "read_leveled_csv", "input": {"filename": "drone.csv"}},',
+            '       {"tool": "alias_artifact", "input": {"type": "hierarchy", "alias": "BOM"}}',
+            '   ]}',
+            "3. Do not include 'run:' lines or extra commentary after the JSON.",
+            "If no tool applies, respond naturally."
+    ]
     
         # 4) Compose
         parts = [
@@ -274,7 +280,10 @@ class AgentCore:
         - Or type: run:<toolname> {json_input} (executes a tool directly).
         - Provide a preview of content returned from a tool. 
         """
-    
+        from IPython.display import display, Markdown, HTML
+        import io, contextlib, json, os, time
+        import ipywidgets as widgets
+        from jupyter_ui_poll import ui_events
         ALLOWED_EXTENSIONS = [".txt", ".yaml", ".yml", ".csv", ".json", ".md"]
         self.chat_active = True
         self.yaml_content = None
@@ -335,94 +344,78 @@ class AgentCore:
         self.chat_history_msgs = [{"role": "system", "content": enriched_context}]
         def send_message(_):
             prompt = user_input.value.strip()
-            user_input.value = ""  # ✅ immediately clear before doing anything
+            user_input.value = ""  # clear immediately
             if not prompt:
                 return
+        
             with chat_history:
                 display(Markdown(f"**You:** {prompt}"))
-    
-            # Direct tool invocation (bypasses LLM)
+        
+            # Direct tool invocation (run:<tool> {...})
             if prompt.startswith("run:"):
                 try:
                     cmd, payload_str = prompt[4:].split(" ", 1)
                     payload = json.loads(payload_str)
-                    tool_result = self.run(cmd, package_name, input_data=payload)
+        
+                    # ✅ wrap the entire tool execution in chat_history
                     with chat_history:
-                        #display(Markdown(f"**Executed {tool_name} result:**"))
-                    
-                        # If the tool produced an artifact announcement, just show that
-                        if isinstance(result, dict) and "artifact_message" in result:
-                            display(Markdown(result["artifact_message"]))
-                        elif isinstance(result, dict) and "message" in result:
-                            display(Markdown(result["message"]))
-                        else:
-                            # Optional: only show JSON if no friendly text is available
-                            display(Markdown("✅ Tool executed successfully."))
-
-                
+                        tool_result = self.run(cmd, package_name, input_data=payload)
+        
+                        # If the tool returned HTML/UI, render it
+                        if isinstance(tool_result, dict):
+                            if "html" in tool_result:
+                                display(HTML(tool_result["html"]))
+                            elif "ui" in tool_result:
+                                display(HTML(tool_result["ui"]))
+                            elif "message" in tool_result:
+                                display(Markdown(tool_result["message"]))
+                            else:
+                                display(Markdown("✅ Tool executed successfully."))
+        
                 except Exception as e:
                     with chat_history:
                         display(Markdown(f"❌ Tool invocation failed: {e}"))
-            else:
-                # Append user input to running history
-                self.chat_history_msgs.append({"role": "user", "content": prompt})
-                
-    
-                # Use agent.run so it logs history
+                return  # ← stop here so it doesn’t fall through to LLM section
+                 # ---- Normal LLM chat flow ----
+            self.chat_history_msgs.append({"role": "user", "content": prompt})
+            enriched_context = self._build_enriched_context()
+            
+            with chat_history:
                 result = self.run("llm_chat", package_name, input_data={
                     "prompt": prompt,
                     "context": enriched_context,
-                    "messages": self.chat_history_msgs  # carry memory
+                    "messages": self.chat_history_msgs
                 })
-                
-                response = result["response"]
             
-    
-                # Append assistant response to history
+                response = result.get("response", "")
                 self.chat_history_msgs.append({"role": "assistant", "content": response})
-    
-                # Capture as artifact
-                active_pkg = self.artifacts.get_active_package()
-                if active_pkg:
-                    self.artifacts.add_artifact(
-                        active_pkg.name,
-                        type_="conversation",
-                        content={"prompt": prompt, "response": response},
-                        metadata={"from_tool": "llm_chat", "mode": "interactive_chat"}
-                    )
-    
-                with chat_history:
-                    display(Markdown(f"**Assistant:** {response}"))
-              
-                # 🔹 Auto-execute tool calls suggested by assistant
-                if response.strip().startswith("run:"):
-                    try:
-                        cmd, payload_str = response[4:].split(" ", 1)
-                        payload = json.loads(payload_str)
-                        tool_result = self.run(cmd, package_name, input_data=payload)
-                        with chat_history:
-                            #display(Markdown(f"**Executed {tool_name} result:**"))     
-                            # If the tool produced an artifact announcement, just show that
-                            if isinstance(result, dict) and "artifact_message" in tool_result:
-                                display(Markdown(result["artifact_message"]))
-                            elif isinstance(result, dict) and "message" in result:
-                                display(Markdown(result["message"]))
-                            else:
-                                # Optional: only show JSON if no friendly text is available
-                                display(Markdown("✅ Tool executed successfully."))
-    
-                    except Exception as e:
-                        with chat_history:
-                            display(Markdown(f"❌ Failed to execute tool from assistant output: {e}"))
-                # Append one-line artifact announcement onto responses (non-conversation preferred)
-            # --- If a tool actually ran and surfaced an artifact announcement, show it as a new line
-            if isinstance(tool_result, dict) and tool_result.get("artifact_message"):
-                with chat_history:
-                    display(Markdown(tool_result["artifact_message"]))   
-            # 🔹 Always clear input box after execution
-            user_input.value = ""
-            user_input.placeholder = "Type your prompt..."  # ensures prompt redisplays
+                display(Markdown(f"**Assistant:** {response}"))
+                # --- Parse sequential actions (planning mode) ---
 
+                json_match = re.search(r'\{[\s\S]*\}', response)  # find first JSON block
+                if json_match:
+                    json_text = json_match.group(0)
+                    try:
+                        parsed = json.loads(json_text)
+                        if isinstance(parsed, dict) and "actions" in parsed:
+                            for step in parsed["actions"]:
+                                tool_name = step.get("tool")
+                                input_data = step.get("input", {})
+                                if tool_name:
+                                    display(Markdown(f"**Executing:** `{tool_name}` {input_data}"))
+                                    tool_result = self.run(tool_name, package_name, input_data=input_data)
+                                    if isinstance(tool_result, dict):
+                                        if "html" in tool_result:
+                                            display(HTML(tool_result["html"]))
+                                        elif "ui" in tool_result:
+                                            display(HTML(tool_result["ui"]))
+                                        elif "message" in tool_result:
+                                            display(Markdown(tool_result["message"]))
+                                    time.sleep(0.3)
+                    except Exception as e:
+                        display(Markdown(f"⚠️ Could not parse actions JSON: {e}"))
+
+                    
 
         
         def exit_chat(_):

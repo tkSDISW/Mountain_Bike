@@ -1,6 +1,6 @@
 # rag_manager/tools/save_artifact.py
-from rag_manager.core.tool_registry import BaseTool
-from ..mcp.artifact_registry import ArtifactRegistry
+from se_agent.core.tool_registry import BaseTool
+from se_agent.mcp.artifact_registry import ArtifactRegistry
 
 class SaveArtifactTool(BaseTool):
     name = "save_artifact"

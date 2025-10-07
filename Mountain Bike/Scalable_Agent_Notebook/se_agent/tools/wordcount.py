@@ -1,6 +1,6 @@
 # rag_manager/tools/wordcount.py
 
-from rag_manager.core.tool_registry import BaseTool
+from se_agent.core.tool_registry import BaseTool
 
 
 class WordCountTool(BaseTool):

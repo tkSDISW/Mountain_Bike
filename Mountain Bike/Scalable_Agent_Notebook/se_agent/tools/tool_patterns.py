@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from ..mcp.artifact_registry import Artifact
+from se_agent.mcp.artifact_registry import Artifact
 
 class BaseTool(ABC):
     """Abstract base class for all tools."""

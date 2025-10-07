@@ -1,7 +1,7 @@
 # rag_manager/tools/write_csv.py
 
 import pandas as pd
-from rag_manager.core.tool_registry import BaseTool
+from se_agent.core.tool_registry import BaseTool
 
 
 class WriteCSVTool(BaseTool):

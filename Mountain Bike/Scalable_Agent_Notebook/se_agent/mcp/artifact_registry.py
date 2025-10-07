@@ -1,4 +1,4 @@
-# rag_manager/mcp/artifact_registry.py
+# se_agent/mcp/artifact_registry.py
 
 import json
 import uuid

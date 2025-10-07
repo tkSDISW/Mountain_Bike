@@ -1,5 +1,5 @@
 import json
-from rag_manager.core.tool_registry import BaseTool
+from se_agent.core.tool_registry import BaseTool
 from capella_tools import Open_AI_RAG_manager
 import io
 from contextlib import redirect_stdout
@@ -7,11 +7,17 @@ from contextlib import redirect_stdout
 
 class FormatJsonReportTool(BaseTool):
     """
-    Explicit tool to format JSON content (from an artifact or raw) into
+    Explicit tool to format JSON content (from an artifact or alias) into
     engineer-friendly HTML using the installed RAG Manager (ChatGPTAnalyzer).
     """
     name = "format_json_report"
-    description = "Format JSON into an engineer-friendly HTML report via RAG Manager."
+    description = (
+        "Generate an engineer-friendly HTML report for a JSON-based artifact. "
+        "Typically used after loading or selecting an artifact (e.g., via alias). "
+        "Input should include either an 'alias', 'id', or direct 'json' field. "
+        "The tool converts the JSON content into a concise, readable HTML summary "
+        "using the RAG Manager formatter."
+    )
 
     def run(self, input_data, artifacts, package_name=None, **kwargs):
         alias = input_data.get("alias") or input_data.get("artifact")
@@ -44,16 +50,16 @@ class FormatJsonReportTool(BaseTool):
             payload_str = str(artifact["content"] if isinstance(artifact, dict) else artifact.content)
 
         # Use ChatGPTAnalyzer to format as HTML
-        fmt = Open_AI_RAG_manager.ChatGPTAnalyzer(yaml_content="")  # reusing analyzer
+        #fmt = Open_AI_RAG_manager.ChatGPTAnalyzer(yaml_content="")  # reusing analyzer
         
         try:
-            fmt = Open_AI_RAG_manager.ChatGPTAnalyzer(yaml_content=raw_json)  # reusing analyzer
+            fmt = Open_AI_RAG_manager.ChatGPTAnalyzer(yaml_content=payload_str)  # reusing analyzer
             baseline_prompt = (
                 "You are a formatting assistant. Convert the following JSON into a concise, "
                 "engineer-friendly HTML snippet. Use headings, short bullet lists, and compact tables. "
-                "Avoid dumping the entire JSON if very long.\n\n"
-                f"<h3>{title}</h3>\n"
-                "JSON:\n```json\n" + payload_str + "\n```"
+                #"Avoid dumping the entire JSON if very long.\n\n"
+                #f"<h3>{title}</h3>\n"
+                #"JSON:\n```json\n" + payload_str + "\n```"
             )
 
             fmt.initial_prompt(baseline_prompt)

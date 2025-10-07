@@ -1,6 +1,6 @@
-from rag_manager.core.tool_registry import BaseTool
-from rag_manager.mcp.artifact_registry import ArtifactRegistry, ArtifactPackage, Artifact
-from rag_manager.core.llm_config import load_llm_config
+from se_agent.core.tool_registry import BaseTool
+from se_agent.mcp.artifact_registry import ArtifactRegistry, ArtifactPackage, Artifact
+from se_agent.core.llm_config import load_llm_config
 from openai import OpenAI
 
 

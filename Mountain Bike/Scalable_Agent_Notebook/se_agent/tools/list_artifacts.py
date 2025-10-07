@@ -1,6 +1,6 @@
 # rag_manager/tools/list_artifacts.py
-from rag_manager.core.tool_registry import BaseTool
-from rag_manager.mcp.artifact_registry import ArtifactRegistry, ArtifactPackage
+from se_agent.core.tool_registry import BaseTool
+from se_agent.mcp.artifact_registry import ArtifactRegistry, ArtifactPackage
 
 class ListArtifactsTool(BaseTool):
     name = "list_artifacts"

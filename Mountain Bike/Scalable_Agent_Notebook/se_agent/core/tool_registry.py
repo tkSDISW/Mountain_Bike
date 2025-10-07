@@ -1,4 +1,4 @@
-# rag_manager/core/tool_registry.py
+# se_agent/core/tool_registry.py
 
 import importlib
 import pkgutil
@@ -24,7 +24,7 @@ class ToolRegistry:
     Dynamically discovers and manages tools under a given package.
     """
 
-    def __init__(self, tools_package: str = "rag_manager.tools"):
+    def __init__(self, tools_package: str = "se_agent.tools"):
         self.tools_package = tools_package
         self.tools: Dict[str, BaseTool] = {}
         self.discover_tools()

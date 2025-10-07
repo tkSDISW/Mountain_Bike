@@ -1,6 +1,6 @@
 # rag_manager/tools/interactive_chat.py
 
-from rag_manager.core.tool_registry import BaseTool
+from se_agent.core.tool_registry import BaseTool
 
 class InteractiveChatTool(BaseTool):
     name = "interactive_chat"
@@ -13,7 +13,7 @@ class InteractiveChatTool(BaseTool):
           - context: system context for the assistant
           - package: optional package to capture conversation artifacts
         """
-        from rag_manager.core.agent import AgentCore  # safe import to avoid circulars
+        from se_agent.core.agent import AgentCore  # safe import to avoid circulars
 
         context = input_data.get("context", "You are a helpful assistant.")
         package_name = input_data.get("package")

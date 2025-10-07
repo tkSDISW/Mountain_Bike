@@ -1,9 +1,7 @@
-# rag_manager/tools/show_artifact.py
-from rag_manager.core.tool_registry import BaseTool
-from rag_manager.mcp.artifact_registry import ArtifactRegistry, ArtifactPackage
+# se_agent/tools/show_artifact.py
+from se_agent.core.tool_registry import BaseTool
+from se_agent.mcp.artifact_registry import ArtifactRegistry, ArtifactPackage
 
-from rag_manager.core.tool_registry import BaseTool
-from rag_manager.mcp.artifact_registry import ArtifactRegistry, ArtifactPackage
 
 class ShowArtifactTool(BaseTool):
     name = "show_artifact"

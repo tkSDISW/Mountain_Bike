@@ -1,7 +1,7 @@
 # rag_manager/tools/describe_state.py
 from collections import Counter
-from rag_manager.core.tool_registry import BaseTool
-from rag_manager.mcp.artifact_registry import ArtifactRegistry, ArtifactPackage
+from se_agent.core.tool_registry import BaseTool
+from se_agent.mcp.artifact_registry import ArtifactRegistry, ArtifactPackage
 
 class DescribeStateTool(BaseTool):
     name = "describe_state"

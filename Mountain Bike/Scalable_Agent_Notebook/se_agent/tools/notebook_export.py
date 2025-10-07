@@ -1,5 +1,5 @@
-from rag_manager.core.tool_registry import BaseTool
-from rag_manager.core.notebook_exporter import NotebookExporter
+from se_agent.core.tool_registry import BaseTool
+from se_agent.core.notebook_exporter import NotebookExporter
 
 class NotebookExportTool(BaseTool):
     name = "notebook_export"
