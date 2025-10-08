@@ -171,16 +171,18 @@ class ArtifactRegistry:
         """Return ArtifactPackage by name or None."""
         return self.packages.get(name)
 
-    def list_artifacts(self, package_name: str):
+    def list_artifacts(self, package_name: str, type_filter: str = None):
         pkg = self.get_package(package_name)
         if not pkg:
             return []
         # compact surface for LLM/UX
         out = []
         for a in pkg.artifacts.values():
+            if type_filter and getattr(a, "type", None) != type_filter:
+                continue
             out.append({
                 "id": getattr(a, "id", None),
-                "type": getattr(a, "type", None),            
+                "type": getattr(a, "type", None),
                 "alias": a.alias,
                 "created_at": getattr(a, "_created_at", None),
                 "metadata": getattr(a, "metadata", None),
@@ -189,11 +191,65 @@ class ArtifactRegistry:
         out.sort(key=lambda x: (x.get("created_at") or ""), reverse=True)
         return out
 
-    def get_artifact(self, package_name: str, artifact_id: str):
+    # ---------- NEW / UPDATED LOOKUP API (backward compatible) ----------
+
+    def get_artifact(self, package_name: str, artifact_id: Optional[str] = None, **kwargs):
+        """
+        Backward-compatible getter:
+          - Old style: get_artifact(package_name, artifact_id)
+          - New style: get_artifact(package_name, alias='foo')
+          - New style: get_artifact(package_name, type_='bar', latest=True)
+
+        Returns a single Artifact or None.
+        """
         pkg = self.get_package(package_name)
         if not pkg:
             return None
-        return pkg.artifacts.get(artifact_id)    
+
+        # Old behavior: by id
+        if artifact_id:
+            return pkg.get_by_id(artifact_id)
+
+        # New behavior: by alias
+        alias = kwargs.get("alias")
+        if alias:
+            return pkg.get_by_alias(alias)
+
+        # New behavior: by type (latest by default)
+        type_ = kwargs.get("type_")
+        if type_:
+            arts = pkg.list_artifacts(type_filter=type_)
+            if not arts:
+                return None
+            # 'arts' here is a list[Artifact], not the dict we produce in list_artifacts()
+            # If you kept list_artifacts returning dicts, switch to:
+            # arts = [a for a in pkg.artifacts.values() if a.type == type_]
+            arts = [a for a in pkg.artifacts.values() if getattr(a, "type", None) == type_]
+            if not arts:
+                return None
+            arts.sort(key=lambda a: getattr(a, "_created_at", ""), reverse=True)
+            latest = kwargs.get("latest", True)
+            return arts[0] if latest else arts
+
+        return None
+
+    def get_artifact_by_alias(self, package_name: str, alias: str) -> Optional[Artifact]:
+        """Explicit alias helper (returns most-recent match)."""
+        pkg = self.get_package(package_name)
+        if not pkg:
+            return None
+        return pkg.get_by_alias(alias)
+
+    def get_latest_by_type(self, package_name: str, type_: str) -> Optional[Artifact]:
+        """Explicit helper to fetch the latest artifact of a given type."""
+        pkg = self.get_package(package_name)
+        if not pkg:
+            return None
+        arts = [a for a in pkg.artifacts.values() if getattr(a, "type", None) == type_]
+        if not arts:
+            return None
+        arts.sort(key=lambda a: getattr(a, "_created_at", ""), reverse=True)
+        return arts[0]    
 
     def alias_artifact(self, package_name: str, artifact_type: str, alias: str) -> Optional[Artifact]:
         """Assign an alias to the most recent artifact of a given type in a package."""

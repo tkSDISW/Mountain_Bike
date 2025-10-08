@@ -346,33 +346,74 @@ class AgentCore:
         file_dropdown.observe(load_file, names="value")
         enriched_context = self._build_enriched_context()  # call this each turn
         self.chat_history_msgs = [{"role": "system", "content": enriched_context}]
+        
         def send_message(_):
+            from IPython.display import HTML  # ensure in-scope for nested calls
+            import io, contextlib, json, time, traceback
+        
             def _show_tool_result(tool_result):
-                """Central display logic with dedup + displayed flag."""
+                """Central display logic with dedup + displayed flag + friendly errors."""
                 if not isinstance(tool_result, dict):
                     display(Markdown("✅ Tool executed successfully."))
                     return
-            
+        
+                # 1) Error path: render clearly and do not crash loop
+                if tool_result.get("error"):
+                    msg = tool_result.get("message") or f"❌ {tool_result['error']}"
+                    if msg != getattr(self, "_last_message", None):
+                        # red-ish emphasis
+                        display(Markdown(f"<span style='color:#b00020'>{msg}</span>"))
+                        self._last_message = msg
+        
+                    # Optional: collapsed debug details when self.verbose is set
+                    if getattr(self, "verbose", False):
+                        tb = tool_result.get("traceback", "")
+                        logs = tool_result.get("logs", "")
+                        if tb or logs:
+                            blocks = []
+                            if tb:
+                                blocks.append(f"```text\n{tb}\n```")
+                            if logs:
+                                blocks.append(f"```text\n{logs}\n```")
+                            display(Markdown(
+                                "<details><summary>Debug details</summary>\n\n" + "\n\n".join(blocks) + "\n</details>"
+                            ))
+                    return
+        
                 html_out = tool_result.get("html") or tool_result.get("ui")
                 msg_out  = tool_result.get("artifact_message") or tool_result.get("message")
-            
-
-                # --- Skip if tool already displayed its output ---
+        
+                # 2) Respect tools that already displayed their own output
                 if tool_result.get("displayed"):
-                    # record last html/message to prevent later duplicates in same session
+                    # record last seen outputs to avoid future duplicates
                     self._last_html = tool_result.get("html") or self._last_html
-                    self._last_message = tool_result.get("artifact_message") or tool_result.get("message") or self._last_message
+                    self._last_message = msg_out or self._last_message
                     return
-            
-                # --- Skip duplicate HTML ---
+        
+                # 3) Normal display path (with dedup)
                 if html_out and html_out != getattr(self, "_last_html", None):
                     display(HTML(html_out))
                     self._last_html = html_out
-                # --- Skip duplicate messages ---
                 elif msg_out and msg_out != getattr(self, "_last_message", None):
                     display(Markdown(msg_out))
                     self._last_message = msg_out
-            
+        
+            def _execute_tool_safely(tool_name, payload):
+                """Run a tool with robust error handling; never crash the chat loop."""
+                buf = io.StringIO()
+                try:
+                    with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
+                        return self.run(tool_name, package_name, input_data=payload)
+                except Exception as e:
+                    tb = traceback.format_exc(limit=6)
+                    return {
+                        "error": f"{type(e).__name__}: {e}",
+                        "logs": buf.getvalue(),
+                        "traceback": tb,
+                        "message": f"❌ `{tool_name}` failed: {e}",
+                        "displayed": False,
+                    }
+        
             prompt = user_input.value.strip()
             user_input.value = ""  # clear immediately
             if not prompt:
@@ -380,67 +421,60 @@ class AgentCore:
         
             with chat_history:
                 display(Markdown(f"**You:** {prompt}"))
-                 # --- Direct tool invocation (run:<tool> {...}) ---
+        
+                # --- Direct tool invocation (run:<tool> {...}) ---
                 if prompt.startswith("run:"):
                     try:
                         cmd, payload_str = prompt[4:].split(" ", 1)
                         payload = json.loads(payload_str)
-                        with chat_history:
-                            display(Markdown(f"**Executing:** `{cmd}` {payload}"))
-            
-                            import io, contextlib
-                            buf = io.StringIO()
-                            # 👇 Suppress prints from the tool itself
-                            with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
-                                tool_result = self.run(cmd, package_name, input_data=payload)
-            
-                            _show_tool_result(tool_result)             
-
-                                            
                     except Exception as e:
-                        with chat_history:
-                            display(Markdown(f"❌ Tool invocation failed: {e}"))
+                        display(Markdown(f"❌ Invalid `run:` payload: {e}"))
+                        return
+        
+                    display(Markdown(f"**Executing:** `{cmd}` {payload}"))
+                    tool_result = _execute_tool_safely(cmd, payload)
+                    _show_tool_result(tool_result)
                     return  # Prevent fallthrough to LLM branch
-
+        
+            # --- Normal LLM chat flow ---
             self.chat_history_msgs.append({"role": "user", "content": prompt})
             enriched_context = self._build_enriched_context()
-            
+        
             with chat_history:
                 result = self.run("llm_chat", package_name, input_data={
                     "prompt": prompt,
                     "context": enriched_context,
                     "messages": self.chat_history_msgs
                 })
-            
+        
                 response = result.get("response", "")
                 self.chat_history_msgs.append({"role": "assistant", "content": response})
                 display(Markdown(f"**Assistant:** {response}"))
-  
+        
                 # --- Parse sequential actions (planning mode) ---
-                import re, io, contextlib
+                import re
                 json_match = re.search(r'\{[\s\S]*\}', response)
-                if json_match:
-                    json_text = json_match.group(0)
-                    try:
-                        parsed = json.loads(json_text)
-                        if isinstance(parsed, dict) and "actions" in parsed:
-                            for step in parsed["actions"]:
-                                tool_name = step.get("tool")
-                                input_data = step.get("input", {})
-                                if tool_name:
-                                    display(Markdown(f"**Executing:** `{tool_name}` {input_data}"))
+                if not json_match:
+                    return
         
-                                    buf = io.StringIO()
-                                    # 👇 Suppress all prints from tool internals
-                                    with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
-                                        tool_result = self.run(tool_name, package_name, input_data=input_data)
+                json_text = json_match.group(0)
+                try:
+                    parsed = json.loads(json_text)
+                except Exception as e:
+                    display(Markdown(f"⚠️ Could not parse actions JSON: {e}"))
+                    return
         
-                                    _show_tool_result(tool_result)  
-                                    time.sleep(0.3)
+                if isinstance(parsed, dict) and "actions" in parsed:
+                    for step in parsed["actions"]:
+                        tool_name = step.get("tool")
+                        input_data = step.get("input", {})
+                        if not tool_name:
+                            continue
         
-                    except Exception as e:
-                        display(Markdown(f"⚠️ Could not parse actions JSON: {e}"))
-                            
+                        display(Markdown(f"**Executing:** `{tool_name}` {input_data}"))
+                        tool_result = _execute_tool_safely(tool_name, input_data)
+                        _show_tool_result(tool_result)
+                        time.sleep(0.3)
 
         
         def exit_chat(_):
