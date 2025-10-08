@@ -1,14 +1,19 @@
 import csv
-from se_agent.core.tool_registry import BaseTool
+from se_agent.tools.tool_patterns import ImportTool
 
-class ReadLeveledCSVTool(BaseTool):
+class ReadLeveledCSVTool(ImportTool):
+    """Import leveled CSV (Level, Name, Description) into hierarchy artifact."""
+
     name = "read_leveled_csv"
     description = "Read a leveled CSV (Level, Name, Description) into a hierarchy list."
+    category = "import"
+    artifact_type = "hierarchy"   
 
-    def run(self, input_data, artifacts=None, package_name=None, **kwargs):
+    def load(self, input_data):
+        """Load and parse the leveled CSV into hierarchy structure."""
         filename = input_data.get("filename")
         if not filename:
-            return {"message": "❌ No filename provided."}
+            return [], {"error": "❌ No filename provided."}
 
         hierarchy = []
         with open(filename, newline="", encoding="utf-8") as csvfile:
@@ -16,27 +21,11 @@ class ReadLeveledCSVTool(BaseTool):
             for row in reader:
                 hierarchy.append({
                     "level": int(row.get("Level", 0)),
-                    "name": row.get("Name", ""),
-                    "description": row.get("Description", ""),
-                    "parent": None  # keep placeholder for parent if needed
+                    "name": row.get("Name", "").strip(),
+                    "description": row.get("Description", "").strip(),
+                    "parent": None  # placeholder for future parent logic
                 })
 
-        # ✅ Save full hierarchy as artifact
-        if artifacts:
-            art = artifacts.add_artifact(
-                package_name,
-                type_="hierarchy",
-                content=hierarchy,
-                metadata={"source_file": filename}
-            )
-
-        # ✅ Only return summary + preview
-        preview = hierarchy[:10]  # first 10 rows
-        return {
-            "message": f"📂 Loaded leveled CSV '{filename}' into hierarchy artifact.",
-            #"rows": len(hierarchy),
-            #"columns": ["Level", "Name", "Description"],
-            #"preview": preview,
-            "artifact_message": getattr(art, "_announce", None) if artifacts else None
-        }
+        metadata = {"source_file": filename, "rows": len(hierarchy)}
+        return hierarchy, metadata
 

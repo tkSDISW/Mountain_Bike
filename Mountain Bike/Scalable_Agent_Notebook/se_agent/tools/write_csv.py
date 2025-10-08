@@ -1,22 +1,49 @@
-# rag_manager/tools/write_csv.py
-
+# se_agent/tools/write_csv.py
 import pandas as pd
-from se_agent.core.tool_registry import BaseTool
+from se_agent.tools.tool_patterns import ExportTool
 
 
-class WriteCSVTool(BaseTool):
+class WriteCSVTool(ExportTool):
+    """
+    Write rows to a CSV file.
+    Data can come directly from input_data['data'] (list of dicts),
+    or be pulled from an existing 'table' artifact via alias/id.
+    """
+
     name = "write_csv"
-    description = "Save a list of dicts to a CSV file."
+    description = "Write a list of rows to a CSV file (source: input data or a 'table' artifact)."
+    # ExportTool does not create new artifacts by design.
 
-    def run(self, input_data, artifacts=None, **kwargs):
-        filename = input_data["filename"]
-        data = input_data["data"]
+    def export(self, input_data, artifacts, package_name=None):
+        filename = input_data.get("filename")
+        if not filename:
+            return {"error": "❌ No filename provided."}
+
+        data = input_data.get("data")
+
+        # If data not provided, try to resolve from an existing artifact
+        if data is None and artifacts:
+            alias = input_data.get("alias")
+            art_id = input_data.get("id")
+            pkg_name = package_name or getattr(artifacts, "active_package", None)
+            art = None
+
+            if alias:
+                art = artifacts.get_artifact(alias=alias, package_name=pkg_name)
+            elif art_id:
+                art = artifacts.get_artifact(id=art_id, package_name=pkg_name)
+
+            if art and getattr(art, "type", None) == "table":
+                data = art.content
+
+        if data is None:
+            return {"error": "❌ No data provided and no source artifact (alias/id) resolved."}
 
         df = pd.DataFrame(data)
         df.to_csv(filename, index=False)
 
         return {
-            "message": f"💾 Saved CSV to {filename}",
+            "filename": filename,
             "rows": len(df),
-            "columns": list(df.columns)
+            "columns": [str(c) for c in df.columns],
         }

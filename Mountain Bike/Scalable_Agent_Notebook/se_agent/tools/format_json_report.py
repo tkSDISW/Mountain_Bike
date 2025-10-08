@@ -83,6 +83,7 @@ class FormatJsonReportTool(BaseTool):
                 "message": f"🖨️ Formatted artifact '{alias or artifact_id or 'raw'}' into engineer-friendly HTML.",
                 "ui": html,
                 "html": html,
+                "displayed": True     # 👈 new flag
             }
 
         except Exception as e:

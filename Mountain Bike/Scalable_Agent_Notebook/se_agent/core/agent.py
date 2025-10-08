@@ -1,5 +1,5 @@
 # se_agent/core/agent.py
-import re
+
 import json
 from pathlib import Path
 from typing import Any, Optional
@@ -11,7 +11,7 @@ import os, time
 import ipywidgets as widgets
 from IPython.display import display, Markdown
 from jupyter_ui_poll import ui_events
-
+import traceback
 
 class AgentCore:
     """
@@ -257,8 +257,9 @@ class AgentCore:
             '       {"tool": "read_leveled_csv", "input": {"filename": "drone.csv"}},',
             '       {"tool": "alias_artifact", "input": {"type": "hierarchy", "alias": "BOM"}}',
             '   ]}',
-            "3. Do not include 'run:' lines or extra commentary after the JSON.",
-            "If no tool applies, respond naturally."
+            "3. Do not include 'run: lines or extra commentary after the JSON.",
+            '4. Do not propose "action" :[ "tool":"interactive_chat"] to limit recursive conversation.',
+            'If no tool applies, respond naturally."'
     ]
     
         # 4) Compose
@@ -288,7 +289,10 @@ class AgentCore:
         self.chat_active = True
         self.yaml_content = None
         self.extra_context_msgs = []
-    
+        # Track last displayed outputs to prevent duplicates
+        self._last_html = None
+        self._last_message = None
+            
         # 🔹 Include tool list in assistant context
         tools = self.list_tools()
         tool_list_str = "\n".join([f"- {t['name']}: {t['description']}" for t in tools])
@@ -343,6 +347,32 @@ class AgentCore:
         enriched_context = self._build_enriched_context()  # call this each turn
         self.chat_history_msgs = [{"role": "system", "content": enriched_context}]
         def send_message(_):
+            def _show_tool_result(tool_result):
+                """Central display logic with dedup + displayed flag."""
+                if not isinstance(tool_result, dict):
+                    display(Markdown("✅ Tool executed successfully."))
+                    return
+            
+                html_out = tool_result.get("html") or tool_result.get("ui")
+                msg_out  = tool_result.get("artifact_message") or tool_result.get("message")
+            
+
+                # --- Skip if tool already displayed its output ---
+                if tool_result.get("displayed"):
+                    # record last html/message to prevent later duplicates in same session
+                    self._last_html = tool_result.get("html") or self._last_html
+                    self._last_message = tool_result.get("artifact_message") or tool_result.get("message") or self._last_message
+                    return
+            
+                # --- Skip duplicate HTML ---
+                if html_out and html_out != getattr(self, "_last_html", None):
+                    display(HTML(html_out))
+                    self._last_html = html_out
+                # --- Skip duplicate messages ---
+                elif msg_out and msg_out != getattr(self, "_last_message", None):
+                    display(Markdown(msg_out))
+                    self._last_message = msg_out
+            
             prompt = user_input.value.strip()
             user_input.value = ""  # clear immediately
             if not prompt:
@@ -350,33 +380,28 @@ class AgentCore:
         
             with chat_history:
                 display(Markdown(f"**You:** {prompt}"))
-        
-            # Direct tool invocation (run:<tool> {...})
-            if prompt.startswith("run:"):
-                try:
-                    cmd, payload_str = prompt[4:].split(" ", 1)
-                    payload = json.loads(payload_str)
-        
-                    # ✅ wrap the entire tool execution in chat_history
-                    with chat_history:
-                        tool_result = self.run(cmd, package_name, input_data=payload)
-        
-                        # If the tool returned HTML/UI, render it
-                        if isinstance(tool_result, dict):
-                            if "html" in tool_result:
-                                display(HTML(tool_result["html"]))
-                            elif "ui" in tool_result:
-                                display(HTML(tool_result["ui"]))
-                            elif "message" in tool_result:
-                                display(Markdown(tool_result["message"]))
-                            else:
-                                display(Markdown("✅ Tool executed successfully."))
-        
-                except Exception as e:
-                    with chat_history:
-                        display(Markdown(f"❌ Tool invocation failed: {e}"))
-                return  # ← stop here so it doesn’t fall through to LLM section
-                 # ---- Normal LLM chat flow ----
+                 # --- Direct tool invocation (run:<tool> {...}) ---
+                if prompt.startswith("run:"):
+                    try:
+                        cmd, payload_str = prompt[4:].split(" ", 1)
+                        payload = json.loads(payload_str)
+                        with chat_history:
+                            display(Markdown(f"**Executing:** `{cmd}` {payload}"))
+            
+                            import io, contextlib
+                            buf = io.StringIO()
+                            # 👇 Suppress prints from the tool itself
+                            with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
+                                tool_result = self.run(cmd, package_name, input_data=payload)
+            
+                            _show_tool_result(tool_result)             
+
+                                            
+                    except Exception as e:
+                        with chat_history:
+                            display(Markdown(f"❌ Tool invocation failed: {e}"))
+                    return  # Prevent fallthrough to LLM branch
+
             self.chat_history_msgs.append({"role": "user", "content": prompt})
             enriched_context = self._build_enriched_context()
             
@@ -390,9 +415,10 @@ class AgentCore:
                 response = result.get("response", "")
                 self.chat_history_msgs.append({"role": "assistant", "content": response})
                 display(Markdown(f"**Assistant:** {response}"))
+  
                 # --- Parse sequential actions (planning mode) ---
-
-                json_match = re.search(r'\{[\s\S]*\}', response)  # find first JSON block
+                import re, io, contextlib
+                json_match = re.search(r'\{[\s\S]*\}', response)
                 if json_match:
                     json_text = json_match.group(0)
                     try:
@@ -403,19 +429,18 @@ class AgentCore:
                                 input_data = step.get("input", {})
                                 if tool_name:
                                     display(Markdown(f"**Executing:** `{tool_name}` {input_data}"))
-                                    tool_result = self.run(tool_name, package_name, input_data=input_data)
-                                    if isinstance(tool_result, dict):
-                                        if "html" in tool_result:
-                                            display(HTML(tool_result["html"]))
-                                        elif "ui" in tool_result:
-                                            display(HTML(tool_result["ui"]))
-                                        elif "message" in tool_result:
-                                            display(Markdown(tool_result["message"]))
+        
+                                    buf = io.StringIO()
+                                    # 👇 Suppress all prints from tool internals
+                                    with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
+                                        tool_result = self.run(tool_name, package_name, input_data=input_data)
+        
+                                    _show_tool_result(tool_result)  
                                     time.sleep(0.3)
+        
                     except Exception as e:
                         display(Markdown(f"⚠️ Could not parse actions JSON: {e}"))
-
-                    
+                            
 
         
         def exit_chat(_):

@@ -4,6 +4,7 @@ import importlib
 import pkgutil
 import inspect
 from typing import Dict, Callable, Any, Optional
+from se_agent.mcp.artifact_registry import Artifact, ArtifactPackage, ArtifactRegistry
 
 
 class BaseTool:
@@ -18,6 +19,36 @@ class BaseTool:
     def run(self, input_data: Any, artifacts: Optional[Dict] = None, **kwargs) -> Any:
         raise NotImplementedError("Tools must implement the run method.")
 
+
+    # ===========================================================
+    # 🧩 Shared artifact creation helper for Import/Transform tools
+    # ===========================================================
+    def _make_artifact(self, pkg: ArtifactPackage, tool_name: str, content, metadata=None):
+        """
+        Create and register an artifact within the given package.
+        Returns a dictionary containing user- and agent-facing messages.
+        """
+        if pkg is None:
+            raise ValueError("Package is None — cannot create artifact. Did you set an active package?")
+
+        # --- Create the artifact ---
+        artifact = Artifact(tool_name, content, metadata or {})
+        pkg.add_artifact(artifact)
+
+        # --- Return standard dictionary used by tools ---
+        return {
+            "message": (
+                f"📌 Artifact created: id='{artifact.id}' "
+                f"type='{artifact.type}' in package '{pkg.name}'"
+            ),
+            "artifact_message": (
+                f"📌 Artifact created: id='{artifact.id}' "
+                f"type='{artifact.type}' in package '{pkg.name}'"
+            ),
+            "artifact_id": artifact.id,
+            "artifact_type": artifact.type,
+            "package_name": pkg.name,
+        }
 
 class ToolRegistry:
     """
