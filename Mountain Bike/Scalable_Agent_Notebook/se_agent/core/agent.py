@@ -356,47 +356,58 @@ class AgentCore:
                 if not isinstance(tool_result, dict):
                     display(Markdown("✅ Tool executed successfully."))
                     return
-        
+            
                 # 1) Error path: render clearly and do not crash loop
                 if tool_result.get("error"):
                     msg = tool_result.get("message") or f"❌ {tool_result['error']}"
                     if msg != getattr(self, "_last_message", None):
-                        # red-ish emphasis
                         display(Markdown(f"<span style='color:#b00020'>{msg}</span>"))
                         self._last_message = msg
-        
-                    # Optional: collapsed debug details when self.verbose is set
+            
                     if getattr(self, "verbose", False):
                         tb = tool_result.get("traceback", "")
                         logs = tool_result.get("logs", "")
-                        if tb or logs:
-                            blocks = []
-                            if tb:
-                                blocks.append(f"```text\n{tb}\n```")
-                            if logs:
-                                blocks.append(f"```text\n{logs}\n```")
+                        blocks = []
+                        if tb:
+                            blocks.append(f"```text\n{tb}\n```")
+                        if logs:
+                            blocks.append(f"```text\n{logs}\n```")
+                        if blocks:
                             display(Markdown(
-                                "<details><summary>Debug details</summary>\n\n" + "\n\n".join(blocks) + "\n</details>"
+                                "<details><summary>Debug details</summary>\n\n" +
+                                "\n\n".join(blocks) + "\n</details>"
                             ))
                     return
-        
-                html_out = tool_result.get("html") or tool_result.get("ui")
-                msg_out  = tool_result.get("artifact_message") or tool_result.get("message")
-        
-                # 2) Respect tools that already displayed their own output
+            
+                html_out    = tool_result.get("html") or tool_result.get("ui")
+                artifact_msg = tool_result.get("artifact_message")
+                user_msg     = tool_result.get("message")
+            
+                # 2) Respect self-displayed tools
                 if tool_result.get("displayed"):
                     # record last seen outputs to avoid future duplicates
-                    self._last_html = tool_result.get("html") or self._last_html
-                    self._last_message = msg_out or self._last_message
+                    if html_out:
+                        self._last_html = html_out
+                    if artifact_msg:
+                        self._last_message = artifact_msg
+                    elif user_msg:
+                        self._last_message = user_msg
                     return
-        
+            
                 # 3) Normal display path (with dedup)
                 if html_out and html_out != getattr(self, "_last_html", None):
                     display(HTML(html_out))
                     self._last_html = html_out
-                elif msg_out and msg_out != getattr(self, "_last_message", None):
-                    display(Markdown(msg_out))
-                    self._last_message = msg_out
+            
+                # Show artifact banner first (if new)
+                if artifact_msg and artifact_msg != getattr(self, "_last_message", None):
+                    display(Markdown(artifact_msg))
+                    self._last_message = artifact_msg
+            
+                # Then show concise summary (if provided and different)
+                if user_msg and user_msg != getattr(self, "_last_message", None):
+                    display(Markdown(user_msg))
+                    self._last_message = user_msg 
         
             def _execute_tool_safely(tool_name, payload):
                 """Run a tool with robust error handling; never crash the chat loop."""
