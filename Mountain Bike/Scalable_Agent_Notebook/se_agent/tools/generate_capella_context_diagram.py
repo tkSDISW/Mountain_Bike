@@ -1,5 +1,5 @@
 # se_agent/tools/generate_capella_context_diagram.py
-from tool_patterns import DisplayTool
+from se_agent.tools.tool_patterns import  DisplayTool
 
 class GenerateCapellaContextDiagramTool(DisplayTool):
     """
@@ -40,7 +40,7 @@ class GenerateCapellaContextDiagramTool(DisplayTool):
         "\"selection_alias\":\"MB_messy_selection\",\"model_path_alias\":\"Bike_Path\",\"resources_alias\":\"Bike_Resources\",\"limit\":3"
         "}}]}"
     )
-        category = "display"  # DisplayTool -> no artifact
+    category = "display"  # DisplayTool -> no artifact
 
     # minimal alias lookup consistent with your registry
     def _pkg_name(self, artifacts, package_name):

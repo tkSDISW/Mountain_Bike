@@ -86,12 +86,10 @@ class FormatJsonReportTool(BaseTool):
                 "displayed": True     # 👈 new flag
             }
 
-        except Exception as e:
-            fallback = f"<div><h3>{title}</h3><pre>{payload_str[:4000]}</pre></div>"
-            return {
-                "message": f"⚠️ Formatter fallback (error: {e})",
-                "ui": fallback,
-                "html": fallback,
-            }
         
-
+        except Exception as e:
+            return {
+                "error": f"JSON formatting failed: {e}",
+                "message": f"❌ JSON formatting failed: {e}",
+                "displayed": False  # let the agent render the error message
+            }
