@@ -1,13 +1,13 @@
 # se_agent/tools/write_csv.py
 import pandas as pd
-from se_agent.tools.tool_patterns import ExportTool
+from se_agent.core.tool_patterns import ExportTool
 
 
 class WriteCSVTool(ExportTool):
     """
     Write rows to a CSV file.
     Data can come directly from input_data['data'] (list of dicts),
-    or be pulled from an existing 'table' artifact via alias/id.
+    or be pulled from an existing 'table' artifact via name/id.
     """
 
     name = "write_csv"
@@ -23,13 +23,13 @@ class WriteCSVTool(ExportTool):
 
         # If data not provided, try to resolve from an existing artifact
         if data is None and artifacts:
-            alias = input_data.get("alias")
+            name = input_data.get("name")
             art_id = input_data.get("id")
             pkg_name = package_name or getattr(artifacts, "active_package", None)
             art = None
 
-            if alias:
-                art = artifacts.get_artifact(alias=alias, package_name=pkg_name)
+            if name:
+                art = artifacts.get_artifact(name=name, package_name=pkg_name)
             elif art_id:
                 art = artifacts.get_artifact(id=art_id, package_name=pkg_name)
 
@@ -37,7 +37,7 @@ class WriteCSVTool(ExportTool):
                 data = art.content
 
         if data is None:
-            return {"error": "❌ No data provided and no source artifact (alias/id) resolved."}
+            return {"error": "❌ No data provided and no source artifact (name/id) resolved."}
 
         df = pd.DataFrame(data)
         df.to_csv(filename, index=False)

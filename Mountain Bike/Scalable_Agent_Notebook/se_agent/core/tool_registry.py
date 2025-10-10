@@ -38,11 +38,11 @@ class BaseTool:
         # --- Return standard dictionary used by tools ---
         return {
             "message": (
-                f"📌 Artifact created: id='{artifact.id}' "
+                f"✅ Artifact created: id='{artifact.id}' "
                 f"type='{artifact.type}' in package '{pkg.name}'"
             ),
             "artifact_message": (
-                f"📌 Artifact created: id='{artifact.id}' "
+                f"✅ Artifact created: id='{artifact.id}' "
                 f"type='{artifact.type}' in package '{pkg.name}'"
             ),
             "artifact_id": artifact.id,

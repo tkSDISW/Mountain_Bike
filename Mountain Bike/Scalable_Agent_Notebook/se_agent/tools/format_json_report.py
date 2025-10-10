@@ -7,20 +7,20 @@ from contextlib import redirect_stdout
 
 class FormatJsonReportTool(BaseTool):
     """
-    Explicit tool to format JSON content (from an artifact or alias) into
+    Explicit tool to format JSON content (from an artifact or name) into
     engineer-friendly HTML using the installed RAG Manager (ChatGPTAnalyzer).
     """
     name = "format_json_report"
     description = (
         "Generate an engineer-friendly HTML report for a JSON-based artifact. "
-        "Typically used after loading or selecting an artifact (e.g., via alias). "
-        "Input should include either an 'alias', 'id', or direct 'json' field. "
+        "Typically used after loading or selecting an artifact (e.g., via name). "
+        "Input should include either an 'name', 'id', or direct 'json' field. "
         "The tool converts the JSON content into a concise, readable HTML summary "
         "using the RAG Manager formatter."
     )
 
     def run(self, input_data, artifacts, package_name=None, **kwargs):
-        alias = input_data.get("alias") or input_data.get("artifact")
+        name = input_data.get("name") or input_data.get("artifact")
         artifact_id = input_data.get("id")
         raw_json = input_data.get("json")  # optional direct JSON input
         title = input_data.get("title", "JSON View")
@@ -33,15 +33,15 @@ class FormatJsonReportTool(BaseTool):
         # Resolve artifact or raw JSON
         artifact = None
         if raw_json is not None:
-            artifact = {"content": raw_json, "alias": "raw", "id": "raw", "type": "json"}
+            artifact = {"content": raw_json, "name": "raw", "id": "raw", "type": "json"}
         else:
-            if alias:
-                artifact = pkg.get_by_alias(alias)
+            if name:
+                artifact = pkg.get_by_name(name)
             elif artifact_id:
                 artifact = pkg.get_by_id(artifact_id)
 
         if not artifact:
-            return {"message": f"❌ Artifact not found (alias={alias}, id={artifact_id})"}
+            return {"message": f"❌ Artifact not found (name={name}, id={artifact_id})"}
 
         # Ensure string payload
         try:
@@ -80,7 +80,7 @@ class FormatJsonReportTool(BaseTool):
                 pass
             
             return {
-                "message": f"🖨️ Formatted artifact '{alias or artifact_id or 'raw'}' into engineer-friendly HTML.",
+                "message": f"🖨️ Formatted artifact '{name or artifact_id or 'raw'}' into engineer-friendly HTML.",
                 "ui": html,
                 "html": html,
                 "displayed": True     # 👈 new flag

@@ -1,5 +1,5 @@
 import csv
-from se_agent.tools.tool_patterns import ImportTool
+from se_agent.core.tool_patterns import ImportTool
 
 class ReadLeveledCSVTool(ImportTool):
     """Import leveled CSV (Level, Name, Description) into hierarchy artifact."""

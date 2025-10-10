@@ -1,5 +1,5 @@
 # se_agent/tools/query_capella_embeddings.py
-from se_agent.tools.tool_patterns import  TransformTool
+from se_agent.core.tool_patterns import  TransformTool
 
 
 
@@ -12,10 +12,10 @@ class QueryCapellaEmbeddingsTool(TransformTool):
       - top_n: positive int
 
     Preferred inputs via saved artifacts:
-      - model_path_alias: alias of an artifact with content=str (.aird path)
-      - resources_alias : alias of an artifact with content=dict (capellambse resources)
+      - model_path_name: name of an artifact with content=str (.aird path)
+      - resources_name : name of an artifact with content=dict (capellambse resources)
 
-    Direct inputs fallback (only if aliases not provided):
+    Direct inputs fallback (only if names not provided):
       - path_to_model: str (.aird path)
       - resources: dict (capellambse resources)
       - embedding_file: str (default "embeddings.json")
@@ -29,26 +29,26 @@ class QueryCapellaEmbeddingsTool(TransformTool):
     name = "query_capella_embeddings"
     description = (
         "Query Capella embeddings to return top object UUIDs. "
-        "Prefer using saved artifacts: model_path_alias (type=capella_model_path) and "
-        "resources_alias (type=capella_resources). Required inputs: query (string), "
-        "top_n (int). If aliases are not given, you may pass path_to_model ('.aird' path) "
+        "Prefer using saved artifacts: model_path_name (type=capella_model_path) and "
+        "resources_name (type=capella_resources). Required inputs: query (string), "
+        "top_n (int). If names are not given, you may pass path_to_model ('.aird' path) "
         "and resources (dict). The tool reconstructs a MelodyModel and calls the "
         "EmbeddingManager to select the top-N matches. Ouput includes create of artifact. "
     )
     artifact_type = "capella_selection"  # downstream tools (context diagrams, yaml) can target this
 
-    # --- simple helpers consistent with your current registry (no alias API) ---
+    # --- simple helpers consistent with your current registry (no name API) ---
     def _pkg_name(self, artifacts, package_name):
         return package_name or getattr(artifacts, "active_package", None)
 
-    def _get_by_alias(self, artifacts, pkg_name, alias):
-        """Scan package for artifact whose .alias matches."""
+    def _get_by_name(self, artifacts, pkg_name, name):
+        """Scan package for artifact whose .name matches."""
         try:
             pkg = artifacts.get_package(pkg_name)
             if not pkg or not hasattr(pkg, "artifacts"):
                 return None
             arts = list(pkg.artifacts.values())
-            matches = [a for a in arts if getattr(a, "alias", None) == alias]
+            matches = [a for a in arts if getattr(a, "name", None) == name]
             if not matches:
                 return None
             matches.sort(key=lambda a: getattr(a, "_created_at", 0), reverse=True)
@@ -72,45 +72,45 @@ class QueryCapellaEmbeddingsTool(TransformTool):
         embedding_file = input_data.get("embedding_file", "embeddings.json")
         pkg_name = self._pkg_name(artifacts, package_name)
 
-        # 2) Resolve path/resources (prefer aliases)
-        model_path_alias = input_data.get("model_path_alias")
-        resources_alias  = input_data.get("resources_alias")
+        # 2) Resolve path/resources (prefer names)
+        model_path_name = input_data.get("model_path_name")
+        resources_name  = input_data.get("resources_name")
         path_to_model    = input_data.get("path_to_model")
         resources        = input_data.get("resources")
 
-        # If the planner provided alias strings in the direct-input keys, resolve them.
+        # If the planner provided name strings in the direct-input keys, resolve them.
         if isinstance(path_to_model, str) and not os.path.exists(path_to_model):
-            art_path = self._get_by_alias(artifacts, pkg_name, path_to_model)
+            art_path = self._get_by_name(artifacts, pkg_name, path_to_model)
             if art_path and isinstance(art_path.content, str):
                 path_to_model = art_path.content
         
         if isinstance(resources, str):
-            art_res = self._get_by_alias(artifacts, pkg_name, resources)
+            art_res = self._get_by_name(artifacts, pkg_name, resources)
             if art_res and isinstance(art_res.content, dict):
                 resources = art_res.content
 
         
-        if artifacts and (model_path_alias or resources_alias):
-            if model_path_alias and not path_to_model:
-                art_path = self._get_by_alias(artifacts, pkg_name, model_path_alias)
+        if artifacts and (model_path_name or resources_name):
+            if model_path_name and not path_to_model:
+                art_path = self._get_by_name(artifacts, pkg_name, model_path_name)
                 if not art_path or not isinstance(art_path.content, str):
                     raise ValueError(
-                        f"Artifact '{model_path_alias}' not found or content is not a string path."
+                        f"Artifact '{model_path_name}' not found or content is not a string path."
                     )
                 path_to_model = art_path.content
 
-            if resources_alias and resources is None:
-                art_res = self._get_by_alias(artifacts, pkg_name, resources_alias)
+            if resources_name and resources is None:
+                art_res = self._get_by_name(artifacts, pkg_name, resources_name)
                 if not art_res or not isinstance(art_res.content, dict):
                     raise ValueError(
-                        f"Artifact '{resources_alias}' not found or content is not a dict."
+                        f"Artifact '{resources_name}' not found or content is not a dict."
                     )
                 resources = art_res.content
 
         # Minimal guidance if still missing
         if not path_to_model or resources is None:
             raise ValueError(
-                "Provide model_path_alias & resources_alias (preferred) "
+                "Provide model_path_name & resources_name (preferred) "
                 "or path_to_model & resources."
             )
 

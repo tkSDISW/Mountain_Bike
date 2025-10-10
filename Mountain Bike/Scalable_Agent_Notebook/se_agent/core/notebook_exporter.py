@@ -4,8 +4,8 @@ class NotebookExporter:
     def __init__(self, agent):
         self.agent = agent
 
-    def _replace_ids_with_aliases(self, record):
-        """Return a copy of record with artifact IDs replaced by aliases when available."""
+    def _replace_ids_with_names(self, record):
+        """Return a copy of record with artifact IDs replaced by namees when available."""
         rec = dict(record)  # shallow copy
         input_data = dict(rec.get("input") or {})
 
@@ -14,10 +14,10 @@ class NotebookExporter:
             pkg = self.agent.artifacts.get_package(rec["package"]) if rec.get("package") else None
             if pkg:
                 art = pkg.artifacts.get(input_data["id"])
-                if art and art.alias:
-                    # Prefer alias in replay
+                if art and art.name:
+                    # Prefer name in replay
                     input_data.pop("id")
-                    input_data["alias"] = art.alias
+                    input_data["name"] = art.name
 
         rec["input"] = input_data
         return rec
@@ -39,7 +39,7 @@ class NotebookExporter:
             if tool in {"interactive_chat", "notebook_export"}:
                 continue
 
-            safe_record = self._replace_ids_with_aliases(record)
+            safe_record = self._replace_ids_with_names(record)
 
             # Markdown description
             md = f"### Step {i+1}: Run `{tool}`"

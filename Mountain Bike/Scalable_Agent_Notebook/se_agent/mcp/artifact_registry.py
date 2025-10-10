@@ -16,10 +16,18 @@ class Artifact:
         self.content = content
         self.metadata = metadata or {}
 
-    @property
-    def alias(self) -> Optional[str]:
-        return self.metadata.get("alias")
+
     
+    @property
+    def name(self) -> Optional[str]:
+        return self.metadata.get("name")
+        
+    @name.setter
+    def name(self, value):
+        if value is None:
+            self.metadata.pop("name", None)
+        else:
+            self.metadata["name"] = str(value)   
     def to_dict(self) -> Dict:
         return {
             "id": self.id,
@@ -53,12 +61,17 @@ class ArtifactPackage:
         self.artifacts[artifact.id] = artifact
     
         # Attach a short, human-friendly announcement to the artifact itself
-        artifact._announce = (
-            f"📌 Artifact created: id='{artifact.id[:8]}' "
-            f"type='{artifact.type}' in package '{self.name}'"
-        )
-        if artifact.alias:
-            artifact._announce += f" (alias='{artifact.alias}')"
+        if artifact.name:
+            artifact._announce = (
+                f"✅ Artifact created: name='{artifact.name}' "
+                f"id='{artifact.id[:8]}' "
+                f"type='{artifact.type}' in package '{self.name}'"
+            )
+        else:
+            artifact._announce = (
+                f"✅ Artifact created: id='{artifact.id[:8]}' "
+                f"type='{artifact.type}' in package '{self.name}'"
+            )
     
         # Store timestamp
         artifact._created_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
@@ -89,9 +102,9 @@ class ArtifactPackage:
         """Return an artifact by its unique id, or None if not found."""
         return self.artifacts.get(artifact_id)
 
-    def get_by_alias(self, alias: str):
-        """Return the most recent artifact with the given alias, or None."""
-        matches = [a for a in self.artifacts.values() if a.alias == alias]
+    def get_by_name(self, name: str):
+        """Return the most recent artifact with the given name, or None."""
+        matches = [a for a in self.artifacts.values() if a.name == name]
         return matches[-1] if matches else None
 
     def list_artifacts(self, type_filter: str = None):
@@ -183,7 +196,7 @@ class ArtifactRegistry:
             out.append({
                 "id": getattr(a, "id", None),
                 "type": getattr(a, "type", None),
-                "alias": a.alias,
+                "name": a.name,
                 "created_at": getattr(a, "_created_at", None),
                 "metadata": getattr(a, "metadata", None),
             })
@@ -197,7 +210,7 @@ class ArtifactRegistry:
         """
         Backward-compatible getter:
           - Old style: get_artifact(package_name, artifact_id)
-          - New style: get_artifact(package_name, alias='foo')
+          - New style: get_artifact(package_name, name='foo')
           - New style: get_artifact(package_name, type_='bar', latest=True)
 
         Returns a single Artifact or None.
@@ -210,10 +223,10 @@ class ArtifactRegistry:
         if artifact_id:
             return pkg.get_by_id(artifact_id)
 
-        # New behavior: by alias
-        alias = kwargs.get("alias")
-        if alias:
-            return pkg.get_by_alias(alias)
+        # New behavior: by name
+        name = kwargs.get("name")
+        if name:
+            return pkg.get_by_name(name)
 
         # New behavior: by type (latest by default)
         type_ = kwargs.get("type_")
@@ -233,12 +246,12 @@ class ArtifactRegistry:
 
         return None
 
-    def get_artifact_by_alias(self, package_name: str, alias: str) -> Optional[Artifact]:
-        """Explicit alias helper (returns most-recent match)."""
+    def get_artifact_by_name(self, package_name: str, name: str) -> Optional[Artifact]:
+        """Explicit name helper (returns most-recent match)."""
         pkg = self.get_package(package_name)
         if not pkg:
             return None
-        return pkg.get_by_alias(alias)
+        return pkg.get_by_name(name)
 
     def get_latest_by_type(self, package_name: str, type_: str) -> Optional[Artifact]:
         """Explicit helper to fetch the latest artifact of a given type."""
@@ -251,8 +264,8 @@ class ArtifactRegistry:
         arts.sort(key=lambda a: getattr(a, "_created_at", ""), reverse=True)
         return arts[0]    
 
-    def alias_artifact(self, package_name: str, artifact_type: str, alias: str) -> Optional[Artifact]:
-        """Assign an alias to the most recent artifact of a given type in a package."""
+    def name_artifact(self, package_name: str, artifact_type: str, name: str) -> Optional[Artifact]:
+        """Assign an name to the most recent artifact of a given type in a package."""
         pkg = self.get_package(package_name)
         if not pkg:
             raise ValueError(f"Package '{package_name}' not found.")
@@ -265,9 +278,9 @@ class ArtifactRegistry:
         # pick latest
         arts.sort(key=lambda a: getattr(a, "_created_at", ""), reverse=True)
         target = arts[0]
-        target.metadata["alias"] = alias
+        target.metadata["name"] = name
         target._announce = (
-            f"📌 Alias '{alias}' assigned to artifact id='{target.id[:8]}' "
+            f"✅ name '{name}' assigned to artifact id='{target.id[:8]}' "
             f"type='{target.type}' in package '{pkg.name}'"
         )
         print(target._announce)

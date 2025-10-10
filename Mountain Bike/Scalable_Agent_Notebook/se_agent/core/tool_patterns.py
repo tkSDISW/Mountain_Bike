@@ -94,15 +94,15 @@ class TransformTool(BaseTool):
                     f"📌 Artifact created: id='{short_id}' type='{art.type}' in package '{pkg_name}'"
                 )
         
-            # Optional alias support (if you already added this pattern)
-            alias = (metadata or {}).get("alias") or (input_data or {}).get("alias")
-            if alias:
+            # Optional name support (if you already added this pattern)
+            name = (metadata or {}).get("name") or (input_data or {}).get("name")
+            if name:
                 try:
-                    aliased = artifacts.alias_artifact(pkg_name, artifact_type, alias)
-                    # prefer alias announcement if available
-                    alias_banner = getattr(aliased, "_announce", None)
-                    if alias_banner:
-                        artifact_msg = alias_banner
+                    named = artifacts.name_artifact(pkg_name, artifact_type, name)
+                    # prefer name announcement if available
+                    name_banner = getattr(named, "_announce", None)
+                    if name_banner:
+                        artifact_msg = name_banner
                 except Exception as e:
                     # keep going; banner still shows creation message
                     pass

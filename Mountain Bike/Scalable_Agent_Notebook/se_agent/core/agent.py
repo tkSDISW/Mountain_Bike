@@ -255,7 +255,7 @@ class AgentCore:
             "   Example:",
             '   {"actions": [',
             '       {"tool": "read_leveled_csv", "input": {"filename": "drone.csv"}},',
-            '       {"tool": "alias_artifact", "input": {"type": "hierarchy", "alias": "BOM"}}',
+            '       {"tool": "name_artifact", "input": {"type": "hierarchy", "name": "BOM"}}',
             '   ]}',
             "3. Do not include 'run: lines or extra commentary after the JSON.",
             '4. Do not propose "action" :[ "tool":"interactive_chat"] to limit recursive conversation.',

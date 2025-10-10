@@ -1,6 +1,6 @@
 # se_agent/tools/read_csv.py
 import pandas as pd
-from se_agent.tools.tool_patterns import ImportTool
+from se_agent.core.tool_patterns import ImportTool
 
 
 class ReadCSVTool(ImportTool):
