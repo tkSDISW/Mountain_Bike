@@ -250,8 +250,12 @@ class AgentCore:
         contract = [
             "You are a systems engineering assistant with access to tools.",
             "When a user makes a request:",
-            "1. Briefly reason in natural language what needs to happen.",
-            "2. Reply with a JSON object containing an 'actions' list describing the tools to call in order.",
+            "1. Briefly reason in natural language and build a plan of actions.",
+            "   a. ensure inputs exist for an action",
+            "     1. reply with response to create desired artifact when action inputs do not exist",
+            "   b. evaluate outputs that are produced to allow more actions.",
+            "   b. Proceed to execute the action plan when possible.",
+            "2. When action or actions can be taken reply with a JSON object containing an 'actions' list describing the tools to call in order.",
             "   Example:",
             '   {"actions": [',
             '       {"tool": "read_leveled_csv", "input": {"filename": "drone.csv"}},',
@@ -548,21 +552,5 @@ class AgentCore:
                   sorted(pkg.artifacts.values(), key=lambda a: getattr(a, "_created_at", ""), reverse=True)[0])
     
         return getattr(target, "_announce", None)
-# --- Example usage ---
-if __name__ == "__main__":
-    agent = AgentCore()
 
-    # Setup
-    agent.create_package("LandingGear")
-    agent.add_artifact("LandingGear", "doc", "This is a long technical document about the landing gear system.")
-    agent.use_package("LandingGear")
-
-    # Run tools
-    print("Available tools:", agent.list_tools())
-    result = agent.run("summarizer", "LandingGear", input_data="Summarize the doc")
-    print("Result:", result)
-
-    # Export pipeline
-    pipeline_file = agent.export_pipeline("landinggear_pipeline.json", package_name="LandingGear")
-    print(f"Pipeline exported to {pipeline_file}")
 

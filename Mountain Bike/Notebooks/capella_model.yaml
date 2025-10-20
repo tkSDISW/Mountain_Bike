@@ -6,29 +6,2695 @@ model:
     primary_uuid: Unique identifier for the primary object
     ref_uuid: Unique identifier for a referenced object
   objects:
-    - name: C 2
-      type: ComponentExchange
-      primary_uuid: 0744d9d9-c510-4753-982a-95014a905840
+    - name: '[LAB] Mountain Bike All (Messy)'
+      type: Diagram
+      primary_uuid: _cEA9UBOyEfCJEe7SJmD2BA
       description: ""
-      source component:
-      - name: Front Hydraulic Line
-        ref_uuid: 23ff4ce4-1cd0-419d-bbd2-dd7111439a00
-      target component:
-      - name: Front Caliper
-        ref_uuid: b065f120-9da3-481d-aca3-3eb44f84feb1
-      allocated functional exchanges:
-       - name: Modulated Force
-         ref_uuid: 3750b56f-1d4c-4713-bd53-05c4d05a7f01
-    - name: Modulated Force
+      nodes or element :
+      - name: Mountain Trails
+        ref_uuid: 8d762931-87c8-49b4-a9dd-29c9bb247fc4
+      - name: Rugged Terrain
+        ref_uuid: 67bcef17-fa06-442e-89c3-4f5d6c9b28d5
+      - name: Obstacles
+        ref_uuid: 6d0fef1f-8ab5-4305-b143-d0c05bf49897
+      - name: Split 15
+        ref_uuid: 4d836dd2-cfb2-40fb-bf0e-26a431b7bb5f
+      - name: Observations
+        ref_uuid: 4abeba94-c4db-43d3-b1db-4abaa5e99a1d
+      - name: Observations
+        ref_uuid: 184089b2-0b10-45be-9b8d-7d4091c5cb3c
+      - name: Mountain Bike
+        ref_uuid: 169e2b13-cc06-4823-ba2b-5d4d8a4a8aac
+      - name: Frame and Suspension
+        ref_uuid: 5a84df5f-1b54-4417-b127-359536e86288
+      - name: Transfer Force from rider to wheel
+        ref_uuid: 20719fe4-2898-4c0a-a3e0-56f83256855c
+      - name: Dampen Force from Wheels
+        ref_uuid: 85ddb2f3-2424-4171-90d9-0a9bb8766e46
+      - name: Accept adjustment
+        ref_uuid: e3622542-ffff-48d4-8063-d4f8fb1f6cb9
+      - name: Wheels and Tires
+        ref_uuid: 98bd50f7-91bc-4fd3-85df-20ae1b32317b
+      - name: Provide Friction to Terrain
+        ref_uuid: b0a0f125-2ead-492c-baaa-10ba80f0439c
+      - name: Transfer Propulson and Stopping Force
+        ref_uuid: b277c9bf-04eb-4482-bf1b-4fdb2848bf8d
+      - name: Transfer Terrain Force 
+        ref_uuid: 4f6d500e-e034-48bf-9ab5-d24cf36042ee
+      - name: Drive Train
+        ref_uuid: d4c6d982-902a-41fc-89fc-925ae3778a72
+      - name: Convert Pedak Force to Wheels
+        ref_uuid: cd4d37ed-950c-4cc4-9f13-86c4fc2ff03f
+      - name: Accept Gear Selection
+        ref_uuid: 65c42df1-19aa-4644-879b-d4de9ad5e9dd
+      - name: Braking System
+        ref_uuid: 7fae60bd-0078-490a-a311-dceb133e1c4e
+      - name: Provide Stopping
+        ref_uuid: 965d5df2-2134-40c0-b2af-22fcefefc1b2
+      - name: Cockpit
+        ref_uuid: 2d880ba9-1f95-4336-830c-72644069b878
+      - name: Provide Steering Control
+        ref_uuid: ae59590c-3318-470d-ad76-bf25b7b2f64f
+      - name: Split 14
+        ref_uuid: a3973022-11b4-4fc9-aa66-357f96bec611
+      - name: Display Gear Selection
+        ref_uuid: 96c34f9c-ddb1-43d2-9993-08a9034da872
+      - name: Seat and Post
+        ref_uuid: 3250b105-d169-48a7-a166-a14f94c6777d
+      - name: Provide Comfort
+        ref_uuid: 21bd188c-d167-42cf-8159-bac4149ca72d
+      - name: Accept adjustment for Terrain
+        ref_uuid: b6e8a03e-b589-4fe2-b131-2aeb037a1b80
+      - name: Gear Position
+        ref_uuid: cc4ec8de-70d0-43e4-a5f4-d4d974692850
+      - name: Mountain Biker
+        ref_uuid: 94cd8a9c-3603-4f88-b08e-6f2fdbfc96a1
+      - name: Observed Ride
+        ref_uuid: b7294467-3faa-4a9a-8d65-b7ae0bb68f4b
+      - name: Execute Ride
+        ref_uuid: 04f438aa-714f-478b-b39f-8d3560e3a6d2
+      - name: Gather 16
+        ref_uuid: 19f3e454-339b-404e-9b8c-9eb2f0fd9a88
+      - name: 
+        ref_uuid: c80939e2-2285-4d7c-b468-55764207b933
+      - name: Pedals
+        ref_uuid: 1992ccbf-676f-42b4-ae16-7fae6400d3d1
+      - name: Finger Contoler
+        ref_uuid: bbaa1cbd-bb16-40e0-989c-4214199b4d6f
+      - name: FunctionalExchange 1
+        ref_uuid: 11f88a8f-7633-4e25-aecf-9c14a773a773
+      - name: Brake Controls
+        ref_uuid: 062acd6a-7b36-4560-8ab3-7f514699b29b
+      - name: Force
+        ref_uuid: b9e3cd81-ec5f-452c-a0f2-a29f76c22364
+      - name: Force
+        ref_uuid: 07b7b5fd-62ea-415b-a80d-82b8c0e00ceb
+      - name: Terrain Forces
+        ref_uuid: 7b317b27-e99d-4644-9016-825e3d0242df
+      - name: Wheel Forces
+        ref_uuid: 63aac82e-c79b-4466-b0a3-34759c526b33
+      - name: Force
+        ref_uuid: 2b13a031-977f-42e1-9c8e-ff65062709f3
+      - name: Hands
+        ref_uuid: b12376d1-6759-4e44-9ce2-5326c91e69c2
+      - name: Stopping Forces
+        ref_uuid: a2042318-20c0-4943-be11-b77786de1458
+      - name: Pedal Torque
+        ref_uuid: 709590dc-f519-443b-aef8-7c7c9f1d132f
+      - name: Adjustment
+        ref_uuid: 3991cc90-bca8-4828-99a8-50fc89f25bfa
+      - name: Body Force
+        ref_uuid: 1ab8ffba-268d-4d22-96a0-45ffbd28f065
+      - name: Gear Selection
+        ref_uuid: 8871af4f-876f-426d-b2c5-d2cd8312c506
+      - name: FunctionalExchanBodyge 22
+        ref_uuid: 9f69df99-6896-420d-a0fa-ba0a7557e7ae
+      - name: Steering Forces
+        ref_uuid: 119664bd-c9bc-4fd1-a980-c73ddb112e7b
+      - name: Interaction 5
+        ref_uuid: f92ea395-8062-471d-9889-91517fc3f261
+      - name: Gear Selection
+        ref_uuid: e853a7b7-827b-4667-b687-1352e03c7b8f
+      - name: Shifting
+        ref_uuid: 3772878f-9ba3-4625-a49b-a41da0338909
+      - name: Steering
+        ref_uuid: f6f74163-cde2-46dc-b5c4-8ed2986fc3f0
+      - name: Powering
+        ref_uuid: 738e4672-cd66-4e48-8417-800be54e075c
+      - name: Terrain Handling
+        ref_uuid: 4623e072-ad22-47ff-9f80-1b7cc012f011
+      - name: Provide Comfort
+        ref_uuid: 3794bc0e-f3e7-43f3-bc2e-856e278d819a
+      - name: Stopping
+        ref_uuid: 5b2f0f84-6aa8-4dfb-8a2c-a792d996a457
+      - name: BS - C
+        ref_uuid: 56c6e9d4-3ac0-4b47-9e11-60cb40960517
+      - name: FunctionalExchange 15
+        ref_uuid: f74153ad-290a-4312-a85f-f4e44de12643
+      - name: Ride Comfort
+        ref_uuid: f5f70b86-1179-4bd3-b38c-21a93cac4498
+      - name: FunctionalExchange 14
+        ref_uuid: 3179ae23-b5ba-4505-bfa3-70ada7991c1a
+      - name: Terrain
+        ref_uuid: f5af23ce-da14-42a3-9c38-6167a534998e
+      - name: Terrain
+        ref_uuid: ed0e42b1-4d73-45ad-a245-1e7d031e4b78
+      - name: Terrain
+        ref_uuid: cf6d6079-7c30-43dd-b3d9-b0380fae99bf
+    - name: Mountain Trails
+      type: Part
+      primary_uuid: 8d762931-87c8-49b4-a9dd-29c9bb247fc4
+      description: ""
+      reference object  :
+      - name: Mountain Trails
+        ref_uuid: 7baa7138-2950-41df-9975-39cf984a59c4
+    - name: Rugged Terrain
+      type: LogicalFunction
+      primary_uuid: 67bcef17-fa06-442e-89c3-4f5d6c9b28d5
+      description: ""
+      owner :
+      - name: Mountain Trails
+        ref_uuid: 7baa7138-2950-41df-9975-39cf984a59c4
+      functions owned:
+      inputs:
+      outputs:
+       - name: outInteraction 6
+         ref_uuid: e1540f0b-482e-4b3f-ae8e-d3766b349f30
+         exchanges:
+          - name: Terrain
+            ref_uuid:  f5af23ce-da14-42a3-9c38-6167a534998e
+            source_function_name: Rugged Terrain
+            ref_uuid: 67bcef17-fa06-442e-89c3-4f5d6c9b28d5
+            target_function_name: Split 15
+            ref_uuid: 4d836dd2-cfb2-40fb-bf0e-26a431b7bb5f
+       - name: outObservations
+         ref_uuid: 5ec9973b-6fff-4f5c-91c2-2c0ce7e84e96
+         exchanges:
+          - name: Observations
+            ref_uuid:  4abeba94-c4db-43d3-b1db-4abaa5e99a1d
+            source_function_name: Rugged Terrain
+            ref_uuid: 67bcef17-fa06-442e-89c3-4f5d6c9b28d5
+            target_function_name: Execute Ride
+            ref_uuid: 04f438aa-714f-478b-b39f-8d3560e3a6d2
+    - name: Obstacles
+      type: LogicalFunction
+      primary_uuid: 6d0fef1f-8ab5-4305-b143-d0c05bf49897
+      description: ""
+      owner :
+      - name: Mountain Trails
+        ref_uuid: 7baa7138-2950-41df-9975-39cf984a59c4
+      functions owned:
+      inputs:
+      outputs:
+       - name: outInteraction 5
+         ref_uuid: 85d8a3c7-73d4-40b7-a952-bfe616c9acfd
+         exchanges:
+          - name: Interaction 5
+            ref_uuid:  f92ea395-8062-471d-9889-91517fc3f261
+            source_function_name: Obstacles
+            ref_uuid: 6d0fef1f-8ab5-4305-b143-d0c05bf49897
+            target_function_name: Transfer Terrain Force 
+            ref_uuid: 4f6d500e-e034-48bf-9ab5-d24cf36042ee
+       - name: outObservations
+         ref_uuid: 6a8b5efd-7894-4bed-9e31-5556fb42e6cf
+         exchanges:
+          - name: Observations
+            ref_uuid:  184089b2-0b10-45be-9b8d-7d4091c5cb3c
+            source_function_name: Obstacles
+            ref_uuid: 6d0fef1f-8ab5-4305-b143-d0c05bf49897
+            target_function_name: Execute Ride
+            ref_uuid: 04f438aa-714f-478b-b39f-8d3560e3a6d2
+    - name: Split 15
+      type: LogicalFunction
+      primary_uuid: 4d836dd2-cfb2-40fb-bf0e-26a431b7bb5f
+      description: ""
+      owner :
+      - name: Mountain Trails
+        ref_uuid: 7baa7138-2950-41df-9975-39cf984a59c4
+      functions owned:
+      inputs:
+       - name: inInteraction 6
+         ref_uuid: df4e5f48-73b3-41d0-bfb4-150c5bcce4b0
+         exchanges:
+          - name: Terrain
+            ref_uuid:  f5af23ce-da14-42a3-9c38-6167a534998e
+            source_function_name: Rugged Terrain
+            ref_uuid: 67bcef17-fa06-442e-89c3-4f5d6c9b28d5
+            target_function_name: Split 15
+            ref_uuid: 4d836dd2-cfb2-40fb-bf0e-26a431b7bb5f
+      outputs:
+       - name: FOP 1
+         ref_uuid: c55fd6a3-96fb-4186-b033-b2f0b2a27c85
+         exchanges:
+          - name: Terrain
+            ref_uuid:  ed0e42b1-4d73-45ad-a245-1e7d031e4b78
+            source_function_name: Split 15
+            ref_uuid: 4d836dd2-cfb2-40fb-bf0e-26a431b7bb5f
+            target_function_name: Provide Friction to Terrain
+            ref_uuid: b0a0f125-2ead-492c-baaa-10ba80f0439c
+       - name: FOP 2
+         ref_uuid: a2df6409-933f-4ced-9ff4-8e9cd2719263
+         exchanges:
+          - name: Terrain
+            ref_uuid:  cf6d6079-7c30-43dd-b3d9-b0380fae99bf
+            source_function_name: Split 15
+            ref_uuid: 4d836dd2-cfb2-40fb-bf0e-26a431b7bb5f
+            target_function_name: Transfer Terrain Force 
+            ref_uuid: 4f6d500e-e034-48bf-9ab5-d24cf36042ee
+    - name: Observations
       type: FunctionalExchange
-      primary_uuid: 3750b56f-1d4c-4713-bd53-05c4d05a7f01
+      primary_uuid: 4abeba94-c4db-43d3-b1db-4abaa5e99a1d
+      description: ""
+      source function or activity port:
+      - name: outObservations
+        ref_uuid: 5ec9973b-6fff-4f5c-91c2-2c0ce7e84e96
+      target function or activity port:
+      - name: inObservations
+        ref_uuid: 238ef21f-6d9f-4230-8e2e-9f47f58502d2
+    - name: Observations
+      type: FunctionalExchange
+      primary_uuid: 184089b2-0b10-45be-9b8d-7d4091c5cb3c
+      description: ""
+      source function or activity port:
+      - name: outObservations
+        ref_uuid: 6a8b5efd-7894-4bed-9e31-5556fb42e6cf
+      target function or activity port:
+      - name: inObservations
+        ref_uuid: ed75620b-24b3-4c32-9506-9ba6eb620a26
+    - name: Mountain Bike
+      type: Part
+      primary_uuid: 169e2b13-cc06-4823-ba2b-5d4d8a4a8aac
+      description: ""
+      reference object  :
+      - name: Mountain Bike
+        ref_uuid: dac211a0-dde3-4221-9133-891695ac7def
+    - name: Frame and Suspension
+      type: Part
+      primary_uuid: 5a84df5f-1b54-4417-b127-359536e86288
+      description: ""
+      reference object  :
+      - name: Frame and Suspension
+        ref_uuid: 8c2d60a2-bf52-4e83-8fc2-0d329f7637b4
+    - name: Transfer Force from rider to wheel
+      type: LogicalFunction
+      primary_uuid: 20719fe4-2898-4c0a-a3e0-56f83256855c
+      description: ""
+      owner :
+      - name: Frame and Suspension
+        ref_uuid: 8c2d60a2-bf52-4e83-8fc2-0d329f7637b4
+      functions owned:
+      inputs:
+       - name: FIP 1
+         ref_uuid: d635b4f3-e265-4a20-9546-92fb6a3fdef5
+         exchanges:
+          - name: FunctionalExchanBodyge 22
+            ref_uuid:  9f69df99-6896-420d-a0fa-ba0a7557e7ae
+            source_function_name: Provide Comfort
+            ref_uuid: 21bd188c-d167-42cf-8159-bac4149ca72d
+            target_function_name: Transfer Force from rider to wheel
+            ref_uuid: 20719fe4-2898-4c0a-a3e0-56f83256855c
+      outputs:
+       - name: FOP 1
+         ref_uuid: 53351b62-c351-411a-baae-576f2614a7c2
+         exchanges:
+          - name: Body Force
+            ref_uuid:  1ab8ffba-268d-4d22-96a0-45ffbd28f065
+            source_function_name: Transfer Force from rider to wheel
+            ref_uuid: 20719fe4-2898-4c0a-a3e0-56f83256855c
+            target_function_name: Transfer Propulson and Stopping Force
+            ref_uuid: b277c9bf-04eb-4482-bf1b-4fdb2848bf8d
+    - name: Dampen Force from Wheels
+      type: LogicalFunction
+      primary_uuid: 85ddb2f3-2424-4171-90d9-0a9bb8766e46
+      description: ""
+      owner :
+      - name: Frame and Suspension
+        ref_uuid: 8c2d60a2-bf52-4e83-8fc2-0d329f7637b4
+      functions owned:
+      inputs:
+       - name: FIP 1
+         ref_uuid: 92ea98da-9c82-4f1b-8933-f74a7a7a7515
+         exchanges:
+          - name: Terrain Forces
+            ref_uuid:  7b317b27-e99d-4644-9016-825e3d0242df
+            source_function_name: Transfer Terrain Force 
+            ref_uuid: 4f6d500e-e034-48bf-9ab5-d24cf36042ee
+            target_function_name: Dampen Force from Wheels
+            ref_uuid: 85ddb2f3-2424-4171-90d9-0a9bb8766e46
+       - name: FIP 2
+         ref_uuid: fcf121d4-4497-43c4-81e9-4678ecb53eff
+         exchanges:
+          - name: Pedal Torque
+            ref_uuid:  709590dc-f519-443b-aef8-7c7c9f1d132f
+            source_function_name: Accept adjustment
+            ref_uuid: e3622542-ffff-48d4-8063-d4f8fb1f6cb9
+            target_function_name: Dampen Force from Wheels
+            ref_uuid: 85ddb2f3-2424-4171-90d9-0a9bb8766e46
+       - name: FIP 3
+         ref_uuid: 0697a605-6f9b-401a-ae37-dfac816a732e
+         exchanges:
+          - name: Adjustment
+            ref_uuid:  3991cc90-bca8-4828-99a8-50fc89f25bfa
+            source_function_name: Accept adjustment for Terrain
+            ref_uuid: b6e8a03e-b589-4fe2-b131-2aeb037a1b80
+            target_function_name: Dampen Force from Wheels
+            ref_uuid: 85ddb2f3-2424-4171-90d9-0a9bb8766e46
+       - name: FIP 2
+         ref_uuid: 3879270f-3357-45d7-bf23-6030c157517c
+         exchanges:
+          - name: FunctionalExchange 11
+            ref_uuid:  72443ba5-d78f-4a94-98ef-ff28065c014e
+            source_function_name: Allow Control 
+            ref_uuid: af5cf3ec-669a-43cb-a1f8-5cbaa625033c
+            target_function_name: Dampen Force from Wheels
+            ref_uuid: 85ddb2f3-2424-4171-90d9-0a9bb8766e46
+      outputs:
+       - name: FOP 1
+         ref_uuid: 5dc312fc-e7f6-4d46-993a-b4867db94fe3
+         exchanges:
+          - name: Wheel Forces
+            ref_uuid:  63aac82e-c79b-4466-b0a3-34759c526b33
+            source_function_name: Dampen Force from Wheels
+            ref_uuid: 85ddb2f3-2424-4171-90d9-0a9bb8766e46
+            target_function_name: Convert Pedak Force to Wheels
+            ref_uuid: cd4d37ed-950c-4cc4-9f13-86c4fc2ff03f
+       - name: FOP 2
+         ref_uuid: ed600a91-ce3e-4d71-bcc7-0e4033f2c750
+         exchanges:
+          - name: Force
+            ref_uuid:  2b13a031-977f-42e1-9c8e-ff65062709f3
+            source_function_name: Dampen Force from Wheels
+            ref_uuid: 85ddb2f3-2424-4171-90d9-0a9bb8766e46
+            target_function_name: Provide Comfort
+            ref_uuid: 21bd188c-d167-42cf-8159-bac4149ca72d
+    - name: Accept adjustment
+      type: LogicalFunction
+      primary_uuid: e3622542-ffff-48d4-8063-d4f8fb1f6cb9
+      description: ""
+      owner :
+      - name: Frame and Suspension
+        ref_uuid: 8c2d60a2-bf52-4e83-8fc2-0d329f7637b4
+      functions owned:
+      inputs:
+       - name: FIP 1
+         ref_uuid: 5ec71d74-c9f3-469c-bfa2-11896a9c99e5
+         exchanges:
+          - name: Suspension Adjust
+            ref_uuid:  dcc5d363-34a9-4222-b14e-b8ee0e122faa
+            source_function_name: Split 17
+            ref_uuid: dce8973c-fc7c-4540-b903-4f3b1fad9567
+            target_function_name: Accept adjustment
+            ref_uuid: e3622542-ffff-48d4-8063-d4f8fb1f6cb9
+      outputs:
+       - name: FOP 1
+         ref_uuid: 25ef7db9-9d5d-4394-afef-9b802e1a349b
+         exchanges:
+          - name: Pedal Torque
+            ref_uuid:  709590dc-f519-443b-aef8-7c7c9f1d132f
+            source_function_name: Accept adjustment
+            ref_uuid: e3622542-ffff-48d4-8063-d4f8fb1f6cb9
+            target_function_name: Dampen Force from Wheels
+            ref_uuid: 85ddb2f3-2424-4171-90d9-0a9bb8766e46
+    - name: Wheels and Tires
+      type: Part
+      primary_uuid: 98bd50f7-91bc-4fd3-85df-20ae1b32317b
+      description: ""
+      reference object  :
+      - name: Wheels and Tires
+        ref_uuid: 90f89672-7087-4970-95d5-8fdecd5f07b0
+    - name: Provide Friction to Terrain
+      type: LogicalFunction
+      primary_uuid: b0a0f125-2ead-492c-baaa-10ba80f0439c
+      description: ""
+      owner :
+      - name: Wheels and Tires
+        ref_uuid: 90f89672-7087-4970-95d5-8fdecd5f07b0
+      functions owned:
+      inputs:
+       - name: FIP 2
+         ref_uuid: cf8c9e56-e233-4a96-aae3-288c52c9b2a9
+         exchanges:
+          - name: Force
+            ref_uuid:  07b7b5fd-62ea-415b-a80d-82b8c0e00ceb
+            source_function_name: Transfer Propulson and Stopping Force
+            ref_uuid: b277c9bf-04eb-4482-bf1b-4fdb2848bf8d
+            target_function_name: Provide Friction to Terrain
+            ref_uuid: b0a0f125-2ead-492c-baaa-10ba80f0439c
+       - name: FIP 3
+         ref_uuid: db3844a0-d10b-4c53-8476-3b4ee8810630
+         exchanges:
+          - name: Terrain
+            ref_uuid:  ed0e42b1-4d73-45ad-a245-1e7d031e4b78
+            source_function_name: Split 15
+            ref_uuid: 4d836dd2-cfb2-40fb-bf0e-26a431b7bb5f
+            target_function_name: Provide Friction to Terrain
+            ref_uuid: b0a0f125-2ead-492c-baaa-10ba80f0439c
+      outputs:
+    - name: Transfer Propulson and Stopping Force
+      type: LogicalFunction
+      primary_uuid: b277c9bf-04eb-4482-bf1b-4fdb2848bf8d
+      description: ""
+      owner :
+      - name: Wheels and Tires
+        ref_uuid: 90f89672-7087-4970-95d5-8fdecd5f07b0
+      functions owned:
+      inputs:
+       - name: FIP 1
+         ref_uuid: 987317c2-557e-4b1e-a2f2-1f6ee106e2a3
+         exchanges:
+          - name: Force
+            ref_uuid:  b9e3cd81-ec5f-452c-a0f2-a29f76c22364
+            source_function_name: Convert Pedak Force to Wheels
+            ref_uuid: cd4d37ed-950c-4cc4-9f13-86c4fc2ff03f
+            target_function_name: Transfer Propulson and Stopping Force
+            ref_uuid: b277c9bf-04eb-4482-bf1b-4fdb2848bf8d
+       - name: FIP 2
+         ref_uuid: e32af765-0d7e-4071-89fb-000a2dc4e57d
+         exchanges:
+          - name: Stopping Forces
+            ref_uuid:  a2042318-20c0-4943-be11-b77786de1458
+            source_function_name: Provide Stopping
+            ref_uuid: 965d5df2-2134-40c0-b2af-22fcefefc1b2
+            target_function_name: Transfer Propulson and Stopping Force
+            ref_uuid: b277c9bf-04eb-4482-bf1b-4fdb2848bf8d
+       - name: FIP 3
+         ref_uuid: 760a3107-1d64-4ef6-939e-127b1a5595e3
+         exchanges:
+          - name: Body Force
+            ref_uuid:  1ab8ffba-268d-4d22-96a0-45ffbd28f065
+            source_function_name: Transfer Force from rider to wheel
+            ref_uuid: 20719fe4-2898-4c0a-a3e0-56f83256855c
+            target_function_name: Transfer Propulson and Stopping Force
+            ref_uuid: b277c9bf-04eb-4482-bf1b-4fdb2848bf8d
+       - name: FIP 4
+         ref_uuid: 40c2e630-d30f-4177-b5bb-25b9ea52506f
+         exchanges:
+          - name: Steering Forces
+            ref_uuid:  119664bd-c9bc-4fd1-a980-c73ddb112e7b
+            source_function_name: Provide Steering Control
+            ref_uuid: ae59590c-3318-470d-ad76-bf25b7b2f64f
+            target_function_name: Transfer Propulson and Stopping Force
+            ref_uuid: b277c9bf-04eb-4482-bf1b-4fdb2848bf8d
+      outputs:
+       - name: FOP 1
+         ref_uuid: 5fe83310-76dc-419c-8ceb-4759293cf1c7
+         exchanges:
+          - name: Force
+            ref_uuid:  07b7b5fd-62ea-415b-a80d-82b8c0e00ceb
+            source_function_name: Transfer Propulson and Stopping Force
+            ref_uuid: b277c9bf-04eb-4482-bf1b-4fdb2848bf8d
+            target_function_name: Provide Friction to Terrain
+            ref_uuid: b0a0f125-2ead-492c-baaa-10ba80f0439c
+    - name: Transfer Terrain Force 
+      type: LogicalFunction
+      primary_uuid: 4f6d500e-e034-48bf-9ab5-d24cf36042ee
+      description: ""
+      owner :
+      - name: Wheels and Tires
+        ref_uuid: 90f89672-7087-4970-95d5-8fdecd5f07b0
+      functions owned:
+      inputs:
+       - name: FIP 1
+         ref_uuid: d97ad41d-dad4-48d4-9158-c9fa8aa8c200
+         exchanges:
+          - name: Terrain
+            ref_uuid:  cf6d6079-7c30-43dd-b3d9-b0380fae99bf
+            source_function_name: Split 15
+            ref_uuid: 4d836dd2-cfb2-40fb-bf0e-26a431b7bb5f
+            target_function_name: Transfer Terrain Force 
+            ref_uuid: 4f6d500e-e034-48bf-9ab5-d24cf36042ee
+       - name: inInteraction 5
+         ref_uuid: b20c61e5-1646-4ef3-bbe2-0f959a2a4464
+         exchanges:
+          - name: Interaction 5
+            ref_uuid:  f92ea395-8062-471d-9889-91517fc3f261
+            source_function_name: Obstacles
+            ref_uuid: 6d0fef1f-8ab5-4305-b143-d0c05bf49897
+            target_function_name: Transfer Terrain Force 
+            ref_uuid: 4f6d500e-e034-48bf-9ab5-d24cf36042ee
+      outputs:
+       - name: FOP 1
+         ref_uuid: 2f5cf222-c8fa-495a-b92c-a5b54cd43afb
+         exchanges:
+          - name: Terrain Forces
+            ref_uuid:  7b317b27-e99d-4644-9016-825e3d0242df
+            source_function_name: Transfer Terrain Force 
+            ref_uuid: 4f6d500e-e034-48bf-9ab5-d24cf36042ee
+            target_function_name: Dampen Force from Wheels
+            ref_uuid: 85ddb2f3-2424-4171-90d9-0a9bb8766e46
+    - name: Drive Train
+      type: Part
+      primary_uuid: d4c6d982-902a-41fc-89fc-925ae3778a72
+      description: ""
+      reference object  :
+      - name: Drive Train
+        ref_uuid: 88b90f1a-0695-412c-9e40-81aed1993eab
+    - name: Convert Pedak Force to Wheels
+      type: LogicalFunction
+      primary_uuid: cd4d37ed-950c-4cc4-9f13-86c4fc2ff03f
+      description: ""
+      owner :
+      - name: Drive Train
+        ref_uuid: 88b90f1a-0695-412c-9e40-81aed1993eab
+      functions owned:
+      inputs:
+       - name: inPedals
+         ref_uuid: 2b23e10d-90c7-41a7-8dc4-44fedc7babea
+         exchanges:
+          - name: Pedals
+            ref_uuid:  1992ccbf-676f-42b4-ae16-7fae6400d3d1
+            source_function_name: Execute Ride
+            ref_uuid: 04f438aa-714f-478b-b39f-8d3560e3a6d2
+            target_function_name: Convert Pedak Force to Wheels
+            ref_uuid: cd4d37ed-950c-4cc4-9f13-86c4fc2ff03f
+       - name: FIP 2
+         ref_uuid: c1db1e27-e93f-4280-bd96-c511d1cee188
+         exchanges:
+          - name: Wheel Forces
+            ref_uuid:  63aac82e-c79b-4466-b0a3-34759c526b33
+            source_function_name: Dampen Force from Wheels
+            ref_uuid: 85ddb2f3-2424-4171-90d9-0a9bb8766e46
+            target_function_name: Convert Pedak Force to Wheels
+            ref_uuid: cd4d37ed-950c-4cc4-9f13-86c4fc2ff03f
+       - name: FIP 1
+         ref_uuid: a82c509e-066b-4d8f-98e7-9d0728d06454
+         exchanges:
+          - name: Gear Selection
+            ref_uuid:  8871af4f-876f-426d-b2c5-d2cd8312c506
+            source_function_name: Accept Gear Selection
+            ref_uuid: 65c42df1-19aa-4644-879b-d4de9ad5e9dd
+            target_function_name: Convert Pedak Force to Wheels
+            ref_uuid: cd4d37ed-950c-4cc4-9f13-86c4fc2ff03f
+      outputs:
+       - name: FOP 1
+         ref_uuid: 4b1a6c7b-4abf-4854-9a3d-9c27e1b13d12
+         exchanges:
+          - name: Force
+            ref_uuid:  b9e3cd81-ec5f-452c-a0f2-a29f76c22364
+            source_function_name: Convert Pedak Force to Wheels
+            ref_uuid: cd4d37ed-950c-4cc4-9f13-86c4fc2ff03f
+            target_function_name: Transfer Propulson and Stopping Force
+            ref_uuid: b277c9bf-04eb-4482-bf1b-4fdb2848bf8d
+    - name: Accept Gear Selection
+      type: LogicalFunction
+      primary_uuid: 65c42df1-19aa-4644-879b-d4de9ad5e9dd
+      description: ""
+      owner :
+      - name: Drive Train
+        ref_uuid: 88b90f1a-0695-412c-9e40-81aed1993eab
+      functions owned:
+      inputs:
+       - name: FIP 1
+         ref_uuid: b67670ff-da3a-413a-abe3-06da9056165b
+         exchanges:
+          - name: FunctionalExchange 1
+            ref_uuid:  11f88a8f-7633-4e25-aecf-9c14a773a773
+            source_function_name: Split 14
+            ref_uuid: a3973022-11b4-4fc9-aa66-357f96bec611
+            target_function_name: Accept Gear Selection
+            ref_uuid: 65c42df1-19aa-4644-879b-d4de9ad5e9dd
+      outputs:
+       - name: FOP 1
+         ref_uuid: 14bb3034-1349-4746-92e9-8762974f1581
+         exchanges:
+          - name: Gear Selection
+            ref_uuid:  8871af4f-876f-426d-b2c5-d2cd8312c506
+            source_function_name: Accept Gear Selection
+            ref_uuid: 65c42df1-19aa-4644-879b-d4de9ad5e9dd
+            target_function_name: Convert Pedak Force to Wheels
+            ref_uuid: cd4d37ed-950c-4cc4-9f13-86c4fc2ff03f
+       - name: FOP 2
+         ref_uuid: 8d409f7a-9de3-44d0-bf04-8ef9a71419c2
+         exchanges:
+          - name: Gear Selection
+            ref_uuid:  e853a7b7-827b-4667-b687-1352e03c7b8f
+            source_function_name: Accept Gear Selection
+            ref_uuid: 65c42df1-19aa-4644-879b-d4de9ad5e9dd
+            target_function_name: Display Gear Selection
+            ref_uuid: 96c34f9c-ddb1-43d2-9993-08a9034da872
+    - name: Braking System
+      type: Part
+      primary_uuid: 7fae60bd-0078-490a-a311-dceb133e1c4e
+      description: ""
+      reference object  :
+      - name: Braking System
+        ref_uuid: d8e659e7-e706-4251-95d2-35d2000ee608
+    - name: Provide Stopping
+      type: LogicalFunction
+      primary_uuid: 965d5df2-2134-40c0-b2af-22fcefefc1b2
+      description: ""
+      owner :
+      - name: Braking System
+        ref_uuid: d8e659e7-e706-4251-95d2-35d2000ee608
+      functions owned:
+      inputs:
+       - name: FIP 1
+         ref_uuid: ce69df36-b188-4f28-adaf-ea5237594c53
+         exchanges:
+          - name: Brake Controls
+            ref_uuid:  062acd6a-7b36-4560-8ab3-7f514699b29b
+            source_function_name: Split 14
+            ref_uuid: a3973022-11b4-4fc9-aa66-357f96bec611
+            target_function_name: Provide Stopping
+            ref_uuid: 965d5df2-2134-40c0-b2af-22fcefefc1b2
+      outputs:
+       - name: FOP 1
+         ref_uuid: ae2709f9-f8b4-45b1-8090-9cb1b643a0fd
+         exchanges:
+          - name: Stopping Forces
+            ref_uuid:  a2042318-20c0-4943-be11-b77786de1458
+            source_function_name: Provide Stopping
+            ref_uuid: 965d5df2-2134-40c0-b2af-22fcefefc1b2
+            target_function_name: Transfer Propulson and Stopping Force
+            ref_uuid: b277c9bf-04eb-4482-bf1b-4fdb2848bf8d
+    - name: Cockpit
+      type: Part
+      primary_uuid: 2d880ba9-1f95-4336-830c-72644069b878
+      description: ""
+      reference object  :
+      - name: Cockpit
+        ref_uuid: ca778e63-491b-4487-8510-ef9fd8caaa64
+    - name: Provide Steering Control
+      type: LogicalFunction
+      primary_uuid: ae59590c-3318-470d-ad76-bf25b7b2f64f
+      description: ""
+      owner :
+      - name: Cockpit
+        ref_uuid: ca778e63-491b-4487-8510-ef9fd8caaa64
+      functions owned:
+      inputs:
+       - name: inHands
+         ref_uuid: e1fe7aa4-20f4-440b-8a91-4adb5cc557be
+         exchanges:
+          - name: Hands
+            ref_uuid:  b12376d1-6759-4e44-9ce2-5326c91e69c2
+            source_function_name: Execute Ride
+            ref_uuid: 04f438aa-714f-478b-b39f-8d3560e3a6d2
+            target_function_name: Provide Steering Control
+            ref_uuid: ae59590c-3318-470d-ad76-bf25b7b2f64f
+      outputs:
+       - name: FOP 1
+         ref_uuid: 62a18adc-5b83-4532-95da-3d9fbe1909bf
+         exchanges:
+          - name: FunctionalExchange 15
+            ref_uuid:  f74153ad-290a-4312-a85f-f4e44de12643
+            source_function_name: Provide Steering Control
+            ref_uuid: ae59590c-3318-470d-ad76-bf25b7b2f64f
+            target_function_name: Gather 16
+            ref_uuid: 19f3e454-339b-404e-9b8c-9eb2f0fd9a88
+       - name: FOP 2
+         ref_uuid: 148303a3-c09b-4d95-b8d0-6390c8e22240
+         exchanges:
+          - name: Steering Forces
+            ref_uuid:  119664bd-c9bc-4fd1-a980-c73ddb112e7b
+            source_function_name: Provide Steering Control
+            ref_uuid: ae59590c-3318-470d-ad76-bf25b7b2f64f
+            target_function_name: Transfer Propulson and Stopping Force
+            ref_uuid: b277c9bf-04eb-4482-bf1b-4fdb2848bf8d
+    - name: Split 14
+      type: LogicalFunction
+      primary_uuid: a3973022-11b4-4fc9-aa66-357f96bec611
+      description: ""
+      owner :
+      - name: Cockpit
+        ref_uuid: ca778e63-491b-4487-8510-ef9fd8caaa64
+      functions owned:
+      inputs:
+       - name: inFinger Contoler
+         ref_uuid: 8773934d-043a-474c-81ba-92e2bd5ddf8e
+         exchanges:
+          - name: Finger Contoler
+            ref_uuid:  bbaa1cbd-bb16-40e0-989c-4214199b4d6f
+            source_function_name: Execute Ride
+            ref_uuid: 04f438aa-714f-478b-b39f-8d3560e3a6d2
+            target_function_name: Split 14
+            ref_uuid: a3973022-11b4-4fc9-aa66-357f96bec611
+      outputs:
+       - name: FOP 1
+         ref_uuid: 19929ac8-9e2d-4d42-b10f-df7f4c3cb7c8
+         exchanges:
+          - name: FunctionalExchange 1
+            ref_uuid:  11f88a8f-7633-4e25-aecf-9c14a773a773
+            source_function_name: Split 14
+            ref_uuid: a3973022-11b4-4fc9-aa66-357f96bec611
+            target_function_name: Accept Gear Selection
+            ref_uuid: 65c42df1-19aa-4644-879b-d4de9ad5e9dd
+       - name: FOP 2
+         ref_uuid: 12525133-91ef-4e8c-8a2f-c777faa595bf
+         exchanges:
+          - name: Brake Controls
+            ref_uuid:  062acd6a-7b36-4560-8ab3-7f514699b29b
+            source_function_name: Split 14
+            ref_uuid: a3973022-11b4-4fc9-aa66-357f96bec611
+            target_function_name: Provide Stopping
+            ref_uuid: 965d5df2-2134-40c0-b2af-22fcefefc1b2
+    - name: Display Gear Selection
+      type: LogicalFunction
+      primary_uuid: 96c34f9c-ddb1-43d2-9993-08a9034da872
+      description: ""
+      owner :
+      - name: Cockpit
+        ref_uuid: ca778e63-491b-4487-8510-ef9fd8caaa64
+      functions owned:
+      inputs:
+       - name: inGear
+         ref_uuid: fd92fda9-ace4-4c39-8470-931f68565805
+         exchanges:
+          - name: Gear Selection
+            ref_uuid:  e853a7b7-827b-4667-b687-1352e03c7b8f
+            source_function_name: Accept Gear Selection
+            ref_uuid: 65c42df1-19aa-4644-879b-d4de9ad5e9dd
+            target_function_name: Display Gear Selection
+            ref_uuid: 96c34f9c-ddb1-43d2-9993-08a9034da872
+          - name: Gear
+            ref_uuid:  02087a31-eab3-467d-86f2-6950d24a958a
+            source_function_name: Ride Trail
+            ref_uuid: 89793c55-f23f-480f-ace1-5b4368e419b7
+            target_function_name: Display Gear Selection
+            ref_uuid: 96c34f9c-ddb1-43d2-9993-08a9034da872
+      outputs:
+       - name: outGear Position
+         ref_uuid: 1eb1465c-7008-47a2-83f6-7fb65de2b052
+         exchanges:
+          - name: Gear Position
+            ref_uuid:  cc4ec8de-70d0-43e4-a5f4-d4d974692850
+            source_function_name: Display Gear Selection
+            ref_uuid: 96c34f9c-ddb1-43d2-9993-08a9034da872
+            target_function_name: Execute Ride
+            ref_uuid: 04f438aa-714f-478b-b39f-8d3560e3a6d2
+    - name: Seat and Post
+      type: Part
+      primary_uuid: 3250b105-d169-48a7-a166-a14f94c6777d
+      description: ""
+      reference object  :
+      - name: Seat and Post
+        ref_uuid: 948cfaeb-a7a7-47ae-a3cf-75bd83b86c7c
+    - name: Provide Comfort
+      type: LogicalFunction
+      primary_uuid: 21bd188c-d167-42cf-8159-bac4149ca72d
+      description: ""
+      owner :
+      - name: Seat and Post
+        ref_uuid: 948cfaeb-a7a7-47ae-a3cf-75bd83b86c7c
+      functions owned:
+      inputs:
+       - name: FIP 1
+         ref_uuid: 7f7ec7f1-73e4-4630-bc90-b88209da5ee9
+         exchanges:
+          - name: Force
+            ref_uuid:  2b13a031-977f-42e1-9c8e-ff65062709f3
+            source_function_name: Dampen Force from Wheels
+            ref_uuid: 85ddb2f3-2424-4171-90d9-0a9bb8766e46
+            target_function_name: Provide Comfort
+            ref_uuid: 21bd188c-d167-42cf-8159-bac4149ca72d
+       - name: FIP 2
+         ref_uuid: 9d76d36e-133d-4e29-b36c-af376e03bdf9
+         exchanges:
+          - name: Body
+            ref_uuid:  30ee9786-a37a-4a0b-ba30-eaab49b595d3
+            source_function_name: Split 16
+            ref_uuid: 8da26c67-410b-4a6b-8c8e-9196f0d2a9fc
+            target_function_name: Provide Comfort
+            ref_uuid: 21bd188c-d167-42cf-8159-bac4149ca72d
+      outputs:
+       - name: FOP 1
+         ref_uuid: a743d260-273f-4033-93b0-806039d8969e
+         exchanges:
+          - name: FunctionalExchange 14
+            ref_uuid:  3179ae23-b5ba-4505-bfa3-70ada7991c1a
+            source_function_name: Provide Comfort
+            ref_uuid: 21bd188c-d167-42cf-8159-bac4149ca72d
+            target_function_name: Gather 16
+            ref_uuid: 19f3e454-339b-404e-9b8c-9eb2f0fd9a88
+       - name: FOP 2
+         ref_uuid: 2c8788db-a643-45fd-9241-55379c3a0b5c
+         exchanges:
+          - name: FunctionalExchanBodyge 22
+            ref_uuid:  9f69df99-6896-420d-a0fa-ba0a7557e7ae
+            source_function_name: Provide Comfort
+            ref_uuid: 21bd188c-d167-42cf-8159-bac4149ca72d
+            target_function_name: Transfer Force from rider to wheel
+            ref_uuid: 20719fe4-2898-4c0a-a3e0-56f83256855c
+    - name: Accept adjustment for Terrain
+      type: LogicalFunction
+      primary_uuid: b6e8a03e-b589-4fe2-b131-2aeb037a1b80
+      description: ""
+      owner :
+      - name: Seat and Post
+        ref_uuid: 948cfaeb-a7a7-47ae-a3cf-75bd83b86c7c
+      functions owned:
+      inputs:
+       - name: FIP 1
+         ref_uuid: 5ffe2b1a-61ab-4a92-a7e7-8bb1a6fc1c52
+         exchanges:
+          - name: Seat Adjust
+            ref_uuid:  5d92d5fb-3ed4-4819-90b6-5d8b1c7680e6
+            source_function_name: Split 17
+            ref_uuid: dce8973c-fc7c-4540-b903-4f3b1fad9567
+            target_function_name: Accept adjustment for Terrain
+            ref_uuid: b6e8a03e-b589-4fe2-b131-2aeb037a1b80
+      outputs:
+       - name: FOP 1
+         ref_uuid: f80c7aaf-01fe-439a-b9a4-edbde533dd27
+         exchanges:
+          - name: Adjustment
+            ref_uuid:  3991cc90-bca8-4828-99a8-50fc89f25bfa
+            source_function_name: Accept adjustment for Terrain
+            ref_uuid: b6e8a03e-b589-4fe2-b131-2aeb037a1b80
+            target_function_name: Dampen Force from Wheels
+            ref_uuid: 85ddb2f3-2424-4171-90d9-0a9bb8766e46
+    - name: Gear Position
+      type: FunctionalExchange
+      primary_uuid: cc4ec8de-70d0-43e4-a5f4-d4d974692850
+      description: ""
+      source function or activity port:
+      - name: outGear Position
+        ref_uuid: 1eb1465c-7008-47a2-83f6-7fb65de2b052
+      target function or activity port:
+      - name: inGear Position
+        ref_uuid: a0dd21fb-9d9e-4c06-b209-6efec4ce2d97
+    - name: Mountain Biker
+      type: Part
+      primary_uuid: 94cd8a9c-3603-4f88-b08e-6f2fdbfc96a1
+      description: ""
+      reference object  :
+      - name: Mountain Biker
+        ref_uuid: 2190789c-c6cc-471e-b99c-61a67b13423e
+    - name: Observed Ride
+      type: LogicalFunction
+      primary_uuid: b7294467-3faa-4a9a-8d65-b7ae0bb68f4b
+      description: "&lt;p&gt;from Mountain Bikers regarding the bike&amp;#39;s performance on various terrains. This data is used to improve design and functionality, ensuring future models better fulfill the Terrain Navigation capability.&lt;/p&gt;  &lt;p&gt;&amp;nbsp;&lt;/p&gt;  &lt;p&gt;&lt;span style=&#34;background: white;&#34;&gt;Feedback from riders and performance data&lt;/span&gt;&lt;/p&gt; "
+      owner :
+      - name: Mountain Biker
+        ref_uuid: 2190789c-c6cc-471e-b99c-61a67b13423e
+      functions owned:
+      inputs:
+       - name: inRide Comfort
+         ref_uuid: e99e5832-5602-43b9-9f78-587a66abaa6e
+         exchanges:
+          - name: Ride Comfort
+            ref_uuid:  f5f70b86-1179-4bd3-b38c-21a93cac4498
+            source_function_name: Gather 16
+            ref_uuid: 19f3e454-339b-404e-9b8c-9eb2f0fd9a88
+            target_function_name: Observed Ride
+            ref_uuid: b7294467-3faa-4a9a-8d65-b7ae0bb68f4b
+      outputs:
+       - name: outFeedbak
+         ref_uuid: 2ac46cf7-9587-4efb-91d4-e8a716861b46
+         exchanges:
+          - name: Feedbak
+            ref_uuid:  e6af780e-f948-411f-827a-0d9dfa8520a9
+            source_function_name: Observed Ride
+            ref_uuid: b7294467-3faa-4a9a-8d65-b7ae0bb68f4b
+            target_function_name: Monitor Reviews
+            ref_uuid: 5e1e0409-cb23-43f3-85b7-e9a5b5559c0d
+       - name: outInteraction 16
+         ref_uuid: 29f24a41-3895-4379-86dc-374c4b39e1fa
+         exchanges:
+          - name: Interaction 16
+            ref_uuid:  eabb6e21-6cf8-436b-af7d-3059fa5368cf
+            source_function_name: Observed Ride
+            ref_uuid: b7294467-3faa-4a9a-8d65-b7ae0bb68f4b
+            target_function_name: Maintain Bike
+            ref_uuid: 6ea2ccd8-5263-421c-8c5c-17375b8de5f7
+    - name: Execute Ride
+      type: LogicalFunction
+      primary_uuid: 04f438aa-714f-478b-b39f-8d3560e3a6d2
+      description: ""
+      owner :
+      - name: Mountain Biker
+        ref_uuid: 2190789c-c6cc-471e-b99c-61a67b13423e
+      functions owned:
+      inputs:
+       - name: inRide
+         ref_uuid: ef9e9982-0453-4674-b1b2-0c8b3adfb2ae
+         exchanges:
+          - name: Ride
+            ref_uuid:  298219e9-aed5-41e6-b308-ccb956df3e1d
+            source_function_name: Terrain Adjustment
+            ref_uuid: c553928e-5995-424c-a8e9-62b20ad68356
+            target_function_name: Execute Ride
+            ref_uuid: 04f438aa-714f-478b-b39f-8d3560e3a6d2
+       - name: inObservations
+         ref_uuid: 238ef21f-6d9f-4230-8e2e-9f47f58502d2
+         exchanges:
+          - name: Observations
+            ref_uuid:  4abeba94-c4db-43d3-b1db-4abaa5e99a1d
+            source_function_name: Rugged Terrain
+            ref_uuid: 67bcef17-fa06-442e-89c3-4f5d6c9b28d5
+            target_function_name: Execute Ride
+            ref_uuid: 04f438aa-714f-478b-b39f-8d3560e3a6d2
+       - name: inObservations
+         ref_uuid: ed75620b-24b3-4c32-9506-9ba6eb620a26
+         exchanges:
+          - name: Observations
+            ref_uuid:  184089b2-0b10-45be-9b8d-7d4091c5cb3c
+            source_function_name: Obstacles
+            ref_uuid: 6d0fef1f-8ab5-4305-b143-d0c05bf49897
+            target_function_name: Execute Ride
+            ref_uuid: 04f438aa-714f-478b-b39f-8d3560e3a6d2
+       - name: inGear Position
+         ref_uuid: a0dd21fb-9d9e-4c06-b209-6efec4ce2d97
+         exchanges:
+          - name: Gear Position
+            ref_uuid:  cc4ec8de-70d0-43e4-a5f4-d4d974692850
+            source_function_name: Display Gear Selection
+            ref_uuid: 96c34f9c-ddb1-43d2-9993-08a9034da872
+            target_function_name: Execute Ride
+            ref_uuid: 04f438aa-714f-478b-b39f-8d3560e3a6d2
+      outputs:
+       - name: outHands
+         ref_uuid: aadf00ca-76af-496d-bd84-9fd3683fa50c
+         exchanges:
+          - name: Hands
+            ref_uuid:  b12376d1-6759-4e44-9ce2-5326c91e69c2
+            source_function_name: Execute Ride
+            ref_uuid: 04f438aa-714f-478b-b39f-8d3560e3a6d2
+            target_function_name: Provide Steering Control
+            ref_uuid: ae59590c-3318-470d-ad76-bf25b7b2f64f
+       - name: outPedals
+         ref_uuid: 053bb7d0-3a8c-4baa-9dff-43717449794d
+         exchanges:
+          - name: Pedals
+            ref_uuid:  1992ccbf-676f-42b4-ae16-7fae6400d3d1
+            source_function_name: Execute Ride
+            ref_uuid: 04f438aa-714f-478b-b39f-8d3560e3a6d2
+            target_function_name: Convert Pedak Force to Wheels
+            ref_uuid: cd4d37ed-950c-4cc4-9f13-86c4fc2ff03f
+       - name: outBody
+         ref_uuid: dda198fe-13e0-4345-8fb0-6eed1a9f116d
+         exchanges:
+          - name: Body
+            ref_uuid:  86664812-76bb-4bbe-9b8f-7818910c37cb
+            source_function_name: Execute Ride
+            ref_uuid: 04f438aa-714f-478b-b39f-8d3560e3a6d2
+            target_function_name: Split 16
+            ref_uuid: 8da26c67-410b-4a6b-8c8e-9196f0d2a9fc
+       - name: outFinger Contoler
+         ref_uuid: ffcc315f-d254-4bc7-88ca-5323cdda15f2
+         exchanges:
+          - name: Finger Contoler
+            ref_uuid:  bbaa1cbd-bb16-40e0-989c-4214199b4d6f
+            source_function_name: Execute Ride
+            ref_uuid: 04f438aa-714f-478b-b39f-8d3560e3a6d2
+            target_function_name: Split 14
+            ref_uuid: a3973022-11b4-4fc9-aa66-357f96bec611
+       - name: FOP 5
+         ref_uuid: 50f686aa-dedc-433b-bebf-fe623ebbf3b3
+         exchanges:
+    - name: Gather 16
+      type: LogicalFunction
+      primary_uuid: 19f3e454-339b-404e-9b8c-9eb2f0fd9a88
+      description: ""
+      owner :
+      - name: Mountain Biker
+        ref_uuid: 2190789c-c6cc-471e-b99c-61a67b13423e
+      functions owned:
+      inputs:
+       - name: FIP 1
+         ref_uuid: 971ee4e3-1598-4d97-aa10-bfb214e4e450
+         exchanges:
+          - name: FunctionalExchange 14
+            ref_uuid:  3179ae23-b5ba-4505-bfa3-70ada7991c1a
+            source_function_name: Provide Comfort
+            ref_uuid: 21bd188c-d167-42cf-8159-bac4149ca72d
+            target_function_name: Gather 16
+            ref_uuid: 19f3e454-339b-404e-9b8c-9eb2f0fd9a88
+       - name: FIP 2
+         ref_uuid: c7135805-85f9-4ea3-8ea0-08ab5fcd496a
+         exchanges:
+          - name: FunctionalExchange 15
+            ref_uuid:  f74153ad-290a-4312-a85f-f4e44de12643
+            source_function_name: Provide Steering Control
+            ref_uuid: ae59590c-3318-470d-ad76-bf25b7b2f64f
+            target_function_name: Gather 16
+            ref_uuid: 19f3e454-339b-404e-9b8c-9eb2f0fd9a88
+      outputs:
+       - name: outRide Comfort
+         ref_uuid: 86ff6406-0710-4a55-a3c5-cb6cf297b249
+         exchanges:
+          - name: Ride Comfort
+            ref_uuid:  f5f70b86-1179-4bd3-b38c-21a93cac4498
+            source_function_name: Gather 16
+            ref_uuid: 19f3e454-339b-404e-9b8c-9eb2f0fd9a88
+            target_function_name: Observed Ride
+            ref_uuid: b7294467-3faa-4a9a-8d65-b7ae0bb68f4b
+    - name: 
+      type: Constraint
+      primary_uuid: c80939e2-2285-4d7c-b468-55764207b933
+      description: ""
+    - name: Pedals
+      type: FunctionalExchange
+      primary_uuid: 1992ccbf-676f-42b4-ae16-7fae6400d3d1
+      description: ""
+      source function or activity port:
+      - name: outPedals
+        ref_uuid: 053bb7d0-3a8c-4baa-9dff-43717449794d
+      target function or activity port:
+      - name: inPedals
+        ref_uuid: 2b23e10d-90c7-41a7-8dc4-44fedc7babea
+      involving functional chain:
+       - name: Ride Mountain Trails
+         ref_uuid: fd86f162-9130-44a4-adf3-50d5ab66d13e
+    - name: Finger Contoler
+      type: FunctionalExchange
+      primary_uuid: bbaa1cbd-bb16-40e0-989c-4214199b4d6f
+      description: ""
+      source function or activity port:
+      - name: outFinger Contoler
+        ref_uuid: ffcc315f-d254-4bc7-88ca-5323cdda15f2
+      target function or activity port:
+      - name: inFinger Contoler
+        ref_uuid: 8773934d-043a-474c-81ba-92e2bd5ddf8e
+      involving functional chain:
+       - name: Ride Mountain Trails
+         ref_uuid: fd86f162-9130-44a4-adf3-50d5ab66d13e
+    - name: FunctionalExchange 1
+      type: FunctionalExchange
+      primary_uuid: 11f88a8f-7633-4e25-aecf-9c14a773a773
       description: ""
       source function or activity port:
       - name: FOP 1
-        ref_uuid: 8c9a360e-7fde-412f-9c09-d70c8aab1281
+        ref_uuid: 19929ac8-9e2d-4d42-b10f-df7f4c3cb7c8
       target function or activity port:
       - name: FIP 1
-        ref_uuid: 2742166f-5f9e-4862-bbf4-967cc9f9fc3b
+        ref_uuid: b67670ff-da3a-413a-abe3-06da9056165b
       involving functional chain:
-       - name: Front Brake Stopping
-         ref_uuid: a6819e19-49d9-4f8f-b7f8-76cb09a90ede
+       - name: Shifting
+         ref_uuid: 3772878f-9ba3-4625-a49b-a41da0338909
+    - name: Brake Controls
+      type: FunctionalExchange
+      primary_uuid: 062acd6a-7b36-4560-8ab3-7f514699b29b
+      description: ""
+      source function or activity port:
+      - name: FOP 2
+        ref_uuid: 12525133-91ef-4e8c-8a2f-c777faa595bf
+      target function or activity port:
+      - name: FIP 1
+        ref_uuid: ce69df36-b188-4f28-adaf-ea5237594c53
+      involving functional chain:
+       - name: Stopping
+         ref_uuid: 5b2f0f84-6aa8-4dfb-8a2c-a792d996a457
+    - name: Force
+      type: FunctionalExchange
+      primary_uuid: b9e3cd81-ec5f-452c-a0f2-a29f76c22364
+      description: ""
+      source function or activity port:
+      - name: FOP 1
+        ref_uuid: 4b1a6c7b-4abf-4854-9a3d-9c27e1b13d12
+      target function or activity port:
+      - name: FIP 1
+        ref_uuid: 987317c2-557e-4b1e-a2f2-1f6ee106e2a3
+      involving functional chain:
+       - name: Powering
+         ref_uuid: 738e4672-cd66-4e48-8417-800be54e075c
+    - name: Force
+      type: FunctionalExchange
+      primary_uuid: 07b7b5fd-62ea-415b-a80d-82b8c0e00ceb
+      description: ""
+      source function or activity port:
+      - name: FOP 1
+        ref_uuid: 5fe83310-76dc-419c-8ceb-4759293cf1c7
+      target function or activity port:
+      - name: FIP 2
+        ref_uuid: cf8c9e56-e233-4a96-aae3-288c52c9b2a9
+      involving functional chain:
+       - name: Stopping
+         ref_uuid: 5b2f0f84-6aa8-4dfb-8a2c-a792d996a457
+       - name: Powering
+         ref_uuid: 738e4672-cd66-4e48-8417-800be54e075c
+    - name: Terrain Forces
+      type: FunctionalExchange
+      primary_uuid: 7b317b27-e99d-4644-9016-825e3d0242df
+      description: ""
+      source function or activity port:
+      - name: FOP 1
+        ref_uuid: 2f5cf222-c8fa-495a-b92c-a5b54cd43afb
+      target function or activity port:
+      - name: FIP 1
+        ref_uuid: 92ea98da-9c82-4f1b-8933-f74a7a7a7515
+      involving functional chain:
+       - name: Terrain Handling
+         ref_uuid: 4623e072-ad22-47ff-9f80-1b7cc012f011
+    - name: Wheel Forces
+      type: FunctionalExchange
+      primary_uuid: 63aac82e-c79b-4466-b0a3-34759c526b33
+      description: ""
+      source function or activity port:
+      - name: FOP 1
+        ref_uuid: 5dc312fc-e7f6-4d46-993a-b4867db94fe3
+      target function or activity port:
+      - name: FIP 2
+        ref_uuid: c1db1e27-e93f-4280-bd96-c511d1cee188
+    - name: Force
+      type: FunctionalExchange
+      primary_uuid: 2b13a031-977f-42e1-9c8e-ff65062709f3
+      description: ""
+      source function or activity port:
+      - name: FOP 2
+        ref_uuid: ed600a91-ce3e-4d71-bcc7-0e4033f2c750
+      target function or activity port:
+      - name: FIP 1
+        ref_uuid: 7f7ec7f1-73e4-4630-bc90-b88209da5ee9
+      involving functional chain:
+       - name: Terrain Handling
+         ref_uuid: 4623e072-ad22-47ff-9f80-1b7cc012f011
+    - name: Hands
+      type: FunctionalExchange
+      primary_uuid: b12376d1-6759-4e44-9ce2-5326c91e69c2
+      description: ""
+      source function or activity port:
+      - name: outHands
+        ref_uuid: aadf00ca-76af-496d-bd84-9fd3683fa50c
+      target function or activity port:
+      - name: inHands
+        ref_uuid: e1fe7aa4-20f4-440b-8a91-4adb5cc557be
+      involving functional chain:
+       - name: Ride Mountain Trails
+         ref_uuid: fd86f162-9130-44a4-adf3-50d5ab66d13e
+    - name: Stopping Forces
+      type: FunctionalExchange
+      primary_uuid: a2042318-20c0-4943-be11-b77786de1458
+      description: ""
+      source function or activity port:
+      - name: FOP 1
+        ref_uuid: ae2709f9-f8b4-45b1-8090-9cb1b643a0fd
+      target function or activity port:
+      - name: FIP 2
+        ref_uuid: e32af765-0d7e-4071-89fb-000a2dc4e57d
+      involving functional chain:
+       - name: Stopping
+         ref_uuid: 5b2f0f84-6aa8-4dfb-8a2c-a792d996a457
+    - name: Pedal Torque
+      type: FunctionalExchange
+      primary_uuid: 709590dc-f519-443b-aef8-7c7c9f1d132f
+      description: ""
+      source function or activity port:
+      - name: FOP 1
+        ref_uuid: 25ef7db9-9d5d-4394-afef-9b802e1a349b
+      target function or activity port:
+      - name: FIP 2
+        ref_uuid: fcf121d4-4497-43c4-81e9-4678ecb53eff
+      involving functional chain:
+       - name: Terrain Handling
+         ref_uuid: 4623e072-ad22-47ff-9f80-1b7cc012f011
+    - name: Adjustment
+      type: FunctionalExchange
+      primary_uuid: 3991cc90-bca8-4828-99a8-50fc89f25bfa
+      description: ""
+      source function or activity port:
+      - name: FOP 1
+        ref_uuid: f80c7aaf-01fe-439a-b9a4-edbde533dd27
+      target function or activity port:
+      - name: FIP 3
+        ref_uuid: 0697a605-6f9b-401a-ae37-dfac816a732e
+      involving functional chain:
+       - name: Terrain Handling
+         ref_uuid: 4623e072-ad22-47ff-9f80-1b7cc012f011
+    - name: Body Force
+      type: FunctionalExchange
+      primary_uuid: 1ab8ffba-268d-4d22-96a0-45ffbd28f065
+      description: ""
+      source function or activity port:
+      - name: FOP 1
+        ref_uuid: 53351b62-c351-411a-baae-576f2614a7c2
+      target function or activity port:
+      - name: FIP 3
+        ref_uuid: 760a3107-1d64-4ef6-939e-127b1a5595e3
+      involving functional chain:
+       - name: Provide Comfort
+         ref_uuid: 3794bc0e-f3e7-43f3-bc2e-856e278d819a
+    - name: Gear Selection
+      type: FunctionalExchange
+      primary_uuid: 8871af4f-876f-426d-b2c5-d2cd8312c506
+      description: ""
+      source function or activity port:
+      - name: FOP 1
+        ref_uuid: 14bb3034-1349-4746-92e9-8762974f1581
+      target function or activity port:
+      - name: FIP 1
+        ref_uuid: a82c509e-066b-4d8f-98e7-9d0728d06454
+      involving functional chain:
+       - name: Shifting
+         ref_uuid: 3772878f-9ba3-4625-a49b-a41da0338909
+    - name: FunctionalExchanBodyge 22
+      type: FunctionalExchange
+      primary_uuid: 9f69df99-6896-420d-a0fa-ba0a7557e7ae
+      description: ""
+      source function or activity port:
+      - name: FOP 2
+        ref_uuid: 2c8788db-a643-45fd-9241-55379c3a0b5c
+      target function or activity port:
+      - name: FIP 1
+        ref_uuid: d635b4f3-e265-4a20-9546-92fb6a3fdef5
+      involving functional chain:
+       - name: Provide Comfort
+         ref_uuid: 3794bc0e-f3e7-43f3-bc2e-856e278d819a
+    - name: Steering Forces
+      type: FunctionalExchange
+      primary_uuid: 119664bd-c9bc-4fd1-a980-c73ddb112e7b
+      description: ""
+      source function or activity port:
+      - name: FOP 2
+        ref_uuid: 148303a3-c09b-4d95-b8d0-6390c8e22240
+      target function or activity port:
+      - name: FIP 4
+        ref_uuid: 40c2e630-d30f-4177-b5bb-25b9ea52506f
+      involving functional chain:
+       - name: Steering
+         ref_uuid: f6f74163-cde2-46dc-b5c4-8ed2986fc3f0
+    - name: Interaction 5
+      type: FunctionalExchange
+      primary_uuid: f92ea395-8062-471d-9889-91517fc3f261
+      description: ""
+      source function or activity port:
+      - name: outInteraction 5
+        ref_uuid: 85d8a3c7-73d4-40b7-a952-bfe616c9acfd
+      target function or activity port:
+      - name: inInteraction 5
+        ref_uuid: b20c61e5-1646-4ef3-bbe2-0f959a2a4464
+      involving functional chain:
+       - name: Ride Mountain Trails
+         ref_uuid: fd86f162-9130-44a4-adf3-50d5ab66d13e
+    - name: Gear Selection
+      type: FunctionalExchange
+      primary_uuid: e853a7b7-827b-4667-b687-1352e03c7b8f
+      description: ""
+      source function or activity port:
+      - name: FOP 2
+        ref_uuid: 8d409f7a-9de3-44d0-bf04-8ef9a71419c2
+      target function or activity port:
+      - name: inGear
+        ref_uuid: fd92fda9-ace4-4c39-8470-931f68565805
+      involving functional chain:
+       - name: Shifting
+         ref_uuid: 3772878f-9ba3-4625-a49b-a41da0338909
+    - name: Shifting
+      type: FunctionalChain
+      primary_uuid: 3772878f-9ba3-4625-a49b-a41da0338909
+      description: ""
+      involve:
+      - name: Accept Gear Selection
+        type: LogicalFunction
+        ref_uuid: 65c42df1-19aa-4644-879b-d4de9ad5e9dd
+      - name: Split 14
+        type: LogicalFunction
+        ref_uuid: a3973022-11b4-4fc9-aa66-357f96bec611
+      - name: Convert Pedak Force to Wheels
+        type: LogicalFunction
+        ref_uuid: cd4d37ed-950c-4cc4-9f13-86c4fc2ff03f
+      - name: Display Gear Selection
+        type: LogicalFunction
+        ref_uuid: 96c34f9c-ddb1-43d2-9993-08a9034da872
+      - name: FunctionalExchange 1
+        type: FunctionalExchange
+        ref_uuid: 11f88a8f-7633-4e25-aecf-9c14a773a773
+      - name: Gear Selection
+        type: FunctionalExchange
+        ref_uuid: 8871af4f-876f-426d-b2c5-d2cd8312c506
+      - name: Gear Selection
+        type: FunctionalExchange
+        ref_uuid: e853a7b7-827b-4667-b687-1352e03c7b8f
+    - name: Steering
+      type: FunctionalChain
+      primary_uuid: f6f74163-cde2-46dc-b5c4-8ed2986fc3f0
+      description: ""
+      involve:
+      - name: Transfer Propulson and Stopping Force
+        type: LogicalFunction
+        ref_uuid: b277c9bf-04eb-4482-bf1b-4fdb2848bf8d
+      - name: Provide Steering Control
+        type: LogicalFunction
+        ref_uuid: ae59590c-3318-470d-ad76-bf25b7b2f64f
+      - name: Steering Forces
+        type: FunctionalExchange
+        ref_uuid: 119664bd-c9bc-4fd1-a980-c73ddb112e7b
+    - name: Powering
+      type: FunctionalChain
+      primary_uuid: 738e4672-cd66-4e48-8417-800be54e075c
+      description: ""
+      involve:
+      - name: Provide Friction to Terrain
+        type: LogicalFunction
+        ref_uuid: b0a0f125-2ead-492c-baaa-10ba80f0439c
+      - name: Transfer Propulson and Stopping Force
+        type: LogicalFunction
+        ref_uuid: b277c9bf-04eb-4482-bf1b-4fdb2848bf8d
+      - name: Convert Pedak Force to Wheels
+        type: LogicalFunction
+        ref_uuid: cd4d37ed-950c-4cc4-9f13-86c4fc2ff03f
+      - name: Force
+        type: FunctionalExchange
+        ref_uuid: 07b7b5fd-62ea-415b-a80d-82b8c0e00ceb
+      - name: Force
+        type: FunctionalExchange
+        ref_uuid: b9e3cd81-ec5f-452c-a0f2-a29f76c22364
+    - name: Terrain Handling
+      type: FunctionalChain
+      primary_uuid: 4623e072-ad22-47ff-9f80-1b7cc012f011
+      description: ""
+      involve:
+      - name: Dampen Force from Wheels
+        type: LogicalFunction
+        ref_uuid: 85ddb2f3-2424-4171-90d9-0a9bb8766e46
+      - name: Transfer Terrain Force 
+        type: LogicalFunction
+        ref_uuid: 4f6d500e-e034-48bf-9ab5-d24cf36042ee
+      - name: Allow Control
+        type: LogicalFunction
+        ref_uuid: eb2b976b-292c-4b30-9f46-bb305391e1f1
+      - name: Accept adjustment for Terrain
+        type: LogicalFunction
+        ref_uuid: b6e8a03e-b589-4fe2-b131-2aeb037a1b80
+      - name: Provide Comfort
+        type: LogicalFunction
+        ref_uuid: 21bd188c-d167-42cf-8159-bac4149ca72d
+      - name: Accept adjustment
+        type: LogicalFunction
+        ref_uuid: e3622542-ffff-48d4-8063-d4f8fb1f6cb9
+      - name: Allow Control 
+        type: LogicalFunction
+        ref_uuid: af5cf3ec-669a-43cb-a1f8-5cbaa625033c
+      - name: Terrain Forces
+        type: FunctionalExchange
+        ref_uuid: 7b317b27-e99d-4644-9016-825e3d0242df
+      - name: FunctionalExchange 11
+        type: FunctionalExchange
+        ref_uuid: 72443ba5-d78f-4a94-98ef-ff28065c014e
+      - name: Adjustment
+        type: FunctionalExchange
+        ref_uuid: 3991cc90-bca8-4828-99a8-50fc89f25bfa
+      - name: Force
+        type: FunctionalExchange
+        ref_uuid: 2b13a031-977f-42e1-9c8e-ff65062709f3
+      - name: Pedal Torque
+        type: FunctionalExchange
+        ref_uuid: 709590dc-f519-443b-aef8-7c7c9f1d132f
+    - name: Provide Comfort
+      type: FunctionalChain
+      primary_uuid: 3794bc0e-f3e7-43f3-bc2e-856e278d819a
+      description: ""
+      involve:
+      - name: Provide Comfort
+        type: LogicalFunction
+        ref_uuid: 21bd188c-d167-42cf-8159-bac4149ca72d
+      - name: Split 16
+        type: LogicalFunction
+        ref_uuid: 8da26c67-410b-4a6b-8c8e-9196f0d2a9fc
+      - name: Gather 16
+        type: LogicalFunction
+        ref_uuid: 19f3e454-339b-404e-9b8c-9eb2f0fd9a88
+      - name: Transfer Force from rider to wheel
+        type: LogicalFunction
+        ref_uuid: 20719fe4-2898-4c0a-a3e0-56f83256855c
+      - name: Transfer Propulson and Stopping Force
+        type: LogicalFunction
+        ref_uuid: b277c9bf-04eb-4482-bf1b-4fdb2848bf8d
+      - name: Body
+        type: FunctionalExchange
+        ref_uuid: 30ee9786-a37a-4a0b-ba30-eaab49b595d3
+      - name: FunctionalExchange 14
+        type: FunctionalExchange
+        ref_uuid: 3179ae23-b5ba-4505-bfa3-70ada7991c1a
+      - name: FunctionalExchanBodyge 22
+        type: FunctionalExchange
+        ref_uuid: 9f69df99-6896-420d-a0fa-ba0a7557e7ae
+      - name: Body Force
+        type: FunctionalExchange
+        ref_uuid: 1ab8ffba-268d-4d22-96a0-45ffbd28f065
+    - name: Stopping
+      type: FunctionalChain
+      primary_uuid: 5b2f0f84-6aa8-4dfb-8a2c-a792d996a457
+      description: ""
+      involve:
+      - name: Provide Stopping
+        type: LogicalFunction
+        ref_uuid: 965d5df2-2134-40c0-b2af-22fcefefc1b2
+      - name: Split 14
+        type: LogicalFunction
+        ref_uuid: a3973022-11b4-4fc9-aa66-357f96bec611
+      - name: Transfer Propulson and Stopping Force
+        type: LogicalFunction
+        ref_uuid: b277c9bf-04eb-4482-bf1b-4fdb2848bf8d
+      - name: Provide Friction to Terrain
+        type: LogicalFunction
+        ref_uuid: b0a0f125-2ead-492c-baaa-10ba80f0439c
+      - name: Split 15
+        type: LogicalFunction
+        ref_uuid: 4d836dd2-cfb2-40fb-bf0e-26a431b7bb5f
+      - name: Rugged Terrain
+        type: LogicalFunction
+        ref_uuid: 67bcef17-fa06-442e-89c3-4f5d6c9b28d5
+      - name: Brake Controls
+        type: FunctionalExchange
+        ref_uuid: 062acd6a-7b36-4560-8ab3-7f514699b29b
+      - name: Stopping Forces
+        type: FunctionalExchange
+        ref_uuid: a2042318-20c0-4943-be11-b77786de1458
+      - name: Force
+        type: FunctionalExchange
+        ref_uuid: 07b7b5fd-62ea-415b-a80d-82b8c0e00ceb
+      - name: Terrain
+        type: FunctionalExchange
+        ref_uuid: ed0e42b1-4d73-45ad-a245-1e7d031e4b78
+      - name: Terrain
+        type: FunctionalExchange
+        ref_uuid: f5af23ce-da14-42a3-9c38-6167a534998e
+    - name: BS - C
+      type: ComponentExchange
+      primary_uuid: 56c6e9d4-3ac0-4b47-9e11-60cb40960517
+      description: ""
+      source component:
+      - name: Braking System
+        ref_uuid: d8e659e7-e706-4251-95d2-35d2000ee608
+      target component:
+      - name: Cockpit
+        ref_uuid: ca778e63-491b-4487-8510-ef9fd8caaa64
+    - name: FunctionalExchange 15
+      type: FunctionalExchange
+      primary_uuid: f74153ad-290a-4312-a85f-f4e44de12643
+      description: ""
+      source function or activity port:
+      - name: FOP 1
+        ref_uuid: 62a18adc-5b83-4532-95da-3d9fbe1909bf
+      target function or activity port:
+      - name: FIP 2
+        ref_uuid: c7135805-85f9-4ea3-8ea0-08ab5fcd496a
+    - name: Ride Comfort
+      type: FunctionalExchange
+      primary_uuid: f5f70b86-1179-4bd3-b38c-21a93cac4498
+      description: ""
+      source function or activity port:
+      - name: outRide Comfort
+        ref_uuid: 86ff6406-0710-4a55-a3c5-cb6cf297b249
+      target function or activity port:
+      - name: inRide Comfort
+        ref_uuid: e99e5832-5602-43b9-9f78-587a66abaa6e
+    - name: FunctionalExchange 14
+      type: FunctionalExchange
+      primary_uuid: 3179ae23-b5ba-4505-bfa3-70ada7991c1a
+      description: ""
+      source function or activity port:
+      - name: FOP 1
+        ref_uuid: a743d260-273f-4033-93b0-806039d8969e
+      target function or activity port:
+      - name: FIP 1
+        ref_uuid: 971ee4e3-1598-4d97-aa10-bfb214e4e450
+      involving functional chain:
+       - name: Provide Comfort
+         ref_uuid: 3794bc0e-f3e7-43f3-bc2e-856e278d819a
+    - name: Terrain
+      type: FunctionalExchange
+      primary_uuid: f5af23ce-da14-42a3-9c38-6167a534998e
+      description: ""
+      source function or activity port:
+      - name: outInteraction 6
+        ref_uuid: e1540f0b-482e-4b3f-ae8e-d3766b349f30
+      target function or activity port:
+      - name: inInteraction 6
+        ref_uuid: df4e5f48-73b3-41d0-bfb4-150c5bcce4b0
+      involving functional chain:
+       - name: Ride Mountain Trails
+         ref_uuid: fd86f162-9130-44a4-adf3-50d5ab66d13e
+       - name: Stopping
+         ref_uuid: 5b2f0f84-6aa8-4dfb-8a2c-a792d996a457
+    - name: Terrain
+      type: FunctionalExchange
+      primary_uuid: ed0e42b1-4d73-45ad-a245-1e7d031e4b78
+      description: ""
+      source function or activity port:
+      - name: FOP 1
+        ref_uuid: c55fd6a3-96fb-4186-b033-b2f0b2a27c85
+      target function or activity port:
+      - name: FIP 3
+        ref_uuid: db3844a0-d10b-4c53-8476-3b4ee8810630
+      involving functional chain:
+       - name: Stopping
+         ref_uuid: 5b2f0f84-6aa8-4dfb-8a2c-a792d996a457
+    - name: Terrain
+      type: FunctionalExchange
+      primary_uuid: cf6d6079-7c30-43dd-b3d9-b0380fae99bf
+      description: ""
+      source function or activity port:
+      - name: FOP 2
+        ref_uuid: a2df6409-933f-4ced-9ff4-8e9cd2719263
+      target function or activity port:
+      - name: FIP 1
+        ref_uuid: d97ad41d-dad4-48d4-9158-c9fa8aa8c200
+    - name: Mountain Trails
+      type: LogicalComponent
+      primary_uuid: 7baa7138-2950-41df-9975-39cf984a59c4
+      description: "&lt;h3 data-end=&#34;369&#34; data-start=&#34;337&#34;&gt;&lt;strong data-end=&#34;369&#34; data-start=&#34;341&#34;&gt;Trail Network and Design&lt;/strong&gt;&lt;/h3&gt;  &lt;p data-end=&#34;590&#34; data-start=&#34;370&#34;&gt;Mountain bike trail systems usually consist of interconnected loops, out-and-back trails, and sometimes point-to-point routes. Trails are often categorized by difficulty level, marked with standardized colors or symbols:&lt;/p&gt;  &lt;ul data-end=&#34;975&#34; data-start=&#34;591&#34;&gt; 	&lt;li data-end=&#34;670&#34; data-start=&#34;591&#34;&gt; 	&lt;p data-end=&#34;670&#34; data-start=&#34;593&#34;&gt;&lt;strong data-end=&#34;602&#34; data-start=&#34;593&#34;&gt;Green&lt;/strong&gt;: Easiest, suitable for beginners with gentle slopes and wide paths.&lt;/p&gt; 	&lt;/li&gt; 	&lt;li data-end=&#34;767&#34; data-start=&#34;671&#34;&gt; 	&lt;p data-end=&#34;767&#34; data-start=&#34;673&#34;&gt;&lt;strong data-end=&#34;681&#34; data-start=&#34;673&#34;&gt;Blue&lt;/strong&gt;: Intermediate, featuring moderate climbs, technical sections, and narrow singletrack.&lt;/p&gt; 	&lt;/li&gt; 	&lt;li data-end=&#34;867&#34; data-start=&#34;768&#34;&gt; 	&lt;p data-end=&#34;867&#34; data-start=&#34;770&#34;&gt;&lt;strong data-end=&#34;779&#34; data-start=&#34;770&#34;&gt;Black&lt;/strong&gt;: Advanced, including steep climbs, rock gardens, drops, and other challenging features.&lt;/p&gt; 	&lt;/li&gt; 	&lt;li data-end=&#34;975&#34; data-start=&#34;868&#34;&gt; 	&lt;p data-end=&#34;975&#34; data-start=&#34;870&#34;&gt;&lt;strong data-end=&#34;886&#34; data-start=&#34;870&#34;&gt;Double Black&lt;/strong&gt;: Expert-level trails, often with extreme terrain, exposed areas, and man-made obstacles.&lt;/p&gt; 	&lt;/li&gt; &lt;/ul&gt;  &lt;p data-end=&#34;1196&#34; data-start=&#34;977&#34;&gt;Trail systems are typically designed to minimize environmental impact while maximizing rider enjoyment. Features like berms, jumps, and switchbacks are carefully integrated to maintain the natural flow of the landscape.&lt;/p&gt;  &lt;h3 data-end=&#34;338&#34; data-start=&#34;304&#34;&gt;&lt;strong data-end=&#34;338&#34; data-start=&#34;308&#34;&gt;Typical Weather Conditions&lt;/strong&gt;&lt;/h3&gt;  &lt;ul data-end=&#34;995&#34; data-start=&#34;339&#34;&gt; 	&lt;li data-end=&#34;498&#34; data-start=&#34;339&#34;&gt; 	&lt;p data-end=&#34;498&#34; data-start=&#34;341&#34;&gt;&lt;strong data-end=&#34;369&#34; data-start=&#34;341&#34;&gt;Mild to Moderate Weather&lt;/strong&gt;: Mountain bikes are often used in spring, summer, and early autumn when temperatures range from &lt;strong data-end=&#34;497&#34; data-start=&#34;466&#34;&gt;50&amp;deg;F to 80&amp;deg;F (10&amp;deg;C to 27&amp;deg;C)&lt;/strong&gt;.&lt;/p&gt; 	&lt;/li&gt; 	&lt;li data-end=&#34;626&#34; data-start=&#34;499&#34;&gt; 	&lt;p data-end=&#34;626&#34; data-start=&#34;501&#34;&gt;&lt;strong data-end=&#34;529&#34; data-start=&#34;501&#34;&gt;Dry Conditions Preferred&lt;/strong&gt;: Dry trails offer optimal grip, but mountain bikes are also capable of handling damp conditions.&lt;/p&gt; 	&lt;/li&gt; 	&lt;li data-end=&#34;843&#34; data-start=&#34;627&#34;&gt; 	&lt;p data-end=&#34;843&#34; data-start=&#34;629&#34;&gt;&lt;strong data-end=&#34;651&#34; data-start=&#34;629&#34;&gt;Light Rain and Mud&lt;/strong&gt;: Many mountain bikes are equipped with treaded tires designed to maintain traction in muddy conditions. However, heavy rain can lead to trail erosion, making some trails impassable or unsafe.&lt;/p&gt; 	&lt;/li&gt; 	&lt;li data-end=&#34;995&#34; data-start=&#34;844&#34;&gt; 	&lt;p data-end=&#34;995&#34; data-start=&#34;846&#34;&gt;&lt;strong data-end=&#34;879&#34; data-start=&#34;846&#34;&gt;Cooler High-Altitude Climates&lt;/strong&gt;: In mountainous regions, weather can change rapidly, with cooler temperatures and possible afternoon thunderstorms.&lt;/p&gt; 	&lt;/li&gt; &lt;/ul&gt;  &lt;h3 data-end=&#34;1025&#34; data-start=&#34;997&#34;&gt;&lt;strong data-end=&#34;1025&#34; data-start=&#34;1001&#34;&gt;Hazards to Watch For&lt;/strong&gt;&lt;/h3&gt;  &lt;ul data-end=&#34;1161&#34; data-start=&#34;1026&#34;&gt; 	&lt;li data-end=&#34;1073&#34; data-start=&#34;1026&#34;&gt; 	&lt;p data-end=&#34;1073&#34; data-start=&#34;1028&#34;&gt;Sudden weather changes in alpine environments&lt;/p&gt; 	&lt;/li&gt; 	&lt;li data-end=&#34;1108&#34; data-start=&#34;1074&#34;&gt; 	&lt;p data-end=&#34;1108&#34; data-start=&#34;1076&#34;&gt;Slick rocks and roots after rain&lt;/p&gt; 	&lt;/li&gt; 	&lt;li data-end=&#34;1161&#34; data-start=&#34;1109&#34;&gt; 	&lt;p data-end=&#34;1161&#34; data-start=&#34;1111&#34;&gt;Increased risk of hypothermia in cold, wet weather&lt;/p&gt; 	&lt;/li&gt; &lt;/ul&gt;  &lt;p data-end=&#34;1196&#34; data-start=&#34;977&#34;&gt;&amp;nbsp;&lt;/p&gt; "
+      is_human: False
+      components:
+      functions allocated to:
+       - name: Obstacles
+         ref_uuid: 6d0fef1f-8ab5-4305-b143-d0c05bf49897
+       - name: Rugged Terrain
+         ref_uuid: 67bcef17-fa06-442e-89c3-4f5d6c9b28d5
+       - name: Split 15
+         ref_uuid: 4d836dd2-cfb2-40fb-bf0e-26a431b7bb5f
+      ports:
+    - name: outInteraction 6
+      type: FunctionOutputPort
+      primary_uuid: e1540f0b-482e-4b3f-ae8e-d3766b349f30
+      description: ""
+      owner:
+        name: Rugged Terrain
+        ref_uuid: 67bcef17-fa06-442e-89c3-4f5d6c9b28d5
+    - name: outObservations
+      type: FunctionOutputPort
+      primary_uuid: 5ec9973b-6fff-4f5c-91c2-2c0ce7e84e96
+      description: ""
+      owner:
+        name: Rugged Terrain
+        ref_uuid: 67bcef17-fa06-442e-89c3-4f5d6c9b28d5
+    - name: outInteraction 5
+      type: FunctionOutputPort
+      primary_uuid: 85d8a3c7-73d4-40b7-a952-bfe616c9acfd
+      description: ""
+      owner:
+        name: Obstacles
+        ref_uuid: 6d0fef1f-8ab5-4305-b143-d0c05bf49897
+    - name: outObservations
+      type: FunctionOutputPort
+      primary_uuid: 6a8b5efd-7894-4bed-9e31-5556fb42e6cf
+      description: ""
+      owner:
+        name: Obstacles
+        ref_uuid: 6d0fef1f-8ab5-4305-b143-d0c05bf49897
+    - name: inInteraction 6
+      type: FunctionInputPort
+      primary_uuid: df4e5f48-73b3-41d0-bfb4-150c5bcce4b0
+      description: ""
+      owner:
+        name: Split 15
+        ref_uuid: 4d836dd2-cfb2-40fb-bf0e-26a431b7bb5f
+    - name: FOP 1
+      type: FunctionOutputPort
+      primary_uuid: c55fd6a3-96fb-4186-b033-b2f0b2a27c85
+      description: ""
+      owner:
+        name: Split 15
+        ref_uuid: 4d836dd2-cfb2-40fb-bf0e-26a431b7bb5f
+    - name: FOP 2
+      type: FunctionOutputPort
+      primary_uuid: a2df6409-933f-4ced-9ff4-8e9cd2719263
+      description: ""
+      owner:
+        name: Split 15
+        ref_uuid: 4d836dd2-cfb2-40fb-bf0e-26a431b7bb5f
+    - name: Mountain Bike
+      type: LogicalComponent
+      primary_uuid: dac211a0-dde3-4221-9133-891695ac7def
+      description: ""
+      is_human: False
+      components:
+       - name: Frame and Suspension
+         ref_uuid: 8c2d60a2-bf52-4e83-8fc2-0d329f7637b4
+       - name: Wheels and Tires
+         ref_uuid: 90f89672-7087-4970-95d5-8fdecd5f07b0
+       - name: Drive Train
+         ref_uuid: 88b90f1a-0695-412c-9e40-81aed1993eab
+       - name: Braking System
+         ref_uuid: d8e659e7-e706-4251-95d2-35d2000ee608
+       - name: Cockpit
+         ref_uuid: ca778e63-491b-4487-8510-ef9fd8caaa64
+       - name: Seat and Post
+         ref_uuid: 948cfaeb-a7a7-47ae-a3cf-75bd83b86c7c
+      functions allocated to:
+      ports:
+    - name: Frame and Suspension
+      type: LogicalComponent
+      primary_uuid: 8c2d60a2-bf52-4e83-8fc2-0d329f7637b4
+      description: ""
+      is_human: False
+      components:
+      functions allocated to:
+       - name: Transfer Force from rider to wheel
+         ref_uuid: 20719fe4-2898-4c0a-a3e0-56f83256855c
+       - name: Dampen Force from Wheels
+         ref_uuid: 85ddb2f3-2424-4171-90d9-0a9bb8766e46
+       - name: Accept adjustment
+         ref_uuid: e3622542-ffff-48d4-8063-d4f8fb1f6cb9
+      ports:
+    - name: FIP 1
+      type: FunctionInputPort
+      primary_uuid: d635b4f3-e265-4a20-9546-92fb6a3fdef5
+      description: ""
+      owner:
+        name: Transfer Force from rider to wheel
+        ref_uuid: 20719fe4-2898-4c0a-a3e0-56f83256855c
+    - name: FOP 1
+      type: FunctionOutputPort
+      primary_uuid: 53351b62-c351-411a-baae-576f2614a7c2
+      description: ""
+      owner:
+        name: Transfer Force from rider to wheel
+        ref_uuid: 20719fe4-2898-4c0a-a3e0-56f83256855c
+    - name: FIP 1
+      type: FunctionInputPort
+      primary_uuid: 92ea98da-9c82-4f1b-8933-f74a7a7a7515
+      description: ""
+      owner:
+        name: Dampen Force from Wheels
+        ref_uuid: 85ddb2f3-2424-4171-90d9-0a9bb8766e46
+    - name: FIP 2
+      type: FunctionInputPort
+      primary_uuid: fcf121d4-4497-43c4-81e9-4678ecb53eff
+      description: ""
+      owner:
+        name: Dampen Force from Wheels
+        ref_uuid: 85ddb2f3-2424-4171-90d9-0a9bb8766e46
+    - name: FIP 3
+      type: FunctionInputPort
+      primary_uuid: 0697a605-6f9b-401a-ae37-dfac816a732e
+      description: ""
+      owner:
+        name: Dampen Force from Wheels
+        ref_uuid: 85ddb2f3-2424-4171-90d9-0a9bb8766e46
+    - name: FIP 2
+      type: FunctionInputPort
+      primary_uuid: 3879270f-3357-45d7-bf23-6030c157517c
+      description: ""
+      owner:
+        name: Dampen Force from Wheels
+        ref_uuid: 85ddb2f3-2424-4171-90d9-0a9bb8766e46
+    - name: FunctionalExchange 11
+      type: FunctionalExchange
+      primary_uuid: 72443ba5-d78f-4a94-98ef-ff28065c014e
+      description: ""
+      source function or activity port:
+      - name: FOP 1
+        ref_uuid: 40d83122-e6af-4018-bf42-5a43a880788f
+      target function or activity port:
+      - name: FIP 2
+        ref_uuid: 3879270f-3357-45d7-bf23-6030c157517c
+      involving functional chain:
+       - name: Terrain Handling
+         ref_uuid: 4623e072-ad22-47ff-9f80-1b7cc012f011
+    - name: FOP 1
+      type: FunctionOutputPort
+      primary_uuid: 5dc312fc-e7f6-4d46-993a-b4867db94fe3
+      description: ""
+      owner:
+        name: Dampen Force from Wheels
+        ref_uuid: 85ddb2f3-2424-4171-90d9-0a9bb8766e46
+    - name: FOP 2
+      type: FunctionOutputPort
+      primary_uuid: ed600a91-ce3e-4d71-bcc7-0e4033f2c750
+      description: ""
+      owner:
+        name: Dampen Force from Wheels
+        ref_uuid: 85ddb2f3-2424-4171-90d9-0a9bb8766e46
+    - name: FIP 1
+      type: FunctionInputPort
+      primary_uuid: 5ec71d74-c9f3-469c-bfa2-11896a9c99e5
+      description: ""
+      owner:
+        name: Accept adjustment
+        ref_uuid: e3622542-ffff-48d4-8063-d4f8fb1f6cb9
+    - name: Suspension Adjust
+      type: FunctionalExchange
+      primary_uuid: dcc5d363-34a9-4222-b14e-b8ee0e122faa
+      description: ""
+      source function or activity port:
+      - name: FOP 2
+        ref_uuid: e023d044-b28b-4513-8193-37dcf00095a9
+      target function or activity port:
+      - name: FIP 1
+        ref_uuid: 5ec71d74-c9f3-469c-bfa2-11896a9c99e5
+      involving functional chain:
+       - name: Terrain Adjust
+         ref_uuid: 8965f660-496c-4072-b441-4225a2f180e4
+    - name: FOP 1
+      type: FunctionOutputPort
+      primary_uuid: 25ef7db9-9d5d-4394-afef-9b802e1a349b
+      description: ""
+      owner:
+        name: Accept adjustment
+        ref_uuid: e3622542-ffff-48d4-8063-d4f8fb1f6cb9
+    - name: Wheels and Tires
+      type: LogicalComponent
+      primary_uuid: 90f89672-7087-4970-95d5-8fdecd5f07b0
+      description: ""
+      is_human: False
+      components:
+      functions allocated to:
+       - name: Provide Friction to Terrain
+         ref_uuid: b0a0f125-2ead-492c-baaa-10ba80f0439c
+       - name: Transfer Propulson and Stopping Force
+         ref_uuid: b277c9bf-04eb-4482-bf1b-4fdb2848bf8d
+       - name: Transfer Terrain Force 
+         ref_uuid: 4f6d500e-e034-48bf-9ab5-d24cf36042ee
+      ports:
+    - name: FIP 2
+      type: FunctionInputPort
+      primary_uuid: cf8c9e56-e233-4a96-aae3-288c52c9b2a9
+      description: ""
+      owner:
+        name: Provide Friction to Terrain
+        ref_uuid: b0a0f125-2ead-492c-baaa-10ba80f0439c
+    - name: FIP 3
+      type: FunctionInputPort
+      primary_uuid: db3844a0-d10b-4c53-8476-3b4ee8810630
+      description: ""
+      owner:
+        name: Provide Friction to Terrain
+        ref_uuid: b0a0f125-2ead-492c-baaa-10ba80f0439c
+    - name: FIP 1
+      type: FunctionInputPort
+      primary_uuid: 987317c2-557e-4b1e-a2f2-1f6ee106e2a3
+      description: ""
+      owner:
+        name: Transfer Propulson and Stopping Force
+        ref_uuid: b277c9bf-04eb-4482-bf1b-4fdb2848bf8d
+    - name: FIP 2
+      type: FunctionInputPort
+      primary_uuid: e32af765-0d7e-4071-89fb-000a2dc4e57d
+      description: ""
+      owner:
+        name: Transfer Propulson and Stopping Force
+        ref_uuid: b277c9bf-04eb-4482-bf1b-4fdb2848bf8d
+    - name: FIP 3
+      type: FunctionInputPort
+      primary_uuid: 760a3107-1d64-4ef6-939e-127b1a5595e3
+      description: ""
+      owner:
+        name: Transfer Propulson and Stopping Force
+        ref_uuid: b277c9bf-04eb-4482-bf1b-4fdb2848bf8d
+    - name: FIP 4
+      type: FunctionInputPort
+      primary_uuid: 40c2e630-d30f-4177-b5bb-25b9ea52506f
+      description: ""
+      owner:
+        name: Transfer Propulson and Stopping Force
+        ref_uuid: b277c9bf-04eb-4482-bf1b-4fdb2848bf8d
+    - name: FOP 1
+      type: FunctionOutputPort
+      primary_uuid: 5fe83310-76dc-419c-8ceb-4759293cf1c7
+      description: ""
+      owner:
+        name: Transfer Propulson and Stopping Force
+        ref_uuid: b277c9bf-04eb-4482-bf1b-4fdb2848bf8d
+    - name: FIP 1
+      type: FunctionInputPort
+      primary_uuid: d97ad41d-dad4-48d4-9158-c9fa8aa8c200
+      description: ""
+      owner:
+        name: Transfer Terrain Force 
+        ref_uuid: 4f6d500e-e034-48bf-9ab5-d24cf36042ee
+    - name: inInteraction 5
+      type: FunctionInputPort
+      primary_uuid: b20c61e5-1646-4ef3-bbe2-0f959a2a4464
+      description: ""
+      owner:
+        name: Transfer Terrain Force 
+        ref_uuid: 4f6d500e-e034-48bf-9ab5-d24cf36042ee
+    - name: FOP 1
+      type: FunctionOutputPort
+      primary_uuid: 2f5cf222-c8fa-495a-b92c-a5b54cd43afb
+      description: ""
+      owner:
+        name: Transfer Terrain Force 
+        ref_uuid: 4f6d500e-e034-48bf-9ab5-d24cf36042ee
+    - name: Drive Train
+      type: LogicalComponent
+      primary_uuid: 88b90f1a-0695-412c-9e40-81aed1993eab
+      description: ""
+      is_human: False
+      components:
+      functions allocated to:
+       - name: Convert Pedak Force to Wheels
+         ref_uuid: cd4d37ed-950c-4cc4-9f13-86c4fc2ff03f
+       - name: Accept Gear Selection
+         ref_uuid: 65c42df1-19aa-4644-879b-d4de9ad5e9dd
+      ports:
+    - name: inPedals
+      type: FunctionInputPort
+      primary_uuid: 2b23e10d-90c7-41a7-8dc4-44fedc7babea
+      description: ""
+      owner:
+        name: Convert Pedak Force to Wheels
+        ref_uuid: cd4d37ed-950c-4cc4-9f13-86c4fc2ff03f
+    - name: FIP 2
+      type: FunctionInputPort
+      primary_uuid: c1db1e27-e93f-4280-bd96-c511d1cee188
+      description: ""
+      owner:
+        name: Convert Pedak Force to Wheels
+        ref_uuid: cd4d37ed-950c-4cc4-9f13-86c4fc2ff03f
+    - name: FIP 1
+      type: FunctionInputPort
+      primary_uuid: a82c509e-066b-4d8f-98e7-9d0728d06454
+      description: ""
+      owner:
+        name: Convert Pedak Force to Wheels
+        ref_uuid: cd4d37ed-950c-4cc4-9f13-86c4fc2ff03f
+    - name: FOP 1
+      type: FunctionOutputPort
+      primary_uuid: 4b1a6c7b-4abf-4854-9a3d-9c27e1b13d12
+      description: ""
+      owner:
+        name: Convert Pedak Force to Wheels
+        ref_uuid: cd4d37ed-950c-4cc4-9f13-86c4fc2ff03f
+    - name: FIP 1
+      type: FunctionInputPort
+      primary_uuid: b67670ff-da3a-413a-abe3-06da9056165b
+      description: ""
+      owner:
+        name: Accept Gear Selection
+        ref_uuid: 65c42df1-19aa-4644-879b-d4de9ad5e9dd
+    - name: FOP 1
+      type: FunctionOutputPort
+      primary_uuid: 14bb3034-1349-4746-92e9-8762974f1581
+      description: ""
+      owner:
+        name: Accept Gear Selection
+        ref_uuid: 65c42df1-19aa-4644-879b-d4de9ad5e9dd
+    - name: FOP 2
+      type: FunctionOutputPort
+      primary_uuid: 8d409f7a-9de3-44d0-bf04-8ef9a71419c2
+      description: ""
+      owner:
+        name: Accept Gear Selection
+        ref_uuid: 65c42df1-19aa-4644-879b-d4de9ad5e9dd
+    - name: Braking System
+      type: LogicalComponent
+      primary_uuid: d8e659e7-e706-4251-95d2-35d2000ee608
+      description: ""
+      is_human: False
+      components:
+      functions allocated to:
+       - name: Provide Stopping
+         ref_uuid: 965d5df2-2134-40c0-b2af-22fcefefc1b2
+      ports:
+       - name: CP 2
+         ref_uuid: 8eb6eb8c-5d9a-46db-9f22-a7865b06bd7b
+         exchanges:
+          - name: BS - C
+            ref_uuid:  56c6e9d4-3ac0-4b47-9e11-60cb40960517
+            source_component_name: Braking System
+            ref__uuid: d8e659e7-e706-4251-95d2-35d2000ee608
+            target_component_name: Cockpit
+            ref_uuid: ca778e63-491b-4487-8510-ef9fd8caaa64
+    - name: FIP 1
+      type: FunctionInputPort
+      primary_uuid: ce69df36-b188-4f28-adaf-ea5237594c53
+      description: ""
+      owner:
+        name: Provide Stopping
+        ref_uuid: 965d5df2-2134-40c0-b2af-22fcefefc1b2
+    - name: FOP 1
+      type: FunctionOutputPort
+      primary_uuid: ae2709f9-f8b4-45b1-8090-9cb1b643a0fd
+      description: ""
+      owner:
+        name: Provide Stopping
+        ref_uuid: 965d5df2-2134-40c0-b2af-22fcefefc1b2
+    - name: Cockpit
+      type: LogicalComponent
+      primary_uuid: ca778e63-491b-4487-8510-ef9fd8caaa64
+      description: ""
+      is_human: False
+      components:
+      functions allocated to:
+       - name: Provide Steering Control
+         ref_uuid: ae59590c-3318-470d-ad76-bf25b7b2f64f
+       - name: Split 14
+         ref_uuid: a3973022-11b4-4fc9-aa66-357f96bec611
+       - name: Display Gear Selection
+         ref_uuid: 96c34f9c-ddb1-43d2-9993-08a9034da872
+      ports:
+       - name: CP 1
+         ref_uuid: 3afbc786-3bc7-4a65-9472-0c504020cbee
+         exchanges:
+          - name: BS - C
+            ref_uuid:  56c6e9d4-3ac0-4b47-9e11-60cb40960517
+            source_component_name: Braking System
+            ref__uuid: d8e659e7-e706-4251-95d2-35d2000ee608
+            target_component_name: Cockpit
+            ref_uuid: ca778e63-491b-4487-8510-ef9fd8caaa64
+    - name: inHands
+      type: FunctionInputPort
+      primary_uuid: e1fe7aa4-20f4-440b-8a91-4adb5cc557be
+      description: ""
+      owner:
+        name: Provide Steering Control
+        ref_uuid: ae59590c-3318-470d-ad76-bf25b7b2f64f
+    - name: FOP 1
+      type: FunctionOutputPort
+      primary_uuid: 62a18adc-5b83-4532-95da-3d9fbe1909bf
+      description: ""
+      owner:
+        name: Provide Steering Control
+        ref_uuid: ae59590c-3318-470d-ad76-bf25b7b2f64f
+    - name: FOP 2
+      type: FunctionOutputPort
+      primary_uuid: 148303a3-c09b-4d95-b8d0-6390c8e22240
+      description: ""
+      owner:
+        name: Provide Steering Control
+        ref_uuid: ae59590c-3318-470d-ad76-bf25b7b2f64f
+    - name: inFinger Contoler
+      type: FunctionInputPort
+      primary_uuid: 8773934d-043a-474c-81ba-92e2bd5ddf8e
+      description: ""
+      owner:
+        name: Split 14
+        ref_uuid: a3973022-11b4-4fc9-aa66-357f96bec611
+    - name: FOP 1
+      type: FunctionOutputPort
+      primary_uuid: 19929ac8-9e2d-4d42-b10f-df7f4c3cb7c8
+      description: ""
+      owner:
+        name: Split 14
+        ref_uuid: a3973022-11b4-4fc9-aa66-357f96bec611
+    - name: FOP 2
+      type: FunctionOutputPort
+      primary_uuid: 12525133-91ef-4e8c-8a2f-c777faa595bf
+      description: ""
+      owner:
+        name: Split 14
+        ref_uuid: a3973022-11b4-4fc9-aa66-357f96bec611
+    - name: inGear
+      type: FunctionInputPort
+      primary_uuid: fd92fda9-ace4-4c39-8470-931f68565805
+      description: ""
+      owner:
+        name: Display Gear Selection
+        ref_uuid: 96c34f9c-ddb1-43d2-9993-08a9034da872
+    - name: Gear
+      type: FunctionalExchange
+      primary_uuid: 02087a31-eab3-467d-86f2-6950d24a958a
+      description: ""
+      source function or activity port:
+      - name: outGear
+        ref_uuid: 9478bd26-41f1-44c3-99a4-91cb8a6bc35b
+      target function or activity port:
+      - name: inGear
+        ref_uuid: fd92fda9-ace4-4c39-8470-931f68565805
+    - name: outGear Position
+      type: FunctionOutputPort
+      primary_uuid: 1eb1465c-7008-47a2-83f6-7fb65de2b052
+      description: ""
+      owner:
+        name: Display Gear Selection
+        ref_uuid: 96c34f9c-ddb1-43d2-9993-08a9034da872
+    - name: Seat and Post
+      type: LogicalComponent
+      primary_uuid: 948cfaeb-a7a7-47ae-a3cf-75bd83b86c7c
+      description: ""
+      is_human: False
+      components:
+      functions allocated to:
+       - name: Provide Comfort
+         ref_uuid: 21bd188c-d167-42cf-8159-bac4149ca72d
+       - name: Accept adjustment for Terrain
+         ref_uuid: b6e8a03e-b589-4fe2-b131-2aeb037a1b80
+       - name: Allow Control 
+         ref_uuid: af5cf3ec-669a-43cb-a1f8-5cbaa625033c
+      ports:
+    - name: FIP 1
+      type: FunctionInputPort
+      primary_uuid: 7f7ec7f1-73e4-4630-bc90-b88209da5ee9
+      description: ""
+      owner:
+        name: Provide Comfort
+        ref_uuid: 21bd188c-d167-42cf-8159-bac4149ca72d
+    - name: FIP 2
+      type: FunctionInputPort
+      primary_uuid: 9d76d36e-133d-4e29-b36c-af376e03bdf9
+      description: ""
+      owner:
+        name: Provide Comfort
+        ref_uuid: 21bd188c-d167-42cf-8159-bac4149ca72d
+    - name: Body
+      type: FunctionalExchange
+      primary_uuid: 30ee9786-a37a-4a0b-ba30-eaab49b595d3
+      description: ""
+      source function or activity port:
+      - name: FOP 2
+        ref_uuid: 61156555-bdf9-41cb-acfb-be087c472914
+      target function or activity port:
+      - name: FIP 2
+        ref_uuid: 9d76d36e-133d-4e29-b36c-af376e03bdf9
+      involving functional chain:
+       - name: Provide Comfort
+         ref_uuid: 3794bc0e-f3e7-43f3-bc2e-856e278d819a
+    - name: FOP 1
+      type: FunctionOutputPort
+      primary_uuid: a743d260-273f-4033-93b0-806039d8969e
+      description: ""
+      owner:
+        name: Provide Comfort
+        ref_uuid: 21bd188c-d167-42cf-8159-bac4149ca72d
+    - name: FOP 2
+      type: FunctionOutputPort
+      primary_uuid: 2c8788db-a643-45fd-9241-55379c3a0b5c
+      description: ""
+      owner:
+        name: Provide Comfort
+        ref_uuid: 21bd188c-d167-42cf-8159-bac4149ca72d
+    - name: FIP 1
+      type: FunctionInputPort
+      primary_uuid: 5ffe2b1a-61ab-4a92-a7e7-8bb1a6fc1c52
+      description: ""
+      owner:
+        name: Accept adjustment for Terrain
+        ref_uuid: b6e8a03e-b589-4fe2-b131-2aeb037a1b80
+    - name: Seat Adjust
+      type: FunctionalExchange
+      primary_uuid: 5d92d5fb-3ed4-4819-90b6-5d8b1c7680e6
+      description: ""
+      source function or activity port:
+      - name: FOP 1
+        ref_uuid: 841dd518-3e4c-4521-92c1-fd72142d83e6
+      target function or activity port:
+      - name: FIP 1
+        ref_uuid: 5ffe2b1a-61ab-4a92-a7e7-8bb1a6fc1c52
+      involving functional chain:
+       - name: Terrain Adjust
+         ref_uuid: 8965f660-496c-4072-b441-4225a2f180e4
+    - name: FOP 1
+      type: FunctionOutputPort
+      primary_uuid: f80c7aaf-01fe-439a-b9a4-edbde533dd27
+      description: ""
+      owner:
+        name: Accept adjustment for Terrain
+        ref_uuid: b6e8a03e-b589-4fe2-b131-2aeb037a1b80
+    - name: Mountain Biker
+      type: LogicalComponent
+      primary_uuid: 2190789c-c6cc-471e-b99c-61a67b13423e
+      description: "&lt;p&gt;This rider is a mountain bike enthusiast, who enjoys riding moderate to difficult trails. This person does it for hobby, and looking for a reasonable cost bike.&lt;/p&gt; "
+      is_human: False
+      components:
+      functions allocated to:
+       - name: Identification of Terrain Challenge
+         ref_uuid: 1c1c2580-aa98-4ce4-9300-92967b8b5997
+       - name: Terrain Adjustment
+         ref_uuid: c553928e-5995-424c-a8e9-62b20ad68356
+       - name: Execute Ride
+         ref_uuid: 04f438aa-714f-478b-b39f-8d3560e3a6d2
+       - name: Observed Ride
+         ref_uuid: b7294467-3faa-4a9a-8d65-b7ae0bb68f4b
+       - name: Receive Bike
+         ref_uuid: 74affd62-d49b-4223-9222-c9910cb73ea2
+       - name: Split 17
+         ref_uuid: dce8973c-fc7c-4540-b903-4f3b1fad9567
+       - name: Split 16
+         ref_uuid: 8da26c67-410b-4a6b-8c8e-9196f0d2a9fc
+       - name: Gather 16
+         ref_uuid: 19f3e454-339b-404e-9b8c-9eb2f0fd9a88
+      ports:
+    - name: inRide Comfort
+      type: FunctionInputPort
+      primary_uuid: e99e5832-5602-43b9-9f78-587a66abaa6e
+      description: ""
+      owner:
+        name: Observed Ride
+        ref_uuid: b7294467-3faa-4a9a-8d65-b7ae0bb68f4b
+    - name: outFeedbak
+      type: FunctionOutputPort
+      primary_uuid: 2ac46cf7-9587-4efb-91d4-e8a716861b46
+      description: ""
+      owner:
+        name: Observed Ride
+        ref_uuid: b7294467-3faa-4a9a-8d65-b7ae0bb68f4b
+    - name: Feedbak
+      type: FunctionalExchange
+      primary_uuid: e6af780e-f948-411f-827a-0d9dfa8520a9
+      description: ""
+      source function or activity port:
+      - name: outFeedbak
+        ref_uuid: 2ac46cf7-9587-4efb-91d4-e8a716861b46
+      target function or activity port:
+      - name: inFeedbak
+        ref_uuid: 517e37ce-df9c-4959-97cd-392fbca365a2
+    - name: outInteraction 16
+      type: FunctionOutputPort
+      primary_uuid: 29f24a41-3895-4379-86dc-374c4b39e1fa
+      description: ""
+      owner:
+        name: Observed Ride
+        ref_uuid: b7294467-3faa-4a9a-8d65-b7ae0bb68f4b
+    - name: Interaction 16
+      type: FunctionalExchange
+      primary_uuid: eabb6e21-6cf8-436b-af7d-3059fa5368cf
+      description: ""
+      source function or activity port:
+      - name: outInteraction 16
+        ref_uuid: 29f24a41-3895-4379-86dc-374c4b39e1fa
+      target function or activity port:
+      - name: inInteraction 16
+        ref_uuid: acd4d3e2-339a-4bbc-8a6c-10c8e3eeaaa7
+      involving functional chain:
+       - name: Maintain Bike
+         ref_uuid: 18fecd84-3871-41f1-8947-478411d48327
+    - name: inRide
+      type: FunctionInputPort
+      primary_uuid: ef9e9982-0453-4674-b1b2-0c8b3adfb2ae
+      description: ""
+      owner:
+        name: Execute Ride
+        ref_uuid: 04f438aa-714f-478b-b39f-8d3560e3a6d2
+    - name: Ride
+      type: FunctionalExchange
+      primary_uuid: 298219e9-aed5-41e6-b308-ccb956df3e1d
+      description: ""
+      source function or activity port:
+      - name: outRide
+        ref_uuid: cdaec5c4-c441-41d8-bc79-357b34648bd2
+      target function or activity port:
+      - name: inRide
+        ref_uuid: ef9e9982-0453-4674-b1b2-0c8b3adfb2ae
+    - name: inObservations
+      type: FunctionInputPort
+      primary_uuid: 238ef21f-6d9f-4230-8e2e-9f47f58502d2
+      description: ""
+      owner:
+        name: Execute Ride
+        ref_uuid: 04f438aa-714f-478b-b39f-8d3560e3a6d2
+    - name: inObservations
+      type: FunctionInputPort
+      primary_uuid: ed75620b-24b3-4c32-9506-9ba6eb620a26
+      description: ""
+      owner:
+        name: Execute Ride
+        ref_uuid: 04f438aa-714f-478b-b39f-8d3560e3a6d2
+    - name: inGear Position
+      type: FunctionInputPort
+      primary_uuid: a0dd21fb-9d9e-4c06-b209-6efec4ce2d97
+      description: ""
+      owner:
+        name: Execute Ride
+        ref_uuid: 04f438aa-714f-478b-b39f-8d3560e3a6d2
+    - name: outHands
+      type: FunctionOutputPort
+      primary_uuid: aadf00ca-76af-496d-bd84-9fd3683fa50c
+      description: ""
+      owner:
+        name: Execute Ride
+        ref_uuid: 04f438aa-714f-478b-b39f-8d3560e3a6d2
+    - name: outPedals
+      type: FunctionOutputPort
+      primary_uuid: 053bb7d0-3a8c-4baa-9dff-43717449794d
+      description: ""
+      owner:
+        name: Execute Ride
+        ref_uuid: 04f438aa-714f-478b-b39f-8d3560e3a6d2
+    - name: outBody
+      type: FunctionOutputPort
+      primary_uuid: dda198fe-13e0-4345-8fb0-6eed1a9f116d
+      description: ""
+      owner:
+        name: Execute Ride
+        ref_uuid: 04f438aa-714f-478b-b39f-8d3560e3a6d2
+    - name: Body
+      type: FunctionalExchange
+      primary_uuid: 86664812-76bb-4bbe-9b8f-7818910c37cb
+      description: ""
+      source function or activity port:
+      - name: outBody
+        ref_uuid: dda198fe-13e0-4345-8fb0-6eed1a9f116d
+      target function or activity port:
+      - name: inBody
+        ref_uuid: 571bf08b-c0a2-4533-84b5-871ae5f6d40c
+      involving functional chain:
+       - name: Ride Mountain Trails
+         ref_uuid: fd86f162-9130-44a4-adf3-50d5ab66d13e
+    - name: outFinger Contoler
+      type: FunctionOutputPort
+      primary_uuid: ffcc315f-d254-4bc7-88ca-5323cdda15f2
+      description: ""
+      owner:
+        name: Execute Ride
+        ref_uuid: 04f438aa-714f-478b-b39f-8d3560e3a6d2
+    - name: FOP 5
+      type: FunctionOutputPort
+      primary_uuid: 50f686aa-dedc-433b-bebf-fe623ebbf3b3
+      description: ""
+      owner:
+        name: Execute Ride
+        ref_uuid: 04f438aa-714f-478b-b39f-8d3560e3a6d2
+    - name: FIP 1
+      type: FunctionInputPort
+      primary_uuid: 971ee4e3-1598-4d97-aa10-bfb214e4e450
+      description: ""
+      owner:
+        name: Gather 16
+        ref_uuid: 19f3e454-339b-404e-9b8c-9eb2f0fd9a88
+    - name: FIP 2
+      type: FunctionInputPort
+      primary_uuid: c7135805-85f9-4ea3-8ea0-08ab5fcd496a
+      description: ""
+      owner:
+        name: Gather 16
+        ref_uuid: 19f3e454-339b-404e-9b8c-9eb2f0fd9a88
+    - name: outRide Comfort
+      type: FunctionOutputPort
+      primary_uuid: 86ff6406-0710-4a55-a3c5-cb6cf297b249
+      description: ""
+      owner:
+        name: Gather 16
+        ref_uuid: 19f3e454-339b-404e-9b8c-9eb2f0fd9a88
+    - name: Allow Control
+      type: LogicalFunction
+      primary_uuid: eb2b976b-292c-4b30-9f46-bb305391e1f1
+      description: ""
+      owner :
+      - name: None
+        ref_uuid: None
+      functions owned:
+       - name: Allow Control 
+         ref_uuid: af5cf3ec-669a-43cb-a1f8-5cbaa625033c
+      inputs:
+      outputs:
+    - name: Allow Control 
+      type: LogicalFunction
+      primary_uuid: af5cf3ec-669a-43cb-a1f8-5cbaa625033c
+      description: ""
+      owner :
+      - name: Seat and Post
+        ref_uuid: 948cfaeb-a7a7-47ae-a3cf-75bd83b86c7c
+      functions owned:
+      inputs:
+       - name: FIP 1
+         ref_uuid: d9fb9abc-e362-47e9-a046-4adee45b52f6
+         exchanges:
+          - name: Body
+            ref_uuid:  0909ec19-d6d7-41d7-857e-4f01e392fc32
+            source_function_name: Split 16
+            ref_uuid: 8da26c67-410b-4a6b-8c8e-9196f0d2a9fc
+            target_function_name: Allow Control 
+            ref_uuid: af5cf3ec-669a-43cb-a1f8-5cbaa625033c
+      outputs:
+       - name: FOP 1
+         ref_uuid: 40d83122-e6af-4018-bf42-5a43a880788f
+         exchanges:
+          - name: FunctionalExchange 11
+            ref_uuid:  72443ba5-d78f-4a94-98ef-ff28065c014e
+            source_function_name: Allow Control 
+            ref_uuid: af5cf3ec-669a-43cb-a1f8-5cbaa625033c
+            target_function_name: Dampen Force from Wheels
+            ref_uuid: 85ddb2f3-2424-4171-90d9-0a9bb8766e46
+    - name: Split 16
+      type: LogicalFunction
+      primary_uuid: 8da26c67-410b-4a6b-8c8e-9196f0d2a9fc
+      description: ""
+      owner :
+      - name: Mountain Biker
+        ref_uuid: 2190789c-c6cc-471e-b99c-61a67b13423e
+      functions owned:
+      inputs:
+       - name: inBody
+         ref_uuid: 571bf08b-c0a2-4533-84b5-871ae5f6d40c
+         exchanges:
+          - name: Body
+            ref_uuid:  86664812-76bb-4bbe-9b8f-7818910c37cb
+            source_function_name: Execute Ride
+            ref_uuid: 04f438aa-714f-478b-b39f-8d3560e3a6d2
+            target_function_name: Split 16
+            ref_uuid: 8da26c67-410b-4a6b-8c8e-9196f0d2a9fc
+      outputs:
+       - name: FOP 1
+         ref_uuid: 02bd7dc6-fe4c-4e3b-a0d8-2a14b3c874cd
+         exchanges:
+          - name: Body
+            ref_uuid:  0909ec19-d6d7-41d7-857e-4f01e392fc32
+            source_function_name: Split 16
+            ref_uuid: 8da26c67-410b-4a6b-8c8e-9196f0d2a9fc
+            target_function_name: Allow Control 
+            ref_uuid: af5cf3ec-669a-43cb-a1f8-5cbaa625033c
+       - name: FOP 2
+         ref_uuid: 61156555-bdf9-41cb-acfb-be087c472914
+         exchanges:
+          - name: Body
+            ref_uuid:  30ee9786-a37a-4a0b-ba30-eaab49b595d3
+            source_function_name: Split 16
+            ref_uuid: 8da26c67-410b-4a6b-8c8e-9196f0d2a9fc
+            target_function_name: Provide Comfort
+            ref_uuid: 21bd188c-d167-42cf-8159-bac4149ca72d
+       - name: FOP 3
+         ref_uuid: 5382edd1-5752-41a0-9654-1d9390167dd3
+         exchanges:
+    - name: CP 2
+      type: ComponentPort
+      primary_uuid: 8eb6eb8c-5d9a-46db-9f22-a7865b06bd7b
+      description: ""
+      owner:
+        name: Braking System
+        ref_uuid: d8e659e7-e706-4251-95d2-35d2000ee608
+    - name: CP 1
+      type: ComponentPort
+      primary_uuid: 3afbc786-3bc7-4a65-9472-0c504020cbee
+      description: ""
+      owner:
+        name: Cockpit
+        ref_uuid: ca778e63-491b-4487-8510-ef9fd8caaa64
+    - name: Identification of Terrain Challenge
+      type: LogicalFunction
+      primary_uuid: 1c1c2580-aa98-4ce4-9300-92967b8b5997
+      description: "&lt;p&gt;The Mountain Biker identifies and assesses the upcoming challenges on the Mountain Trails, such as steep inclines, technical sections, and obstacles.&lt;/p&gt; "
+      owner :
+      - name: Mountain Biker
+        ref_uuid: 2190789c-c6cc-471e-b99c-61a67b13423e
+      functions owned:
+      inputs:
+       - name: inInteraction 12
+         ref_uuid: 4dbc3624-a01c-4380-a4ec-c210506b7a53
+         exchanges:
+          - name: Interaction 12
+            ref_uuid:  a51c05cd-e1a2-4d6f-8ee8-5020f85554ad
+            source_function_name: Receive Bike
+            ref_uuid: 74affd62-d49b-4223-9222-c9910cb73ea2
+            target_function_name: Identification of Terrain Challenge
+            ref_uuid: 1c1c2580-aa98-4ce4-9300-92967b8b5997
+      outputs:
+       - name: outPrep for Ride
+         ref_uuid: 3307693c-4bd9-4c86-b604-658fe34292cc
+         exchanges:
+          - name: Prep for Ride
+            ref_uuid:  a5425fbb-da5f-4de3-a15b-bac1025ffdc8
+            source_function_name: Identification of Terrain Challenge
+            ref_uuid: 1c1c2580-aa98-4ce4-9300-92967b8b5997
+            target_function_name: Terrain Adjustment
+            ref_uuid: c553928e-5995-424c-a8e9-62b20ad68356
+    - name: Terrain Adjustment
+      type: LogicalFunction
+      primary_uuid: c553928e-5995-424c-a8e9-62b20ad68356
+      description: ""
+      owner :
+      - name: Mountain Biker
+        ref_uuid: 2190789c-c6cc-471e-b99c-61a67b13423e
+      functions owned:
+      inputs:
+       - name: inPrep for Ride
+         ref_uuid: 7bb10323-0040-411e-b7ab-37921d03cf6d
+         exchanges:
+          - name: Prep for Ride
+            ref_uuid:  a5425fbb-da5f-4de3-a15b-bac1025ffdc8
+            source_function_name: Identification of Terrain Challenge
+            ref_uuid: 1c1c2580-aa98-4ce4-9300-92967b8b5997
+            target_function_name: Terrain Adjustment
+            ref_uuid: c553928e-5995-424c-a8e9-62b20ad68356
+       - name: inInteraction 15
+         ref_uuid: 96e9dc28-6371-40bd-a862-17893afa6fb2
+         exchanges:
+          - name: Interaction 15
+            ref_uuid:  794e5467-0082-4b10-86f9-8aa410ed4743
+            source_function_name: Update Bike
+            ref_uuid: f684d7ad-4e56-4c64-9e9c-a613e26d9e35
+            target_function_name: Terrain Adjustment
+            ref_uuid: c553928e-5995-424c-a8e9-62b20ad68356
+       - name: inInteraction 17
+         ref_uuid: 8a1d378d-aee3-4ef5-81e9-bcd7d75bcee9
+         exchanges:
+          - name: Interaction 17
+            ref_uuid:  b83521c8-c909-46b3-b127-9e7ce2e958c8
+            source_function_name: Maintain Bike
+            ref_uuid: 6ea2ccd8-5263-421c-8c5c-17375b8de5f7
+            target_function_name: Terrain Adjustment
+            ref_uuid: c553928e-5995-424c-a8e9-62b20ad68356
+      outputs:
+       - name: outAdjust
+         ref_uuid: 4b6b81b6-bd81-49dc-8bfd-5c1639038539
+         exchanges:
+          - name: Adjust
+            ref_uuid:  e9d5fc58-756f-49a6-a093-f2223815271a
+            source_function_name: Terrain Adjustment
+            ref_uuid: c553928e-5995-424c-a8e9-62b20ad68356
+            target_function_name: Split 17
+            ref_uuid: dce8973c-fc7c-4540-b903-4f3b1fad9567
+       - name: outRide
+         ref_uuid: cdaec5c4-c441-41d8-bc79-357b34648bd2
+         exchanges:
+          - name: Ride
+            ref_uuid:  298219e9-aed5-41e6-b308-ccb956df3e1d
+            source_function_name: Terrain Adjustment
+            ref_uuid: c553928e-5995-424c-a8e9-62b20ad68356
+            target_function_name: Execute Ride
+            ref_uuid: 04f438aa-714f-478b-b39f-8d3560e3a6d2
+    - name: Receive Bike
+      type: LogicalFunction
+      primary_uuid: 74affd62-d49b-4223-9222-c9910cb73ea2
+      description: ""
+      owner :
+      - name: Mountain Biker
+        ref_uuid: 2190789c-c6cc-471e-b99c-61a67b13423e
+      functions owned:
+      inputs:
+       - name: inInteraction 11
+         ref_uuid: 1972374d-5e92-4979-bb0f-aaccc7ce5ba3
+         exchanges:
+          - name: Interaction 11
+            ref_uuid:  a73869d0-b1ee-4393-8457-25b5f5e85aca
+            source_function_name: Build Bike
+            ref_uuid: 9e0d4166-3d81-4f36-b1a1-ce6b0605792e
+            target_function_name: Receive Bike
+            ref_uuid: 74affd62-d49b-4223-9222-c9910cb73ea2
+      outputs:
+       - name: outInteraction 12
+         ref_uuid: fb1ad658-54a0-4540-9d4c-71910fbe2d20
+         exchanges:
+          - name: Interaction 12
+            ref_uuid:  a51c05cd-e1a2-4d6f-8ee8-5020f85554ad
+            source_function_name: Receive Bike
+            ref_uuid: 74affd62-d49b-4223-9222-c9910cb73ea2
+            target_function_name: Identification of Terrain Challenge
+            ref_uuid: 1c1c2580-aa98-4ce4-9300-92967b8b5997
+    - name: Split 17
+      type: LogicalFunction
+      primary_uuid: dce8973c-fc7c-4540-b903-4f3b1fad9567
+      description: ""
+      owner :
+      - name: Mountain Biker
+        ref_uuid: 2190789c-c6cc-471e-b99c-61a67b13423e
+      functions owned:
+      inputs:
+       - name: inAdjust
+         ref_uuid: 45213792-c002-4d0a-932c-e1a7949998da
+         exchanges:
+          - name: Adjust
+            ref_uuid:  e9d5fc58-756f-49a6-a093-f2223815271a
+            source_function_name: Terrain Adjustment
+            ref_uuid: c553928e-5995-424c-a8e9-62b20ad68356
+            target_function_name: Split 17
+            ref_uuid: dce8973c-fc7c-4540-b903-4f3b1fad9567
+      outputs:
+       - name: FOP 1
+         ref_uuid: 841dd518-3e4c-4521-92c1-fd72142d83e6
+         exchanges:
+          - name: Seat Adjust
+            ref_uuid:  5d92d5fb-3ed4-4819-90b6-5d8b1c7680e6
+            source_function_name: Split 17
+            ref_uuid: dce8973c-fc7c-4540-b903-4f3b1fad9567
+            target_function_name: Accept adjustment for Terrain
+            ref_uuid: b6e8a03e-b589-4fe2-b131-2aeb037a1b80
+       - name: FOP 2
+         ref_uuid: e023d044-b28b-4513-8193-37dcf00095a9
+         exchanges:
+          - name: Suspension Adjust
+            ref_uuid:  dcc5d363-34a9-4222-b14e-b8ee0e122faa
+            source_function_name: Split 17
+            ref_uuid: dce8973c-fc7c-4540-b903-4f3b1fad9567
+            target_function_name: Accept adjustment
+            ref_uuid: e3622542-ffff-48d4-8063-d4f8fb1f6cb9
+    - name: None
+      type: NoneType
+      primary_uuid: None
+      description: ""
+    - name: FIP 1
+      type: FunctionInputPort
+      primary_uuid: d9fb9abc-e362-47e9-a046-4adee45b52f6
+      description: ""
+      owner:
+        name: Allow Control 
+        ref_uuid: af5cf3ec-669a-43cb-a1f8-5cbaa625033c
+    - name: Body
+      type: FunctionalExchange
+      primary_uuid: 0909ec19-d6d7-41d7-857e-4f01e392fc32
+      description: ""
+      source function or activity port:
+      - name: FOP 1
+        ref_uuid: 02bd7dc6-fe4c-4e3b-a0d8-2a14b3c874cd
+      target function or activity port:
+      - name: FIP 1
+        ref_uuid: d9fb9abc-e362-47e9-a046-4adee45b52f6
+    - name: FOP 1
+      type: FunctionOutputPort
+      primary_uuid: 40d83122-e6af-4018-bf42-5a43a880788f
+      description: ""
+      owner:
+        name: Allow Control 
+        ref_uuid: af5cf3ec-669a-43cb-a1f8-5cbaa625033c
+    - name: inBody
+      type: FunctionInputPort
+      primary_uuid: 571bf08b-c0a2-4533-84b5-871ae5f6d40c
+      description: ""
+      owner:
+        name: Split 16
+        ref_uuid: 8da26c67-410b-4a6b-8c8e-9196f0d2a9fc
+    - name: FOP 1
+      type: FunctionOutputPort
+      primary_uuid: 02bd7dc6-fe4c-4e3b-a0d8-2a14b3c874cd
+      description: ""
+      owner:
+        name: Split 16
+        ref_uuid: 8da26c67-410b-4a6b-8c8e-9196f0d2a9fc
+    - name: FOP 2
+      type: FunctionOutputPort
+      primary_uuid: 61156555-bdf9-41cb-acfb-be087c472914
+      description: ""
+      owner:
+        name: Split 16
+        ref_uuid: 8da26c67-410b-4a6b-8c8e-9196f0d2a9fc
+    - name: FOP 3
+      type: FunctionOutputPort
+      primary_uuid: 5382edd1-5752-41a0-9654-1d9390167dd3
+      description: ""
+      owner:
+        name: Split 16
+        ref_uuid: 8da26c67-410b-4a6b-8c8e-9196f0d2a9fc
+    - name: inInteraction 12
+      type: FunctionInputPort
+      primary_uuid: 4dbc3624-a01c-4380-a4ec-c210506b7a53
+      description: ""
+      owner:
+        name: Identification of Terrain Challenge
+        ref_uuid: 1c1c2580-aa98-4ce4-9300-92967b8b5997
+    - name: Interaction 12
+      type: FunctionalExchange
+      primary_uuid: a51c05cd-e1a2-4d6f-8ee8-5020f85554ad
+      description: ""
+      source function or activity port:
+      - name: outInteraction 12
+        ref_uuid: fb1ad658-54a0-4540-9d4c-71910fbe2d20
+      target function or activity port:
+      - name: inInteraction 12
+        ref_uuid: 4dbc3624-a01c-4380-a4ec-c210506b7a53
+    - name: outPrep for Ride
+      type: FunctionOutputPort
+      primary_uuid: 3307693c-4bd9-4c86-b604-658fe34292cc
+      description: ""
+      owner:
+        name: Identification of Terrain Challenge
+        ref_uuid: 1c1c2580-aa98-4ce4-9300-92967b8b5997
+    - name: Prep for Ride
+      type: FunctionalExchange
+      primary_uuid: a5425fbb-da5f-4de3-a15b-bac1025ffdc8
+      description: ""
+      source function or activity port:
+      - name: outPrep for Ride
+        ref_uuid: 3307693c-4bd9-4c86-b604-658fe34292cc
+      target function or activity port:
+      - name: inPrep for Ride
+        ref_uuid: 7bb10323-0040-411e-b7ab-37921d03cf6d
+      involving functional chain:
+       - name: Terrain Adjust
+         ref_uuid: 8965f660-496c-4072-b441-4225a2f180e4
+    - name: inPrep for Ride
+      type: FunctionInputPort
+      primary_uuid: 7bb10323-0040-411e-b7ab-37921d03cf6d
+      description: ""
+      owner:
+        name: Terrain Adjustment
+        ref_uuid: c553928e-5995-424c-a8e9-62b20ad68356
+    - name: inInteraction 15
+      type: FunctionInputPort
+      primary_uuid: 96e9dc28-6371-40bd-a862-17893afa6fb2
+      description: ""
+      owner:
+        name: Terrain Adjustment
+        ref_uuid: c553928e-5995-424c-a8e9-62b20ad68356
+    - name: Interaction 15
+      type: FunctionalExchange
+      primary_uuid: 794e5467-0082-4b10-86f9-8aa410ed4743
+      description: ""
+      source function or activity port:
+      - name: outInteraction 15
+        ref_uuid: c8c13d22-99e9-41d1-95ef-8a3be82708c1
+      target function or activity port:
+      - name: inInteraction 15
+        ref_uuid: 96e9dc28-6371-40bd-a862-17893afa6fb2
+    - name: inInteraction 17
+      type: FunctionInputPort
+      primary_uuid: 8a1d378d-aee3-4ef5-81e9-bcd7d75bcee9
+      description: ""
+      owner:
+        name: Terrain Adjustment
+        ref_uuid: c553928e-5995-424c-a8e9-62b20ad68356
+    - name: Interaction 17
+      type: FunctionalExchange
+      primary_uuid: b83521c8-c909-46b3-b127-9e7ce2e958c8
+      description: ""
+      source function or activity port:
+      - name: outInteraction 17
+        ref_uuid: 71eefffe-3d85-4a05-9158-6e09a2e398bf
+      target function or activity port:
+      - name: inInteraction 17
+        ref_uuid: 8a1d378d-aee3-4ef5-81e9-bcd7d75bcee9
+      involving functional chain:
+       - name: Maintain Bike
+         ref_uuid: 18fecd84-3871-41f1-8947-478411d48327
+    - name: outAdjust
+      type: FunctionOutputPort
+      primary_uuid: 4b6b81b6-bd81-49dc-8bfd-5c1639038539
+      description: ""
+      owner:
+        name: Terrain Adjustment
+        ref_uuid: c553928e-5995-424c-a8e9-62b20ad68356
+    - name: Adjust
+      type: FunctionalExchange
+      primary_uuid: e9d5fc58-756f-49a6-a093-f2223815271a
+      description: ""
+      source function or activity port:
+      - name: outAdjust
+        ref_uuid: 4b6b81b6-bd81-49dc-8bfd-5c1639038539
+      target function or activity port:
+      - name: inAdjust
+        ref_uuid: 45213792-c002-4d0a-932c-e1a7949998da
+      involving functional chain:
+       - name: Terrain Adjust
+         ref_uuid: 8965f660-496c-4072-b441-4225a2f180e4
+    - name: outRide
+      type: FunctionOutputPort
+      primary_uuid: cdaec5c4-c441-41d8-bc79-357b34648bd2
+      description: ""
+      owner:
+        name: Terrain Adjustment
+        ref_uuid: c553928e-5995-424c-a8e9-62b20ad68356
+    - name: inInteraction 11
+      type: FunctionInputPort
+      primary_uuid: 1972374d-5e92-4979-bb0f-aaccc7ce5ba3
+      description: ""
+      owner:
+        name: Receive Bike
+        ref_uuid: 74affd62-d49b-4223-9222-c9910cb73ea2
+    - name: Interaction 11
+      type: FunctionalExchange
+      primary_uuid: a73869d0-b1ee-4393-8457-25b5f5e85aca
+      description: ""
+      source function or activity port:
+      - name: outInteraction 11
+        ref_uuid: 32fc5dfa-ed7b-4de5-9556-8fa3f1ea5193
+      target function or activity port:
+      - name: inInteraction 11
+        ref_uuid: 1972374d-5e92-4979-bb0f-aaccc7ce5ba3
+      involving functional chain:
+       - name: Improve Terrain Navigation
+         ref_uuid: 329f47a6-1eca-4047-9012-46282be983b3
+       - name: Enhance Fream and Suspension
+         ref_uuid: 4af7e1e2-e119-4927-a2d0-abf17201ed65
+       - name: Improve for Weather
+         ref_uuid: a5d2d54e-681f-49e8-8a6c-270340c940b5
+       - name: Optimize for Balance
+         ref_uuid: b4ac6815-0725-41e2-a387-7cbe64d4f405
+    - name: outInteraction 12
+      type: FunctionOutputPort
+      primary_uuid: fb1ad658-54a0-4540-9d4c-71910fbe2d20
+      description: ""
+      owner:
+        name: Receive Bike
+        ref_uuid: 74affd62-d49b-4223-9222-c9910cb73ea2
+    - name: inAdjust
+      type: FunctionInputPort
+      primary_uuid: 45213792-c002-4d0a-932c-e1a7949998da
+      description: ""
+      owner:
+        name: Split 17
+        ref_uuid: dce8973c-fc7c-4540-b903-4f3b1fad9567
+    - name: FOP 1
+      type: FunctionOutputPort
+      primary_uuid: 841dd518-3e4c-4521-92c1-fd72142d83e6
+      description: ""
+      owner:
+        name: Split 17
+        ref_uuid: dce8973c-fc7c-4540-b903-4f3b1fad9567
+    - name: FOP 2
+      type: FunctionOutputPort
+      primary_uuid: e023d044-b28b-4513-8193-37dcf00095a9
+      description: ""
+      owner:
+        name: Split 17
+        ref_uuid: dce8973c-fc7c-4540-b903-4f3b1fad9567
