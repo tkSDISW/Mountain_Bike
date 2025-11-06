@@ -74,7 +74,7 @@ class ShowArtifactTool(DisplayTool):
 
         # ✅ RAW return — no HTML/UI formatting
         return {
-            "message": f"Artifact: {art.name or art.id}",
+            "message": f"Artifact 📋: {art.name or art.id}",
             "artifact_id": art.id,
             "type": art.type,
             "name": getattr(art, "name", None),

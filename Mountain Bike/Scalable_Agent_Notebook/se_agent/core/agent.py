@@ -3,8 +3,10 @@
 import json
 from pathlib import Path
 from typing import Any, Optional
-from se_agent.mcp.artifact_registry import ArtifactRegistry, ArtifactPackage
-from se_agent.core.tool_registry import ToolRegistry
+
+from se_agent.mcp.artifact_registry import ArtifactPackage, artifact_registry
+from se_agent.core.tool_registry import tool_registry
+import importlib, pkgutil, se_agent.tools as tools_pkg
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
 import os, time
@@ -12,20 +14,121 @@ import ipywidgets as widgets
 from IPython.display import display, Markdown
 from jupyter_ui_poll import ui_events
 import traceback
+from se_agent.core.workspace_resolver import resolve_workspace_names
 
 class AgentCore:
     """
     Main agent core that orchestrates artifacts, tools, and pipelines.
     """
+    def _tool_action_hint(self, name: str, meta: dict) -> str:
+        io = meta.get("io_schema", {}) or {}
+        ins = io.get("inputs", {}) or {}
+        outs = io.get("outputs", {}) or {}
+    
+        # pull a nicer "when to use" if the class defines USAGE
+        cls = meta.get("class")
+        usage = (getattr(cls, "USAGE", "") or meta.get("description", "")).strip()
+        cat = (meta.get("category") or "general").strip()
+        when = (f"[{cat}] {usage}" if usage else f"[{cat}]").strip()
+    
+        # required / optional inputs
+        req_lines, opt_lines = [], []
+        for k, spec in ins.items():
+            if not isinstance(spec, dict):
+                continue
+            line = f'"{k}": {spec.get("type","string")}'
+            desc = spec.get("description")
+            if desc:
+                line += f"  # {desc}"
+            (req_lines if spec.get("required") else opt_lines).append(line)
+    
+        # JSON action template: required first, then at most two optional
+        required_keys = [k for k, s in ins.items() if isinstance(s, dict) and s.get("required")]
+        optional_keys = [k for k, s in ins.items() if isinstance(s, dict) and not s.get("required")][:2]
+        templ_parts = [f'"{k}": <{k}>' for k in required_keys + optional_keys]
+        action_template = f'{{"tool":"{name}","input":{{{", ".join(templ_parts)}}}}}'
+    
+        # outputs summary (type + remember flag)
+        out_lines = []
+        for ok, spec in outs.items():
+            if not isinstance(spec, dict):
+                continue
+            t = spec.get("type", "")
+            r = " remember" if spec.get("remember") else ""
+            out_lines.append(f'- "{ok}": {t}{r}')
+    
+        lines = []
+        if when:
+            lines.append(f"When to use: {when}")
+        if req_lines:
+            lines.append("Requires:")
+            lines += [f"  - {x}" for x in req_lines]
+        if opt_lines:
+            lines.append("Optional:")
+            lines += [f"  - {x}" for x in opt_lines]
+        lines.append("Action template:")
+        lines.append(f"  {action_template}")
+        if out_lines:
+            lines.append("Produces:")
+            lines += [f"  {x}" for x in out_lines]
+    
+        return "\n".join(lines)
 
-    def __init__(self):
-        self.artifacts = ArtifactRegistry()
-        self.tools = ToolRegistry()
+    def _format_tool_result_for_chat(self, result: dict) -> str:
+        import json
+        if not isinstance(result, dict):
+            return str(result)
+    
+        ui = result.get("ui")
+        if isinstance(ui, str) and ui.strip():
+            return ui
+    
+        html = result.get("html")
+        if isinstance(html, str) and html.strip():
+            return html
+    
+        if "content" in result:
+            try:
+                if isinstance(result["content"], (dict, list)):
+                    txt = json.dumps(result["content"], indent=2, ensure_ascii=False)
+                else:
+                    txt = str(result["content"])
+            except Exception:
+                txt = str(result["content"])
+            if len(txt) > 4000:
+                txt = txt[:4000] + "…"
+            return txt
+    
+        # ✅ No UI/HTML/CONTENT → no preview; let _show_tool_result print message once
+        return ""
+
+    def _scan_tools_contracts(self):
+        """Quick scan at startup: warn if tools declare remember=True."""
+        for tool_name, meta in self.tools.tools.items():
+            io_schema = meta.get("io_schema") or getattr(meta.get("obj", None), "IO_SCHEMA", None)
+            if not isinstance(io_schema, dict):
+                continue
+            outputs = io_schema.get("outputs", {}) or {}
+            remember_keys = [k for k, v in outputs.items() if isinstance(v, dict) and v.get("remember")]
+            if remember_keys:
+                print(f"[contract] Tool '{tool_name}' has remember-outputs {remember_keys}. "
+                      "Ensure it returns result['artifact_ids'][name] on success.")
+
+
+    def __init__(self,memory_saver: MemorySaver | None = None):
+        self.artifacts = artifact_registry
+        self.tools = tool_registry
         self.history = []  # in-memory execution history
-        # 🔹 Inject tool registry into llm_chat if it exists
-        if "llm_chat" in self.tools.tools:
-            self.tools.tools["llm_chat"].tool_registry = self.tools
-        # --- Package management ---
+         # 🔹 Autoload all tool modules so @register_tool executes
+        self._autoload_tools()
+        self._last_announced: dict[str, str] = {}  # package_name -> artifact_id
+        self.memory_saver = memory_saver or MemorySaver()
+        self._scan_tools_contracts()  # ← add this one-liner
+        self.last_tool = None
+        
+    # --- Package management ---
+
+    
     def create_package(self, name: str) -> ArtifactPackage:
         return self.artifacts.create_package(name)
 
@@ -35,24 +138,43 @@ class AgentCore:
     def list_packages(self):
         """Return a list of available package names."""
         return list(self.artifacts.packages.keys())
-
+    # add inside AgentCore:
+    def _autoload_tools(self):
+        """Import every module in se_agent.tools so tool decorators run."""
+        for m in pkgutil.iter_modules(tools_pkg.__path__):
+            importlib.import_module(f"{tools_pkg.__name__}.{m.name}")
+    
     def add_artifact(self, package: str, type_: str, content: Any, metadata: Optional[dict] = None):
         return self.artifacts.add_artifact(package, type_, content, metadata)
 
     # --- Tool management ---
     def list_tools(self):
-        """Return available tools and their descriptions."""
-        return self.tools.list_tools()
+        """Return available tools and their descriptions as a list of dicts."""
+        out = []
+        for name, info in self.tools.tools.items():
+            out.append({
+                "name": name,
+                "description": info.get("description", ""),
+                "category": info.get("category", "general"),
+                "consumes": [v.get("type") for v in info.get("io_schema", {}).get("inputs", {}).values()],
+                "produces": [v.get("type") for v in info.get("io_schema", {}).get("outputs", {}).values()],
+            })
+        return out
 
     def active_package_name(self) -> Optional[str]:
         return self.artifacts.active_package
+
+
+
+
+
     
     def run(
         self,
         tool_name: str,
         package_name: Optional[str] = None,
         input_data: Any = None,
-        capture_as_artifact: bool = False,  # default False to avoid duplicates
+        capture_as_artifact: bool = False,
         **kwargs
     ) -> Any:
         """
@@ -61,12 +183,18 @@ class AgentCore:
         Optionally capture the tool's output as a separate 'run' artifact snapshot.
         """
     
-        # 1) Resolve tool
-        if tool_name not in self.tools.tools:
+        # 1) Resolve tool (from normalized registry metadata)
+        meta = self.tools.get(tool_name)
+        if not meta:
             raise ValueError(
                 f"Tool '{tool_name}' not found. Available: {list(self.tools.tools.keys())}"
             )
-        tool = self.tools.get_tool(tool_name)
+        tool_cls = meta.get("class")
+        if tool_cls is None:
+            raise ValueError(f"Tool '{tool_name}' is missing its class in the registry.")
+        tool = tool_cls()  # ✅ instantiate
+        #Save the last tool in the agenet so can be used  
+        self.last_tool = tool
     
         # 2) Resolve package (requested or active)
         pkg_name = package_name or self.active_package_name()
@@ -77,11 +205,12 @@ class AgentCore:
             package = self.artifacts.packages[pkg_name]
     
         # 3) Execute tool
-        #    IMPORTANT: pass the registry + the resolved package name
+        # resolve any workspace names in the incoming payload
+        resolved_input = resolve_workspace_names(input_data or {}, self.artifacts, pkg_name)
         result = tool.run(
             input_data or {},
-            artifacts=self.artifacts,   # <-- always the registry
-            package_name=pkg_name,      # <-- explicit package scope
+            artifacts=self.artifacts,   # always the registry
+            package_name=pkg_name,      # explicit package scope
             **kwargs
         )
     
@@ -96,31 +225,32 @@ class AgentCore:
         }
         self.history.append(record)
     
-        # 5) (Optional) capture a 'run snapshot' artifact (avoid domain duplication)
-        #    Only do this if explicitly requested.
+        # 5) (Optional) capture a 'run snapshot' artifact
         if capture_as_artifact and package:
             if isinstance(result, (str, dict, list)):
-                # Use 'run:<tool>' to keep these separate from domain artifacts
                 self.artifacts.add_artifact(
                     pkg_name,
                     type_=f"run:{tool_name}",
                     content=result,
                     metadata={"from_tool": True, "snapshot": True}
                 )
-
-        if isinstance(result, dict):
-            msg = self._latest_non_conversation_announce(pkg_name)
-            if msg:
-                # Keep structured field for UIs
-                result.setdefault("artifact_message", msg)
-                # Also append a newline so plain-text consumers see it immediately
-                # If the tool already returned a 'message' string, append to it; else create one
-                if "message" in result and isinstance(result["message"], str) and result["message"].strip():
-                    result["message"] = result["message"].rstrip() + f"\n{msg}"
-                else:
-                    result["message"] = msg
-        return result
     
+        # 6) (Optional) enforce tool-declared memory policy (remember=True on outputs)
+        try:
+            if hasattr(self, "_enforce_memory_policy") and isinstance(result, dict):
+                self._enforce_memory_policy(tool_name, result, pkg_name)
+        except Exception:
+            # memory should never break the run; ignore failures
+            pass
+    
+        # 7) Append latest artifact announce to the tool message (your existing UX)
+        if isinstance(result, dict):
+            ann = self._latest_non_conversation_announce(pkg_name)
+            if ann:
+                result.setdefault("artifact_message", ann)
+    
+        return result
+
     
         # --- Pipeline / History ---
         def get_history(self):
@@ -223,10 +353,17 @@ class AgentCore:
         self.history.append(record)
         return record
 
+
     def _build_enriched_context(self):
-        # 1) Tool awareness (names + one-liners)
-        tools = self.tools.list_tools() if hasattr(self.tools, "list_tools") else []
-        tool_lines = [f"- {t['name']}: {t['description']}" for t in tools]
+        tools_map = self.tools.list_tools()  # name -> meta dict
+        tool_lines = []
+        for name in sorted(tools_map.keys()):
+            meta = tools_map[name]
+            hint = self._tool_action_hint(name, meta)
+            tool_lines.append(f"- {name}\n{hint}")
+    
+
+
     
         # 2) Artifact state (very compact)
         pkg = self.artifacts.get_active_package() if hasattr(self.artifacts, "get_active_package") else None
@@ -248,36 +385,152 @@ class AgentCore:
     
         # 3) Interaction contract
         contract = [
-            "You are a systems engineering assistant with access to tools.",
-            "When a user makes a request:",
-            "1. Briefly reason in natural language and build a plan of actions.",
-            "   a. ensure inputs exist for an action",
-            "     1. reply with response to create desired artifact when action inputs do not exist",
-            "   b. evaluate outputs that are produced to allow more actions.",
-            "   b. Proceed to execute the action plan when possible.",
-            "2. When action or actions can be taken reply with a JSON object containing an 'actions' list describing the tools to call in order.",
-            "   Example:",
-            '   {"actions": [',
-            '       {"tool": "read_leveled_csv", "input": {"filename": "drone.csv"}},',
-            '       {"tool": "name_artifact", "input": {"type": "hierarchy", "name": "BOM"}}',
-            '   ]}',
-            "3. Do not include 'run: lines or extra commentary after the JSON.",
-            '4. Do not propose "action" :[ "tool":"interactive_chat"] to limit recursive conversation.',
-            'If no tool applies, respond naturally."'
-    ]
+          "You are a systems engineering assistant with access to tools.",
+        
+          # How to think (silently) before acting
+          "Before proposing actions, silently check the ToolRegistry IO_SCHEMA for each tool you intend to use.",
+        
+          # What to output when actions are possible
+          "When actions can be taken, reply ONLY with a JSON object containing an 'actions' list. Do NOT include any other text.",
+          "Each action must be of the form: {\"tool\": <tool_name>, \"input\": {<fields>}}",
+        
+          # Hard rules for inputs (teach, don't fix)
+          "INPUT RULES:",
+          " - Include ONLY input fields that are defined in the tool's IO_SCHEMA.inputs.",
+          " - NEVER invent fields (e.g., 'version' unless IO_SCHEMA includes it).",
+          " - Omit keys with empty values (\"\", null) entirely.",
+          " - Satisfy all required inputs. If a required input is missing, first add an action to create or fetch it.",
+          " - Use artifact identifiers that exist: prefer 'name' OR 'id' as specified by the tool; do not include both unless required.",
+          " - Match value types suggested by IO_SCHEMA (string, integer, boolean, dict, list, path).",
+          " - If a tool expects a single-asset artifact (e.g., 'capella_model'), reference it by name or id as the tool specifies.",
+          " - Do not include package in inputs unless the tool explicitly defines a 'package' input; the runtime provides package scope.",
+        
+          # Planning & chaining
+          "PLANNING:",
+          " - Plan from available artifacts to desired outputs. If prerequisites are missing, create them first.",
+          " - Use the tool’s declared outputs (IO_SCHEMA.outputs) to chain to the next action.",
+          " - Prefer minimal, correct sequences over long plans. Keep actions ≤ 3 unless the task truly requires more.",
+          " - If no tool applies or required data cannot be created without user input, reply naturally and ask only for the missing essentials.",
+        
+          # Output format and cleanliness
+          "FORMAT:",
+          " - Return ONLY the JSON with 'actions'. No markdown fences, no json prefix, no commentary, no 'run:' lines.",
+          " - Do not propose {\"tool\":\"interactive_chat\"} recursively.",
+          " - Do not echo previous conversations or artifacts in the JSON.",
+        
+          # Examples (schema-compliant)
+          "EXAMPLES:",
+          ' {"actions":[{"tool":"read_leveled_csv","input":{"filename":"drone.csv"}}]}',
+          ' {"actions":[{"tool":"name_artifact","input":{"type":"hierarchy","name":"BOM"}}]}',
+          ' {"actions":[{"tool":"show_artifact","input":{"name":"SEA_Capella_Model"}}]}',
+          ' {"actions":[{"tool":"query_capella_model","input":{"capella_model_name":"BikeModel","query":"brake lever","top_n":25}}]}',
+        
+          # Final reminder
+          "If no tool applies, respond naturally."
+        ]
+
     
         # 4) Compose
         parts = [
             "\n".join(contract),
             "You have access to the following tools:",
             "\n".join(tool_lines) or "- (no tools registered)",
+            "Be helpful in educating and listing the tools you have access to.",
+            "If user asks about prompt for using a tool assume they desire it in a natural language format.",
         ]
         if state_lines:
             parts.append("\n".join(state_lines))
     
         return "\n\n".join(parts)
+
+    #    
+    def _show_tool_result(self, tool, result):
+        from IPython.display import display, Markdown, HTML
+        import json
     
-        
+        # Respect tools that already rendered
+        if isinstance(result, dict) and result.get("displayed"):
+            return
+    
+        # --- helpers ---
+        def _render_tables(r):
+            arts, mems = r.get("artifacts"), r.get("memory")
+            if not arts and not mems:
+                return False
+    
+            def _mk(rows, cols):
+                if not rows:
+                    return "| *(none)* |\n|---|\n"
+                head = "| " + " | ".join(cols) + " |\n"
+                sep  = "| " + " | ".join(["---"] * len(cols)) + " |\n"
+                body = "".join("| " + " | ".join(str(row.get(c, "")) for c in cols) + " |\n" for row in rows)
+                return head + sep + body
+    
+            did = False
+            if arts:
+                display(Markdown("**Workspace Artifacts**"))
+                display(Markdown(_mk(arts, ["name","type","artifact_id","updated_at"])))
+                did = True
+            if mems:
+                display(Markdown("**Workspace Memory**"))
+                display(Markdown(_mk(mems, ["name","type","updated_at"])))
+                did = True
+            return did
+    
+        def _maybe_injection(r):
+            if isinstance(r, dict) and r.get("inject_once"):
+                display(Markdown("> _One-shot workspace injection appended to the next LLM turn._"))
+    
+        # -------- single-pass, prioritized rendering (UI first) --------
+        rendered = False
+        if isinstance(result, dict):
+            ui   = result.get("ui")
+            html = result.get("html")
+            msg  = result.get("message")
+    
+            # 1) Prefer UI markdown (keeps your headings + tables)
+            if isinstance(ui, str) and ui.strip():
+                display(Markdown(ui))
+                rendered = True
+            # 2) Else HTML
+            elif isinstance(html, str) and html.strip():
+                display(HTML(html))
+                rendered = True
+            # 3) Else smart tables (only if no ui/html)
+            elif _render_tables(result):
+                rendered = True
+            # 4) Else short message
+            elif isinstance(msg, str) and msg.strip():
+                display(Markdown(msg))
+                rendered = True
+            # 5) Else basic fallbacks
+            else:
+                if "text" in result:
+                    display(Markdown(f"```\n{result['text']}\n```")); rendered = True
+                elif "csv_text" in result:
+                    display(Markdown(f"```\n{result['csv_text']}\n```")); rendered = True
+        else:
+            display(Markdown(f"```\n{result}\n```"))
+            rendered = True
+    
+        _maybe_injection(result)
+    
+        # Debug payload (only if something was rendered and there are extras)
+        if isinstance(result, dict):
+            known = {
+                "html","ui","message","text","csv_text",
+                "artifacts","memory","displayed","inject_once",
+                "artifact_id","artifact_name","artifact_type","type","name"
+            }
+            extras = {k:v for k,v in result.items() if k not in known}
+            if rendered and extras:
+                try:
+                    display(Markdown("**Debug payload**"))
+                    display(Markdown(f"```json\n{json.dumps(extras, ensure_ascii=False, indent=2)}\n```"))
+                except Exception:
+                    pass
+
+
     def interactive_chat(self, package_name=None, context="You are a helpful assistant."):
         """
         Interactive chat with tool awareness + direct tool invocation.
@@ -296,6 +549,7 @@ class AgentCore:
         # Track last displayed outputs to prevent duplicates
         self._last_html = None
         self._last_message = None
+        self._last_preview = None
             
         # 🔹 Include tool list in assistant context
         tools = self.list_tools()
@@ -352,67 +606,7 @@ class AgentCore:
         self.chat_history_msgs = [{"role": "system", "content": enriched_context}]
         
         def send_message(_):
-            from IPython.display import HTML  # ensure in-scope for nested calls
-            import io, contextlib, json, time, traceback
-        
-            def _show_tool_result(tool_result):
-                """Central display logic with dedup + displayed flag + friendly errors."""
-                if not isinstance(tool_result, dict):
-                    display(Markdown("✅ Tool executed successfully."))
-                    return
-            
-                # 1) Error path: render clearly and do not crash loop
-                if tool_result.get("error"):
-                    msg = tool_result.get("message") or f"❌ {tool_result['error']}"
-                    if msg != getattr(self, "_last_message", None):
-                        display(Markdown(f"<span style='color:#b00020'>{msg}</span>"))
-                        self._last_message = msg
-            
-                    if getattr(self, "verbose", False):
-                        tb = tool_result.get("traceback", "")
-                        logs = tool_result.get("logs", "")
-                        blocks = []
-                        if tb:
-                            blocks.append(f"```text\n{tb}\n```")
-                        if logs:
-                            blocks.append(f"```text\n{logs}\n```")
-                        if blocks:
-                            display(Markdown(
-                                "<details><summary>Debug details</summary>\n\n" +
-                                "\n\n".join(blocks) + "\n</details>"
-                            ))
-                    return
-            
-                html_out    = tool_result.get("html") or tool_result.get("ui")
-                artifact_msg = tool_result.get("artifact_message")
-                user_msg     = tool_result.get("message")
-            
-                # 2) Respect self-displayed tools
-                if tool_result.get("displayed"):
-                    # record last seen outputs to avoid future duplicates
-                    if html_out:
-                        self._last_html = html_out
-                    if artifact_msg:
-                        self._last_message = artifact_msg
-                    elif user_msg:
-                        self._last_message = user_msg
-                    return
-            
-                # 3) Normal display path (with dedup)
-                if html_out and html_out != getattr(self, "_last_html", None):
-                    display(HTML(html_out))
-                    self._last_html = html_out
-            
-                # Show artifact banner first (if new)
-                if artifact_msg and artifact_msg != getattr(self, "_last_message", None):
-                    display(Markdown(artifact_msg))
-                    self._last_message = artifact_msg
-            
-                # Then show concise summary (if provided and different)
-                if user_msg and user_msg != getattr(self, "_last_message", None):
-                    display(Markdown(user_msg))
-                    self._last_message = user_msg 
-        
+
             def _execute_tool_safely(tool_name, payload):
                 """Run a tool with robust error handling; never crash the chat loop."""
                 buf = io.StringIO()
@@ -448,7 +642,11 @@ class AgentCore:
         
                     display(Markdown(f"**Executing:** `{cmd}` {payload}"))
                     tool_result = _execute_tool_safely(cmd, payload)
-                    _show_tool_result(tool_result)
+                    self._show_tool_result(self.last_tool, tool_result)
+                    # 🔹 If the tool returned a one-shot injection, append to messages for the next LLM turn
+                    if isinstance(tool_result, dict) and tool_result.get("inject_once"):
+                        self.chat_history_msgs.append({"role": "system", "content": tool_result["inject_once"]})
+
                     return  # Prevent fallthrough to LLM branch
         
             # --- Normal LLM chat flow ---
@@ -456,6 +654,16 @@ class AgentCore:
             enriched_context = self._build_enriched_context()
         
             with chat_history:
+            # 🔹 Optional governance: keep total prompt under control
+                try:
+                    from se_agent.core.prompt_guard import enforce_prompt_budget
+                    guard = enforce_prompt_budget(self.chat_history_msgs)
+                    if not guard["ok"]:
+                        display(Markdown(guard["message"]))
+                        return
+                except Exception:
+                    pass
+
                 result = self.run("llm_chat", package_name, input_data={
                     "prompt": prompt,
                     "context": enriched_context,
@@ -485,10 +693,14 @@ class AgentCore:
                         input_data = step.get("input", {})
                         if not tool_name:
                             continue
-        
-                        display(Markdown(f"**Executing:** `{tool_name}` {input_data}"))
+     
+                        #display(Markdown(f"**Executing:** `{tool_name}` {input_data}"))
                         tool_result = _execute_tool_safely(tool_name, input_data)
-                        _show_tool_result(tool_result)
+                        self._show_tool_result(self.last_tool, tool_result)
+                        #  honor one-shot injection returned by tools
+                        if isinstance(tool_result, dict) and tool_result.get("inject_once"):
+                            self.chat_history_msgs.append({"role": "system", "content": tool_result["inject_once"]})
+
                         time.sleep(0.3)
 
         
@@ -537,20 +749,99 @@ class AgentCore:
         """Return the recorded tool run history."""
         return getattr(self, "history", [])
 
-    def _latest_non_conversation_announce(self, package_name: str | None = None) -> str | None:
-        pkg_name = package_name or self.active_package_name()
+    def _latest_non_conversation_announce(self, pkg_name: str | None) -> str:
         if not pkg_name:
-            return None
+            return ""
         pkg = self.artifacts.get_package(pkg_name)
-        if not pkg or not pkg.artifacts:
-            return None
+        if not pkg or not getattr(pkg, "artifacts", None):
+            return ""
     
-        # Prefer non-conversation artifacts; fall back to any if none exist
-        non_conv = [a for a in pkg.artifacts.values() if getattr(a, "type", "") != "conversation"]
-        target = (sorted(non_conv, key=lambda a: getattr(a, "_created_at", ""), reverse=True)[0]
-                  if non_conv else
-                  sorted(pkg.artifacts.values(), key=lambda a: getattr(a, "_created_at", ""), reverse=True)[0])
+        # find most-recent non-conversation artifact
+        arts = [a for a in pkg.artifacts.values() if getattr(a, "type", None) != "conversation"]
+        if not arts:
+            return ""
     
-        return getattr(target, "_announce", None)
+        latest = max(arts, key=lambda a: getattr(a, "_created_at", ""))
+        last_seen = self._last_announced.get(pkg_name)
+    
+        # Nothing new since last time
+        if last_seen == latest.id:
+            return ""
+    
+        # Prefer the tool-supplied announce, or synthesize a minimal one
+        announce = getattr(latest, "_announce", None)
+        if not announce:
+            short_id = latest.id[:8] if getattr(latest, "id", "") else ""
+            announce = f"✅ Artifact created: id='{short_id}' type='{latest.type}' in package '{pkg_name}'"
+    
+        # Mark consumed for this package
+        self._last_announced[pkg_name] = latest.id
+        try:
+            setattr(latest, "_announce", None)  # optional: clear per-artifact flag
+        except Exception:
+            pass
+        return announce
 
 
+    def _remember_with_langgraph(self, package_name: str, artifact_id: str, note: str | None = None):
+        """
+        Minimal, safe write into MemorySaver. If saver not present, no-op.
+        Stores only small refs (ids + notes), not full artifacts.
+        """
+        if not (self.memory_saver and package_name and artifact_id):
+            return
+        # Read existing state; MemorySaver API is flexible, we’ll keep to a single 'data' dict.
+        state = self.memory_saver.get(thread_id=package_name, checkpoint_ns="conversation") or {}
+        ids = state.get("artifact_ids", [])
+        if artifact_id not in ids:
+            ids.append(artifact_id)
+        notes = state.get("notes", [])
+        if note:
+            notes.append(note)
+        state["artifact_ids"] = ids
+        state["notes"] = notes
+        self.memory_saver.put(thread_id=package_name, checkpoint_ns="conversation", data=state)
+
+    def _enforce_memory_policy(self, tool_name: str, result: dict, package_name: str | None):
+        if not package_name:
+            return
+    
+        meta = self.tools.get(tool_name) or {}
+        io_schema = meta.get("io_schema", {})
+        outputs = io_schema.get("outputs", {}) or {}
+        artifact_ids = (result or {}).get("artifact_ids", {}) or {}
+        if not isinstance(artifact_ids, dict):
+            print(f"[remember] {tool_name}: result missing 'artifact_ids' dict; skipping remember.")
+            return
+    
+        pkg = self.artifacts.get_package(package_name)
+    
+        for out_name, out_spec in outputs.items():
+            if not isinstance(out_spec, dict) or not out_spec.get("remember"):
+                continue
+            art_id = artifact_ids.get(out_name)
+            if not art_id or not pkg:
+                continue
+    
+            art = pkg.get_by_id(art_id)
+            # mark artifact (nice to have)
+            if art and isinstance(art.metadata, dict):
+                art.metadata["remembered"] = True
+    
+            # minimal MemorySaver write (no saver = no-op)
+            note = f"{tool_name}.{out_name} → {art.type} ({art_id[:8]})" if art else None
+            self._remember_with_langgraph(package_name, art_id, note)
+        if missing:
+            print(f"[remember] {tool_name}: declared remember for {missing} but no artifact_ids returned.")
+
+    def list_remembered(self, package_name: str):
+        if not self.memory_saver:
+            return []
+        st = self.memory_saver.get(thread_id=package_name, checkpoint_ns="conversation") or {}
+        return list(st.get("artifact_ids", []))
+
+    def memory_notes(self, package_name: str):
+        if not self.memory_saver:
+            return ""
+        st = self.memory_saver.get(thread_id=package_name, checkpoint_ns="conversation") or {}
+        return "\n".join(st.get("notes", []))

@@ -1,3 +1,4 @@
+
 # se_agent/mcp/artifact_registry.py
 
 import json
@@ -7,27 +8,29 @@ from pathlib import Path
 from typing import Dict, List, Optional, Any
 from datetime import datetime, timezone
 
+# ============================================================
+# ARTIFACT CLASSES (unchanged)
+# ============================================================
+
 class Artifact:
     """A lightweight container for model or file content."""
-
     def __init__(self, type_: str, content: Any, metadata: Optional[Dict] = None):
         self.id = str(uuid.uuid4())
         self.type = type_
         self.content = content
         self.metadata = metadata or {}
 
-
-    
     @property
     def name(self) -> Optional[str]:
         return self.metadata.get("name")
-        
+
     @name.setter
     def name(self, value):
         if value is None:
             self.metadata.pop("name", None)
         else:
-            self.metadata["name"] = str(value)   
+            self.metadata["name"] = str(value)
+
     def to_dict(self) -> Dict:
         return {
             "id": self.id,
@@ -47,20 +50,13 @@ class Artifact:
 
 class ArtifactPackage:
     """A named collection of artifacts and optional pipelines."""
-
     def __init__(self, name: str):
         self.name = name
         self.artifacts: Dict[str, Artifact] = {}
-        self.pipelines: List[Dict] = []  # Each pipeline = list of steps
+        self.pipelines: List[Dict] = []
 
-
-
-
-    
     def add_artifact(self, artifact: "Artifact") -> "Artifact":
         self.artifacts[artifact.id] = artifact
-    
-        # Attach a short, human-friendly announcement to the artifact itself
         if artifact.name:
             artifact._announce = (
                 f"✅ Artifact created: name='{artifact.name}' "
@@ -72,10 +68,7 @@ class ArtifactPackage:
                 f"✅ Artifact created: id='{artifact.id[:8]}' "
                 f"type='{artifact.type}' in package '{self.name}'"
             )
-    
-        # Store timestamp
         artifact._created_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
-    
         print(artifact._announce)
         return artifact
 
@@ -99,30 +92,35 @@ class ArtifactPackage:
         return pkg
 
     def get_by_id(self, artifact_id: str):
-        """Return an artifact by its unique id, or None if not found."""
         return self.artifacts.get(artifact_id)
 
     def get_by_name(self, name: str):
-        """Return the most recent artifact with the given name, or None."""
         matches = [a for a in self.artifacts.values() if a.name == name]
         return matches[-1] if matches else None
 
     def list_artifacts(self, type_filter: str = None):
-        """Return a list of artifacts, optionally filtered by type."""
         if type_filter:
             return [a for a in self.artifacts.values() if a.type == type_filter]
         return list(self.artifacts.values())
 
 
+# ============================================================
+# ARTIFACT & TOOL REGISTRY
+# ============================================================
 
 class ArtifactRegistry:
-    """Registry to manage packages and active context."""
+    """Registry to manage artifact packages and tool metadata, including planning."""
 
     def __init__(self):
         self.packages: Dict[str, ArtifactPackage] = {}
         self.active_package: Optional[str] = None
+        self.tools: Dict[str, Dict[str, Any]] = {}
+        self.artifact_flows: Dict[str, Dict[str, List[str]]] = {
+            "produces": {},  # artifact_type → [tool_names]
+            "consumes": {},  # artifact_type → [tool_names]
+        }
 
-    # --- Package lifecycle ---
+    # ---------- PACKAGE MANAGEMENT ----------
     def create_package(self, name: str) -> ArtifactPackage:
         pkg = ArtifactPackage(name)
         self.packages[name] = pkg
@@ -137,21 +135,6 @@ class ArtifactRegistry:
         if not self.active_package:
             return None
         return self.packages[self.active_package]
-
-    # --- Artifact management ---
-    def add_artifact(self, package_name: str, type_: str, content: Any, metadata: Optional[Dict] = None) -> Artifact:
-        if package_name not in self.packages:
-            raise ValueError(f"Package '{package_name}' does not exist.")
-        artifact = Artifact(type_, content, metadata)
-        self.packages[package_name].add_artifact(artifact)
-        return artifact
-
-    # --- Pipeline management ---
-    def add_pipeline(self, package_name: str, pipeline: List[Dict]):
-        if package_name not in self.packages:
-            raise ValueError(f"Package '{package_name}' does not exist.")
-        self.packages[package_name].add_pipeline(pipeline)
-
     # --- Import / Export ---
     def export_package(self, package_name: str, out_path: Path):
         if package_name not in self.packages:
@@ -184,6 +167,14 @@ class ArtifactRegistry:
         """Return ArtifactPackage by name or None."""
         return self.packages.get(name)
 
+    # ---------- ARTIFACT MANAGEMENT ----------
+    def add_artifact(self, package_name: str, type_: str, content: Any, metadata: Optional[Dict] = None) -> Artifact:
+        if package_name not in self.packages:
+            raise ValueError(f"Package '{package_name}' does not exist.")
+        artifact = Artifact(type_, content, metadata)
+        self.packages[package_name].add_artifact(artifact)
+        return artifact
+
     def list_artifacts(self, package_name: str, type_filter: str = None):
         pkg = self.get_package(package_name)
         if not pkg:
@@ -204,7 +195,87 @@ class ArtifactRegistry:
         out.sort(key=lambda x: (x.get("created_at") or ""), reverse=True)
         return out
 
-    # ---------- NEW / UPDATED LOOKUP API (backward compatible) ----------
+  
+    
+    # ---------- TOOL REGISTRATION ----------
+    def register_tool(self, tool_cls):
+        """Register tool metadata and map artifact flow relationships."""
+        name = getattr(tool_cls, "TOOL_NAME", tool_cls.__name__)
+        description = getattr(tool_cls, "DESCRIPTION", "(no description)")
+        category = getattr(tool_cls, "CATEGORY", "general")
+        io_schema = getattr(tool_cls, "IO_SCHEMA", {})
+
+        self.tools[name] = {
+            "description": description,
+            "category": category,
+            "class": tool_cls,
+            "artifacts": getattr(tool_cls, "ARTIFACTS", {}),
+            "io_schema": io_schema,
+        }
+
+        # 🔹 NEW: Track artifact type flow relationships
+        for inp in io_schema.get("inputs", {}).values():
+            art_type = inp.get("type")
+            if art_type:
+                self.artifact_flows["consumes"].setdefault(art_type, []).append(name)
+
+        for out in io_schema.get("outputs", {}).values():
+            art_type = out.get("type")
+            if art_type:
+                self.artifact_flows["produces"].setdefault(art_type, []).append(name)
+
+        print(f"🧩 Registered tool: {name} – {description}")
+
+    def list_tools(self, category: Optional[str] = None):
+        if not category:
+            return self.tools
+        return {k: v for k, v in self.tools.items() if v.get("category") == category}
+
+    def describe_tool(self, name: str):
+        info = self.tools.get(name)
+        if not info:
+            return f"❌ Tool '{name}' not found."
+        desc = info["description"]
+        cat = info["category"]
+        inputs = ", ".join([v["type"] for v in info["io_schema"].get("inputs", {}).values()])
+        outputs = ", ".join([v["type"] for v in info["io_schema"].get("outputs", {}).values()])
+        return f"{name} ({cat}) – {desc}\nConsumes: {inputs or 'none'}\nProduces: {outputs or 'none'}"
+
+    # ---------- PLANNING / FLOW QUERIES ----------
+    def suggest_next(self, artifact_type: str) -> List[str]:
+        """Return tools that can consume the given artifact type."""
+        return self.artifact_flows["consumes"].get(artifact_type, [])
+
+    def get_producers(self, artifact_type: str) -> List[str]:
+        """Return tools that produce the given artifact type."""
+        return self.artifact_flows["produces"].get(artifact_type, [])
+
+    def plan_path(self, start_type: str, goal_type: str) -> List[str]:
+        """
+        Simple heuristic planner: find a tool chain from start_type to goal_type.
+        """
+        visited = set()
+        frontier = [(start_type, [])]
+        while frontier:
+            current_type, path = frontier.pop(0)
+            if current_type == goal_type:
+                return path
+            visited.add(current_type)
+            for tool_name in self.suggest_next(current_type):
+                tool_info = self.tools[tool_name]
+                out_types = [v["type"] for v in tool_info["io_schema"].get("outputs", {}).values()]
+                for ot in out_types:
+                    if ot not in visited:
+                        frontier.append((ot, path + [tool_name]))
+        return []
+
+    # ---------- PIPELINE MANAGEMENT ----------
+    def add_pipeline(self, package_name: str, pipeline: List[Dict]):
+        if package_name not in self.packages:
+            raise ValueError(f"Package '{package_name}' does not exist.")
+        self.packages[package_name].add_pipeline(pipeline)
+
+  # ---------- NEW / UPDATED LOOKUP API (backward compatible) ----------
 
     def get_artifact(self, package_name: str, artifact_id: Optional[str] = None, **kwargs):
         """
@@ -285,3 +356,9 @@ class ArtifactRegistry:
         )
         print(target._announce)
         return target
+# ============================================================
+# SHARED GLOBAL REGISTRY INSTANCE
+# ============================================================
+
+# This instance is imported by tools and core modules
+artifact_registry = ArtifactRegistry()

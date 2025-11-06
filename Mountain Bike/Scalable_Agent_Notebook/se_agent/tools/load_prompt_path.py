@@ -36,7 +36,7 @@ class LoadPromptPathTool(TransformTool):
 
     Returns:
       {
-        "message": "✅ Prompt path loaded: id='xxxx' (N notebooks)",
+        "message": "📋 Prompt path loaded: id='xxxx' (N notebooks)",
         "artifact_ids": {"prompt_path_artifact_id": "..."}
       }
     """
@@ -191,7 +191,7 @@ class LoadPromptPathTool(TransformTool):
         if metadata.get("name"):
             art.name = metadata["name"]
 
-        banner = f"✅ Prompt path loaded: id='{getattr(art, 'id', '')[:8]}' ({metadata.get('count', 0)} notebooks)"
+        banner = f"✅ Prompt path loaded as artifact📋: id='{getattr(art, 'id', '')[:8]}' ({metadata.get('count', 0)} notebooks)"
         return {
             "message": banner,
             "artifact_ids": {"prompt_path_artifact_id": getattr(art, "id", None)},

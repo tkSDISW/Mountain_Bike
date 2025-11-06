@@ -26,7 +26,7 @@ class RememberArtifactTool(BaseTool):
             existing.type = type_
             existing.metadata.update({"name": name} if name else {})
             return {
-                "message": f"💾 Updated artifact id='{existing.id}' type='{existing.type}' name='{name}'",
+                "message": f"📋 Updated artifact id='{existing.id}' type='{existing.type}' name='{name}'",
                 "id": existing.id,
                 "type": existing.type,
                 "name": name,
@@ -42,7 +42,7 @@ class RememberArtifactTool(BaseTool):
         )
 
         return {
-            "message": f"💾 Remembered new artifact id='{artifact.id}' type='{artifact.type}' name='{name}'",
+            "message": f"📋 Remembered new artifact id='{artifact.id}' type='{artifact.type}' name='{name}'",
             "id": artifact.id,
             "type": artifact.type,
             "name": name,

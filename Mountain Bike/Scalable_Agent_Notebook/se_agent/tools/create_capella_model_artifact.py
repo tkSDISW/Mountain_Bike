@@ -87,7 +87,7 @@ class CreateCapellaModelArtifactTool(ImportTool):
         if name:
             art.name = name
 
-        msg = f"✅ Created capella_model artifact from '{path_to_model}'."
+        msg = f"✅ Created capella_model artifact 📋 from '{path_to_model}'."
         return {
             "message": msg,
             "artifact_ids": {"capella_model_artifact_id": art.id},

@@ -77,7 +77,7 @@ class ShowArtifactMemoryTool(DisplayTool):
             groups[row.get("type") or "unknown"].append(row)
 
         # Build Markdown
-        header = f"🧠 Memory summary for '{pkg_name}'"
+        header = f"Show Artifact 📋 summary for '{pkg_name}'"
         lines = [header, ""]
         total = 0
         summary = []
@@ -94,7 +94,11 @@ class ShowArtifactMemoryTool(DisplayTool):
         lines.append(""); lines.append(f"**Total:** {total}")
 
         md = "\n".join(lines)
-        return {"message": header, "ui": md, "html": self._as_html(md), "summary": summary, "total": total}
+        return {"message": header, 
+                "ui": md, 
+                "html": self._as_html(md),
+                "summary": summary, 
+                "total": total}
 
     @staticmethod
     def _as_html(md: str) -> str:

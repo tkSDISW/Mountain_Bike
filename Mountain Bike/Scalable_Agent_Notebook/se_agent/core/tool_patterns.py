@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
-from se_agent.mcp.artifact_registry import Artifact
 from se_agent.core.tool_registry import BaseTool
+from se_agent.mcp.artifact_registry import Artifact, ArtifactRegistry, ArtifactPackage
+from se_agent.mcp.artifact_registry import artifact_registry
 
 """
 tool_patterns.py
@@ -9,8 +10,17 @@ All derive from BaseTool (from se_agent/core/tool_registry.py)
 and integrate with ArtifactRegistry.
 """
 
-from se_agent.core.tool_registry import BaseTool
-from se_agent.mcp.artifact_registry import Artifact, ArtifactRegistry, ArtifactPackage
+
+def register_tool(cls: type) -> type:
+    """
+    Decorator that registers a tool class into the global tool registry.
+    Uses a lazy import to avoid circular dependencies.
+    """
+    # Lazy import to avoid cycles
+    from se_agent.core.tool_registry import tool_registry
+    tool_registry.register_tool(cls)
+    return cls
+
 
 
 # ===============================================================
@@ -32,7 +42,7 @@ class ImportTool(BaseTool):
             content, metadata = self.load(input_data)
             preview = content[:10] if isinstance(content, list) else None
             return {
-                "message": f"📂 Loaded data via '{self.name}', but no artifact registry active.",
+                "message": f"📑 Loaded data via '{self.name}', but no artifact registry active.",
                 "content": content,
                 "metadata": metadata,
                 "preview": preview,
@@ -45,7 +55,7 @@ class ImportTool(BaseTool):
 
         preview = content[:10] if isinstance(content, list) else None
         return {
-            "message": f"📂 Loaded data via '{self.name}' into artifact.",
+            "message": f"📑 Loaded data via '{self.name}' into artifact.",
             "artifact_message": getattr(art, "_announce", None),
             "artifact_id": art.id,
             "artifact_type": art.type,
@@ -91,7 +101,7 @@ class TransformTool(BaseTool):
             if not artifact_msg:
                 short_id = (getattr(art, "id", "") or "")[:8]
                 artifact_msg = (
-                    f"📌 Artifact created: id='{short_id}' type='{art.type}' in package '{pkg_name}'"
+                    f"📑 Artifact created: id='{short_id}' type='{art.type}' in package '{pkg_name}'"
                 )
         
             # Optional name support (if you already added this pattern)

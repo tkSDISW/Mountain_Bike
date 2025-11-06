@@ -78,12 +78,12 @@ class NameArtifactTool(DisplayTool):
 
         short_id = (getattr(target, "id", "") or "")[:8]
         announce = (
-            f"✅ Artifact created: name='{new_name}' id='{short_id}' "
+            f"✅ Artifact 📋 assigned: name='{new_name}' id='{short_id}' "
             f"type='{target.type}' in package '{pkg_name}'"
         )
         setattr(target, "_announce", announce)
 
-        msg = f"🧠 Remembered artifact id='{short_id}' type='{target.type}' as '{new_name}'"
+        msg = f"📋 artifact id='{short_id}' type='{target.type}' named '{new_name}'"
         html = "<div style='font-family:system-ui;line-height:1.35'>" + msg + "</div>"
         return {"message": msg, "ui": msg, "html": html, "artifact_id": target.id, "type": target.type, "name": target.name}
 
