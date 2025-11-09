@@ -125,6 +125,7 @@ class AgentCore:
         self.memory_saver = memory_saver or MemorySaver()
         self._scan_tools_contracts()  # ← add this one-liner
         self.last_tool = None
+        self._bottom_windows = None
         
     # --- Package management ---
 
@@ -165,7 +166,22 @@ class AgentCore:
         return self.artifacts.active_package
 
 
-
+    def _execute_tool_safely(self, tool_name: str, payload: dict, package_name: Optional[str] = None):
+        """Run a tool with robust error handling; never crash the chat loop."""
+        import io, contextlib, traceback
+        buf = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
+                return self.run(tool_name, package_name or self.active_package_name(), input_data=payload)
+        except Exception as e:
+            tb = traceback.format_exc(limit=6)
+            return {
+                "error": f"{type(e).__name__}: {e}",
+                "logs": buf.getvalue(),
+                "traceback": tb,
+                "message": f"❌ `{tool_name}` failed: {e}",
+                "displayed": False,
+            }
 
 
     
@@ -576,30 +592,34 @@ class AgentCore:
             options=[""] + file_list, description="Load file:",
             layout=widgets.Layout(width="auto"),
         )
+
     
         def load_file(change):
             filename = change["new"]
             if not filename:
                 return
             try:
-                ext = os.path.splitext(filename)[1].lower()
-                with open(filename, "r", encoding="utf-8") as f:
-                    text = f.read()
-                if ext in {".yaml", ".yml"}:
-                    self.yaml_content = text
-                    attach_msg = f"✅ YAML loaded: `{filename}`"
-                else:
-                    snippet = text if len(text) <= 4000 else text[:4000] + "\n# [truncated]"
-                    self.extra_context_msgs.append((
-                        "system",
-                        f"Attached file `{filename}` content (truncated if large):\n{snippet}"
-                    ))
-                    attach_msg = f"✅ File attached: `{filename}`"
+                # Register the file as a file_reference artifact
+                res = self._execute_tool_safely("import_file_artifact", {
+                    "file_path": filename,
+                    # Optional: let users type an alias somewhere, else filename stem is used by the tool
+                    # "name": "Bike_BOM_v2"
+                })
+                # Show the tool's own UI/message
                 with chat_history:
-                    display(Markdown(attach_msg))
+                    self._show_tool_result("import_file_artifact", res)
+        
+                # Refresh side-by-side panes (Workspace | Artifacts | Tools)
+                try:
+                    if getattr(self, "_bottom_windows", None):
+                        self._bottom_windows.refresh()
+                except Exception:
+                    pass
+
             except Exception as e:
                 with chat_history:
-                    display(Markdown(f"❌ Error reading `{filename}`: {e}"))
+                    display(Markdown(f"❌ Error attaching `{filename}`: {e}"))
+
     
         file_dropdown.observe(load_file, names="value")
         enriched_context = self._build_enriched_context()  # call this each turn
@@ -607,21 +627,7 @@ class AgentCore:
         
         def send_message(_):
 
-            def _execute_tool_safely(tool_name, payload):
-                """Run a tool with robust error handling; never crash the chat loop."""
-                buf = io.StringIO()
-                try:
-                    with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
-                        return self.run(tool_name, package_name, input_data=payload)
-                except Exception as e:
-                    tb = traceback.format_exc(limit=6)
-                    return {
-                        "error": f"{type(e).__name__}: {e}",
-                        "logs": buf.getvalue(),
-                        "traceback": tb,
-                        "message": f"❌ `{tool_name}` failed: {e}",
-                        "displayed": False,
-                    }
+
         
             prompt = user_input.value.strip()
             user_input.value = ""  # clear immediately
@@ -641,7 +647,7 @@ class AgentCore:
                         return
         
                     display(Markdown(f"**Executing:** `{cmd}` {payload}"))
-                    tool_result = _execute_tool_safely(cmd, payload)
+                    tool_result = self._execute_tool_safely(cmd, payload)
                     self._show_tool_result(self.last_tool, tool_result)
                     # 🔹 If the tool returned a one-shot injection, append to messages for the next LLM turn
                     if isinstance(tool_result, dict) and tool_result.get("inject_once"):
@@ -695,8 +701,14 @@ class AgentCore:
                             continue
      
                         #display(Markdown(f"**Executing:** `{tool_name}` {input_data}"))
-                        tool_result = _execute_tool_safely(tool_name, input_data)
+                        tool_result = self._execute_tool_safely(tool_name, input_data)
                         self._show_tool_result(self.last_tool, tool_result)
+                        # refresh bottom panes
+                        try:
+                            if getattr(self, "_bottom_windows", None):
+                                self._bottom_windows.refresh()
+                        except Exception:
+                            pass
                         #  honor one-shot injection returned by tools
                         if isinstance(tool_result, dict) and tool_result.get("inject_once"):
                             self.chat_history_msgs.append({"role": "system", "content": tool_result["inject_once"]})
@@ -712,7 +724,20 @@ class AgentCore:
     
         display(chat_history, user_input, widgets.HBox([send_button, exit_button]), file_dropdown)
         print("💬 Interactive chat started. Use `run:tool {json}` to call tools. Exit button to close.")
-    
+         # --- Persistent bottom panes (Workspace / Artifacts / Tools) ---
+        try:
+            from se_agent.ui.panels_widgets import BottomWindows
+            self._bottom_windows = BottomWindows(
+                artifacts=self.artifacts,
+                tool_registry_like=self.tools,     # works with your tool_registry structure
+                package_name=package_name
+            )
+            display(self._bottom_windows.view())
+        except Exception as e:
+            # Don't block the chat if panes fail
+            with chat_history:
+                display(Markdown(f"⚠️ Bottom panes not available: {e}"))
+   
         with ui_events() as poll:
             while self.chat_active:
                 poll(10)
@@ -815,22 +840,23 @@ class AgentCore:
             return
     
         pkg = self.artifacts.get_package(package_name)
+        missing = []  # ← track missing remember outputs
     
         for out_name, out_spec in outputs.items():
             if not isinstance(out_spec, dict) or not out_spec.get("remember"):
                 continue
             art_id = artifact_ids.get(out_name)
             if not art_id or not pkg:
+                missing.append(out_name)
                 continue
     
             art = pkg.get_by_id(art_id)
-            # mark artifact (nice to have)
             if art and isinstance(art.metadata, dict):
                 art.metadata["remembered"] = True
     
-            # minimal MemorySaver write (no saver = no-op)
             note = f"{tool_name}.{out_name} → {art.type} ({art_id[:8]})" if art else None
             self._remember_with_langgraph(package_name, art_id, note)
+    
         if missing:
             print(f"[remember] {tool_name}: declared remember for {missing} but no artifact_ids returned.")
 

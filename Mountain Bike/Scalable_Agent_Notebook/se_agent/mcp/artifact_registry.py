@@ -12,41 +12,33 @@ from datetime import datetime, timezone
 # ARTIFACT CLASSES (unchanged)
 # ============================================================
 
+
 class Artifact:
-    """A lightweight container for model or file content."""
-    def __init__(self, type_: str, content: Any, metadata: Optional[Dict] = None):
+    """Lightweight container for model/file content."""
+    def __init__(
+        self,
+        type_: str,
+        content: Any,
+        metadata: Optional[Dict[str, Any]] = None,
+        name: Optional[str] = None,               # ← NEW (optional)
+    ):
         self.id = str(uuid.uuid4())
         self.type = type_
         self.content = content
-        self.metadata = metadata or {}
+        self.metadata: Dict[str, Any] = metadata or {}
+        if name is not None:                      # store name in metadata (compat)
+            self.metadata["name"] = str(name)
 
     @property
     def name(self) -> Optional[str]:
         return self.metadata.get("name")
 
     @name.setter
-    def name(self, value):
+    def name(self, value: Optional[str]) -> None:
         if value is None:
             self.metadata.pop("name", None)
         else:
             self.metadata["name"] = str(value)
-
-    def to_dict(self) -> Dict:
-        return {
-            "id": self.id,
-            "type": self.type,
-            "content": self.content,
-            "metadata": self.metadata,
-        }
-
-    @staticmethod
-    def from_dict(data: Dict) -> "Artifact":
-        return Artifact(
-            type_=data["type"],
-            content=data["content"],
-            metadata=data.get("metadata", {}),
-        )
-
 
 class ArtifactPackage:
     """A named collection of artifacts and optional pipelines."""
@@ -54,9 +46,36 @@ class ArtifactPackage:
         self.name = name
         self.artifacts: Dict[str, Artifact] = {}
         self.pipelines: List[Dict] = []
+    def _unique_name(self, desired: str) -> str:
+        """Return a unique name within this package by appending (n) as needed."""
+        if not desired:
+            return desired
+        existing = {getattr(a, "name", None) for a in self.artifacts.values()}
+        if desired not in existing:
+            return desired
+        n = 2
+        while True:
+            candidate = f"{desired} ({n})"
+            if candidate not in existing:
+                return candidate
+            n += 1
 
-    def add_artifact(self, artifact: "Artifact") -> "Artifact":
+    def add_artifact(self, artifact: "Artifact", *, ensure_unique_name: bool = True) -> "Artifact":
+        # ensure metadata and timestamps
+        if not hasattr(artifact, "metadata") or artifact.metadata is None:
+            artifact.metadata = {}
+        now = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        artifact.metadata.setdefault("created_at", now)
+        artifact.metadata["updated_at"] = now
+    
+        # enforce unique name (auto-disambiguate)
+        if ensure_unique_name and artifact.name:
+            artifact.name = self._unique_name(artifact.name)
+    
+        # register
         self.artifacts[artifact.id] = artifact
+    
+        # announce
         if artifact.name:
             artifact._announce = (
                 f"✅ Artifact created: name='{artifact.name}' "
@@ -68,7 +87,8 @@ class ArtifactPackage:
                 f"✅ Artifact created: id='{artifact.id[:8]}' "
                 f"type='{artifact.type}' in package '{self.name}'"
             )
-        artifact._created_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    
+        artifact._created_at = now  # keep internal timestamp if you use it elsewhere
         print(artifact._announce)
         return artifact
 
