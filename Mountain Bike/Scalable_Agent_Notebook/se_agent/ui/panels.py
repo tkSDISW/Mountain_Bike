@@ -1,6 +1,51 @@
 # se_agent/ui/panels.py
 from IPython.display import display, Markdown
 from datetime import datetime
+from se_agent.core.prompt_store import scan_prompt_dir_json
+# --- prompt helpers ---------------------------------------------------------
+
+def _collect_prompt_artifacts(artifacts, package_name, prompt_dir=None):
+    pkg = artifacts.get_package(package_name) if package_name else artifacts.get_active_package()
+    rows = []
+
+    """# in-memory prompt artifacts (unchanged)
+    if pkg:
+        for a in pkg.artifacts.values():
+            t = getattr(a, "type", "")
+            if t not in {"prompt", "prompt_template"}:
+                continue
+            name = getattr(a, "name", None) or getattr(a, "id", "")[:8]
+            meta = getattr(a, "metadata", {}) or {}
+            content = getattr(a, "content", None)
+            text = content if t == "prompt" else (content or {}).get("template", "")
+            rows.append({
+                "name": name, "type": t,
+                "updated_at": meta.get("updated_at") or meta.get("created_at") or meta.get("timestamp") or "",
+                "text": str(text or ""), "tags": meta.get("tags") or [],
+                "vars": (content or {}).get("vars") if isinstance(content, dict) else [],
+                "defaults": (content or {}).get("defaults") if isinstance(content, dict) else {},
+            })
+    """
+    # directory .json prompts (authoritative)
+    if prompt_dir:
+        rows.extend(scan_prompt_dir_json(prompt_dir))
+
+    rows.sort(key=lambda r: r.get("updated_at",""), reverse=True)
+    return rows
+
+def _filter_prompts(rows, query: str):
+    q = (query or "").strip().lower()
+    if not q: return rows
+    out = []
+    for r in rows:
+        hay = " ".join([
+            r.get("name",""),
+            r.get("text",""),
+            " ".join(r.get("tags") or [])
+        ]).lower()
+        if q in hay:
+            out.append(r)
+    return out
 
 def _ts(rec):
     for k in ("updated_at", "created_at", "timestamp"):
