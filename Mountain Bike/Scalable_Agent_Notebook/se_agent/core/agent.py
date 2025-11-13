@@ -728,6 +728,7 @@ class AgentCore:
         try:
             from se_agent.ui.panels_widgets import BottomWindows
             self._bottom_windows = BottomWindows(
+                agent = self,               
                 artifacts=self.artifacts,
                 tool_registry_like=self.tools,     # works with your tool_registry structure
                 package_name=package_name
