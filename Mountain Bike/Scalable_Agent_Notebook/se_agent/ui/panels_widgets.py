@@ -1,6 +1,6 @@
 # widgets (safe inside VBox/HBox.children)
 from ipywidgets import (
-    VBox, HBox, Output, Button, Layout, ToggleButtons,
+    VBox, HBox, Output, Button,  Checkbox, Layout, ToggleButtons,
     Textarea, Select, Text, HTML as WHTML, Accordion
 )
 from IPython.display import display
@@ -80,6 +80,9 @@ class BottomWindows:
         self.refresh()
         return box
 
+
+
+    
     def refresh(self):
         try:
             if self.mode.value == "state":
@@ -120,6 +123,9 @@ class BottomWindows:
     from IPython.display import display, HTML
     
     def _render_prompts_mode(self):
+ 
+
+        
         prompt_dir = get_prompt_path_from_artifacts(self.artifacts, self.package_name)
         prompts_all = _collect_prompt_artifacts(self.artifacts, self.package_name, prompt_dir=prompt_dir)
     
@@ -146,14 +152,23 @@ class BottomWindows:
             rdisplay(RHTML("<b>📄 Template · Variables · Actions</b>"))
             preview = Textarea(value="", layout=Layout(width="100%", height="8.2em"), disabled=True)
         
-            vars_list_box = Textarea(value="", layout=Layout(width="100%", height="8.2em"), disabled=True)
-        
+            vars_list_box = Textarea(value="", layout=Layout(width="100%", height="8.2em"), disabled=False)
+            chk_inline = Checkbox(
+                description="Allow inline assignments (k = value) in Variables box",
+                value=True
+            )
+            btn_render = Button(description="Render Preview", layout=Layout(width="100%"))
+            btn_verify = Button(description="Verify Template & Vars", layout=Layout(width="100%"))
             btn_save = Button(description="Save as Artifact", layout=Layout(width="100%"))
+            
             status   = Output(layout=Layout(border="none", padding="0", height="auto"))
         
             rdisplay(preview)
             rdisplay(RHTML("<b>Variables</b>"))
             rdisplay(vars_list_box)
+            rdisplay(chk_inline)
+            rdisplay(btn_render)
+            rdisplay(btn_verify)
             rdisplay(btn_save)
             rdisplay(status)
         
@@ -161,22 +176,6 @@ class BottomWindows:
             src = _filter_prompts(prompts_all, search.value) if (search.value or "").strip() else prompts_all
             name = sel.value
             return next((p for p in src if p["name"] == name), None)
-            
-     
-        def _update_preview_and_vars():
-            p = _current_prompt()
-            preview.value = (p or {}).get("text","")
-            _rebuild_vars_ui()
-
-
-        
-        def _collect_values():
-            vals = {}
-            for group in getattr(self.values_editor_box, "children", []):
-                if len(group.children) >= 2 and hasattr(group.children[1], "value"):
-                    key = (group.children[0].value or "").replace("<b>","").replace("</b>","")
-                    vals[key] = group.children[1].value
-            return vals
             
         def _rebuild_vars_ui():
             p = _current_prompt() or {}
@@ -201,7 +200,122 @@ class BottomWindows:
                 ], layout=Layout(border="1px solid #eee", padding="4px")))
             self.values_editor_box.children = tuple(rows)
 
+     
 
+
+        def _parse_inline_assignments(self, text: str) -> dict:
+            vals = {}
+            for line in (text or "").splitlines():
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                if "=" in line:
+                    k, v = line.split("=", 1)
+                    k = k.strip(); v = v.strip()
+                    if k:
+                        vals[k] = v
+            return vals
+        
+        def _collect_values(include_inline: bool = True) -> dict:
+            """
+            Precedence:
+              defaults  -> editable row values (non-empty) -> inline k=v (non-empty)
+            """
+            p = _current_prompt() or {}
+            defaults = dict(p.get("defaults") or {})
+            vals = defaults.copy()
+        
+            # 1) hidden editor rows (treat empty as "no override")
+            for group in getattr(self.values_editor_box, "children", []):
+                if len(group.children) >= 2 and hasattr(group.children[1], "value"):
+                    key = (group.children[0].value or "").replace("<b>", "").replace("</b>", "").strip()
+                    v = group.children[1].value
+                    if key and isinstance(v, str) and v.strip() != "":
+                        vals[key] = v.strip()
+        
+            # 2) inline overrides from Variables box (k = v)
+            if include_inline and chk_inline.value:
+                for line in (vars_list_box.value or "").splitlines():
+                    line = line.strip()
+                    if not line or line.startswith("#") or "=" not in line:
+                        continue
+                    k, v = line.split("=", 1)
+                    k = k.strip(); v = v.strip()
+                    if k and v != "":
+                        # only override declared vars (to avoid typos), but you can relax if you want
+                        if k in (p.get("vars") or []):
+                            vals[k] = v
+        
+            return vals
+            
+        def _update_preview_and_vars():
+            p = _current_prompt()
+            preview.value = (p or {}).get("text","")
+            _rebuild_vars_ui()
+
+        # ----- Actions -----
+        def _on_render_preview(_btn=None):
+            p     = _current_prompt() or {}
+            tmpl  = p.get("text", "")
+            vals  = _collect_values(include_inline=True)
+    
+            rendered = None
+            try:
+                out = (self.agent.run(
+                    tool_name="render_prompt_with_values",
+                    package_name=None,
+                    input_data={
+                        "template_text": tmpl,
+                        "values": vals,
+                        "template_name": p.get("name"),
+                        "source_path": p.get("source_path"),
+                    },
+                ) or {})
+                rendered = out.get("text") or out.get("rendered_text")
+            except Exception:
+                rendered = None
+    
+            if not rendered:
+                try:
+                    from jinja2 import Environment, StrictUndefined
+                    _J = Environment(undefined=StrictUndefined, trim_blocks=True, lstrip_blocks=True)
+                    rendered = _J.from_string(tmpl or "").render(**(vals or {}))
+                except Exception as e:
+                    preview.value = f"(preview failed) {e}"
+                    return
+    
+            preview.value = rendered
+
+
+
+        def _on_verify(_btn=None):
+            p = _current_prompt() or {}
+            t = p.get("text","") or ""
+            # declared vs used
+            declared = set(p.get("vars") or [])
+            try:
+                from jinja2 import Environment, meta, StrictUndefined
+                _J = Environment(undefined=StrictUndefined, trim_blocks=True, lstrip_blocks=True)
+                ast = _J.parse(t)
+                used = set(meta.find_undeclared_variables(ast))
+                used = {u.split(".",1)[0].split("|",1)[0] for u in used}
+            except Exception:
+                used = declared  # fail-soft
+    
+            unknown = sorted(used - declared)   # used but not declared
+            unused  = sorted(declared - used)   # declared but not used
+    
+            with status:
+                status.clear_output()
+                msgs = []
+                if unknown:
+                    msgs.append("❌ Template uses undeclared var(s): " + ", ".join(unknown))
+                if unused:
+                    msgs.append("⚠️ Declared but not used: " + ", ".join(unused))
+                if not msgs:
+                    msgs.append("✅ Vars look consistent.")
+                rdisplay(RHTML("<br>".join(f"<pre>{m}</pre>" for m in msgs)))
+            
         def _on_save_artifact(_btn=None):  # ← local handler (no 'self' param)
             p     = _current_prompt() or {}
             tmpl  = p.get("text", "")
@@ -257,7 +371,16 @@ class BottomWindows:
  
         
             
-        
+
+
+        # events
+        search.observe(lambda ch: (_update_list := _update_results()) if ch["name"]=="value" else None, names="value")
+        sel.observe(lambda ch: _update_preview_and_vars() if ch["name"]=="value" else None, names="value")
+        btn_render.on_click(_on_render_preview)
+        btn_verify.on_click(_on_verify)
+        btn_save.on_click(_on_save_artifact)
+
+                
         def _update_results():
             filtered = _filter_prompts(prompts_all, search.value)
             names2 = [p["name"] for p in filtered]
@@ -265,13 +388,6 @@ class BottomWindows:
             if names2:
                 sel.value = names2[0]
             _update_preview_and_vars()
-
-        # events
-        search.observe(lambda ch: (_update_list := _update_results()) if ch["name"]=="value" else None, names="value")
-        sel.observe(lambda ch: _update_preview_and_vars() if ch["name"]=="value" else None, names="value")
-
-        btn_save.on_click(_on_save_artifact)
-    
         _update_results()
 
 
