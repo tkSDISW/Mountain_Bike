@@ -63,6 +63,15 @@ class LLMChatTool(BaseTool):
                 "description": "Optional LLM config block name to load.",
                 "required": False,
             },
+            # 🔹 NEW: allow callers (like Guided Session) to disable tool-awareness
+            "tool_awareness": {
+                "type": "bool",
+                "description": (
+                    "If false, do NOT inject tool-awareness or artifact-state hints. "
+                    "Use this for Guided Session / no-tools mode."
+                ),
+                "required": False,
+            },   
         },
         "outputs": {
             "conversation_artifact_id": {
@@ -146,6 +155,9 @@ class LLMChatTool(BaseTool):
         pkg_from_input = (input_data or {}).get("package")
         cfg_name = (input_data or {}).get("config_name")
 
+        # 🔹 NEW: tool-awareness flag (default True)
+        tool_awareness: bool = (input_data or {}).get("tool_awareness", True)
+        
         # If a config_name was provided at call time, refresh client/model
         if cfg_name:
             cfg = load_llm_config(config_name=cfg_name)
@@ -165,10 +177,11 @@ class LLMChatTool(BaseTool):
                 messages.append({"role": "system", "content": context})
             if prompt:
                 messages.append({"role": "user", "content": prompt})
-            # Add prior turns and state hint
-            messages = self._rehydrate_messages_from_artifacts(
-                artifacts, target_package, messages, "[Assistant Guidance]"
-            )
+            # Add prior turns and state hint ONLY if tool-awareness is on
+            if tool_awareness:
+                messages = self._rehydrate_messages_from_artifacts(
+                    artifacts, target_package, messages, "[Assistant Guidance]"
+                )
         else:
             # Ensure system context is at the top
             if context:

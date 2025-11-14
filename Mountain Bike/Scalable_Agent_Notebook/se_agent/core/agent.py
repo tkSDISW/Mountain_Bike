@@ -15,6 +15,8 @@ from IPython.display import display, Markdown
 from jupyter_ui_poll import ui_events
 import traceback
 from se_agent.core.workspace_resolver import resolve_workspace_names
+from se_agent.core.session_manager import SessionManager
+from se_agent.tools.workspace_store import _load_ws, _save_ws, _now_iso
 
 class AgentCore:
     """
@@ -74,6 +76,9 @@ class AgentCore:
     
         return "\n".join(lines)
 
+        
+
+
     def _format_tool_result_for_chat(self, result: dict) -> str:
         import json
         if not isinstance(result, dict):
@@ -126,7 +131,32 @@ class AgentCore:
         self._scan_tools_contracts()  # ← add this one-liner
         self.last_tool = None
         self._bottom_windows = None
+        #session support
+        self.contract_mode = getattr(self, "contract_mode", "DEFAULT")
+        self.session_type  = getattr(self, "session_type", None)
+        self.config = getattr(self, "config", {})
+        self.config.setdefault("session_autoswitch", "on")  # 'off' | 'ask' | 'on'
+        self.session_manager = SessionManager(_load_ws, _save_ws, _now_iso)        
+ 
+    # --- Session helpers 
+    def _switch_contract(self, mode: str, *, session_type: str | None = None):
+        self.contract_mode = mode or "DEFAULT"
+        self.session_type = session_type
+
+    def _set_pending_switch(self, mode: str, session_type: str | None = None):
+        pkg = self.artifacts.get_active_package().name
+        ws_art, ws = _load_ws(self.artifacts, pkg)
+        ws["pending_contract_switch"] = {"mode": mode, "session_type": session_type}
+        _save_ws(self.artifacts, pkg, ws_art, ws)
+    
+    def _clear_pending_switch(self):
+        pkg = self.artifacts.get_active_package().name
+        ws_art, ws = _load_ws(self.artifacts, pkg)
+        ws.pop("pending_contract_switch", None)
+        _save_ws(self.artifacts, pkg, ws_art, ws)
         
+    
+    
     # --- Package management ---
 
     
@@ -182,9 +212,287 @@ class AgentCore:
                 "message": f"❌ `{tool_name}` failed: {e}",
                 "displayed": False,
             }
+    # tool model switch
+    def _handle_tool_switch(self, res: dict):
+        if not isinstance(res, dict): return
+        if res.get("switch_contract") == "SESSION":
+            sess_type = res.get("session_type") or "interview"
+            mode = self.config.get("session_autoswitch","ask")
+            if mode == "on":
+                self._switch_contract("SESSION", session_type=sess_type)
+            elif mode == "ask":
+                self._set_pending_switch("SESSION", session_type=sess_type)
+                res.setdefault("ui", "**Switch to Guided Session mode?**<br>Reply `start session` or `cancel`.")
+                res.setdefault("inject_once", "Confirm contract switch to SESSION (yes/no).")
+            # 'off' -> ignore; explicit button can still switch
+
+    def handle_user_message(self, text: str):
+        # Pending contract switch confirmation?
+        pkg = self.artifacts.get_active_package().name
+        ws_art, ws = _load_ws(self.artifacts, pkg)
+        pending = ws.get("pending_contract_switch")
+    
+        if pending and isinstance(text, str):
+            t = text.strip().lower()
+            if t in {"yes","y","start","start session"}:
+                self._clear_pending_switch()
+                self._switch_contract(pending["mode"], session_type=pending.get("session_type"))
+                return {"ui": f"**{self.session_type or 'Session'} mode enabled.**"}
+            if t in {"no","n","cancel"}:
+                self._clear_pending_switch()
+                return {"message": "Okay — staying in default mode."}
+        print("MODE:", self.contract_mode)
+        # While in SESSION contract: do not run tools; just advance the session state machine.
+        if self.contract_mode == "SESSION":
+            return self._session_tick(text)
+    
+        # --- your existing normal chat flow below ---
+        return self._normal_chat_flow(text)
+
+    def _normal_chat_flow(self, text: str):
+        """
+        Default chat behavior when NOT in SESSION mode.
+        Here we just delegate to the llm_chat tool.
+        Adjust tool name if yours differs.
+        """
+        return self.run(
+            tool_name="llm_chat",
+            package_name=self.active_package_name(),
+            input_data={"prompt": text},
+            capture_as_artifact=True,
+        )
+
+
+
+    def _session_tick(self, user_text: str):
+        pkg = self.artifacts.get_active_package().name
+        ws_art, ws = _load_ws(self.artifacts, pkg)
+        sid = ws.get("pending_session_sid")
+        sess = self.session_manager.load(self.artifacts, pkg, sid) if sid else None
+        if not sess:
+            self._switch_contract("DEFAULT")
+            return {"message": "(No active session.)"}
+    
+        # ----- finish / cancel -----
+        t = (user_text or "").strip().lower()
+        if t in {"finish session", "finish", "conclude", "__finish__"}:
+            # LLM summary
+            content = self._summarize_session(sess)
+            title = sess.spec.get("title") or sess.prompt_name or "Session"
+            art = {
+                "type": (sess.spec.get("artifact") or {}).get("type") or "session_summary",
+                "name": f"Session Summary: {title}",
+                "content": content or "(no content)",
+            }
+            new_art = self.artifacts.add_artifact(
+                pkg,
+                art["type"],
+                art["content"],
+                {"name": art["name"]},
+            )
+
+            (ws.get("sessions") or {}).pop(sid, None)
+            ws.pop("pending_session_sid", None)
+            _save_ws(self.artifacts, pkg, ws_art, ws)
+            self._switch_contract("DEFAULT")
+            return {
+                "message": f"✅ Session complete. Created artifact '{new_art.name}'.",
+                "ui": f"**Created**: {new_art.name}<br><i>(type: {new_art.type})</i>",
+            }
+    
+        if t in {"cancel", "abort"}:
+            (ws.get("sessions") or {}).pop(sid, None)
+            ws.pop("pending_session_sid", None)
+            _save_ws(self.artifacts, pkg, ws_art, ws)
+            self._switch_contract("DEFAULT")
+            return {"message": "Session canceled."}
+    
+        # ----- freeform guided session -----
+        if sess.llm_mode and sess.llm_style == "freeform":
+            # first turn: send a short kickoff once
+            if not sess.transcript:
+                kick = self._facilitator_opening(sess)  # short invite line
+                sess.transcript.append({"role": "assistant", "text": kick})
+                self.session_manager.store(self.artifacts, pkg, sess)
+                return {
+                    "ui": (
+                        f"{kick}"
+                        "<br><br><small>"
+                        "Type <code>finish</code> to synthesize a summary artifact or "
+                        "<code>cancel</code> to abort."
+                        "</small>"
+                    )
+                }
+    
+            # record user message
+            text = (user_text or "").strip()
+            if text:
+                sess.transcript.append({"role": "user", "text": text})
+    
+            # ✅ SESSION MODE: use facilitator + session_chat (no tools), not normal chat
+            reply = self._facilitator_reply(sess, text)
+            reply = (reply or "").strip()
+    
+            if reply:
+                sess.transcript.append({"role": "assistant", "text": reply})
+            self.session_manager.store(self.artifacts, pkg, sess)
+            return {"ui": reply or "(no reply)"}
+    
+        # Fallback: if not freeform, drop back to default contract behavior
+        self._switch_contract("DEFAULT")
+        return self._normal_chat_flow(user_text)
+        
 
 
     
+
+
+    def session_chat(self, system: str, user: str) -> str:
+        """
+        Session-local chat helper.
+
+        - Name is distinct from the `llm_chat` TOOL.
+        - Under the hood it calls the `llm_chat` tool via Agent.run().
+        - Returns a plain string suitable for putting in the transcript/UI.
+        """
+        pkg = self.active_package_name()
+
+        payload = {
+            # Match your llm_chat tool schema as closely as possible
+            "prompt": user,
+            "context": system,
+            "messages": [
+                {"role": "system", "content": system},
+                {"role": "user", "content": user},
+            ],
+            # 🔹 IMPORTANT: disable tool-awareness in Guided Session
+            "tool_awareness": False,
+        }
+
+        try:
+            result = self.run(
+                tool_name="llm_chat",
+                package_name=pkg,
+                input_data=payload,
+            )
+        except Exception as e:
+            print(f"[session_chat] error: {e}")
+            return ""
+
+        if isinstance(result, dict):
+            return (
+                result.get("ui")
+                or result.get("response")   # 👈 real summary
+                or result.get("content")
+                or result.get("text")
+                or result.get("message")    # 👈 status last
+                or ""
+            ).strip()
+
+
+        return str(result).strip()
+        
+    def finish_session(self):
+        return self.handle_user_message("__finish__")
+        
+    def _facilitator_opening(self, sess):
+        """
+        First assistant message for a freeform session.
+    
+        For now we keep this deterministic and simply echo the seed/context
+        that came from the selected prompt artifact so the user can see it.
+        """
+        seed = (sess.llm_seed or "").strip()
+        if not seed:
+            return "Where would you like to start?"
+    
+        # Optionally truncate very long seeds for display
+        preview = seed
+        if len(preview) > 800:
+            preview = preview[:800] + "…"
+    
+        return (
+            "Here’s the prompt/context you selected to guide this session:\n\n"
+            "```markdown\n"
+            f"{preview}\n"
+            "```\n\n"
+            "What would you like to refine or add first?"
+        )
+    def _facilitator_reply(self, sess, user_text: str) -> str:
+        # Freeform facilitation: react to the user's latest input with a brief, helpful next step.
+        pkg = self.artifacts.get_active_package().name
+        _, ws = _load_ws(self.artifacts, pkg)
+        mem = (ws.get("memory") or {})  # attachments mirrored
+    
+        last_k = 6
+        history = sess.transcript[-last_k:]
+    
+        system = (
+            "You are in GUIDED SESSION MODE as a concise facilitator for systems engineers. "
+            "In this mode, TOOLS ARE DISABLED and you CANNOT call tools or output JSON actions. "
+            "Ignore any previous instructions about 'actions' or tool usage. "
+            "Respond ONLY in plain natural language.\n\n"
+            "Your job is to move the conversation forward with a brief next move: "
+            "You will be guided by a Context, Role, Interview and Task format, "
+        )
+    
+        # minimal memory summary
+        mem_lines = [f"- {k}: {type(v.get('value')).__name__}" for k, v in mem.items()]
+    
+        user = (
+            f"Seed/context:\n{sess.llm_seed}\n\n"
+            f"Attachments (keys/types):\n" + ("\n".join(mem_lines) if mem_lines else "(none)") + "\n\n"
+            f"Recent turns (role: text):\n" +
+            "\n".join(f"{m['role']}: {m['text']}" for m in history) +
+            f"\n\nUser now says:\n{user_text}\n\n"
+            "Do NOT propose calling tools. Do NOT emit JSON."
+        )
+    
+        try:
+            txt = self.session_chat(system=system, user=user)
+            return (txt or "").strip()
+        except Exception as e:
+            print(f"[facilitator_reply] session_chat failed: {e}")
+            return "Could you repeat that I was distracted?"
+
+    def _summarize_session(self, sess) -> str:
+        # Produce a clean summary artifact from the transcript (and attachments’ presence).
+        pkg = self.artifacts.get_active_package().name
+        _, ws = _load_ws(self.artifacts, pkg)
+        mem = (ws.get("memory") or {})
+        mem_keys = ", ".join(mem.keys()) if mem else "none"
+
+        system = (
+            "You are summarizing a technical working session. "
+            "Deliver a compact summary with sections: Context, Key Points, Decisions, Open Questions, Next Steps. "
+            "Prefer bullet lists; avoid fluff."
+        )
+        convo = "\n".join(f"{m['role'].upper()}: {m['text']}" for m in sess.transcript)
+        user = (
+            f"Seed/context:\n{sess.llm_seed}\n\n"
+            f"Attachments present: {mem_keys}\n\n"
+            "Transcript:\n" + (convo or "(no transcript)")
+        )
+
+        try:
+            txt = self.session_chat(system=system, user=user)
+            txt = (txt or "").strip()
+            if not txt:
+                raise ValueError("Empty session_chat response")
+            return txt
+        except Exception as e:
+            print(f"[summarize_session] session_chat failed: {e}")
+            # Very simple fallback so conclude always produces *something*
+            return (
+                "Context\n"
+                f"- Seed: {sess.llm_seed or '(none)'}\n"
+                f"- Attachments: {mem_keys}\n\n"
+                "Key Points\n"
+                "- (Summary LLM call failed; please re-run summary later.)"
+            )
+
+                      
+
     def run(
         self,
         tool_name: str,
@@ -198,8 +506,11 @@ class AgentCore:
         Tools should be responsible for persisting domain-specific artifacts.
         Optionally capture the tool's output as a separate 'run' artifact snapshot.
         """
-    
-        # 1) Resolve tool (from normalized registry metadata)
+        if self.contract_mode == "SESSION" and tool_name not in {"execute_prompt_for_session","llm_chat"}:
+            return {
+                "message": "⚠️ Tools are disabled during Guided Session mode. "
+                           "Type `finish session` to conclude."
+            }
         meta = self.tools.get(tool_name)
         if not meta:
             raise ValueError(
@@ -224,7 +535,7 @@ class AgentCore:
         # resolve any workspace names in the incoming payload
         resolved_input = resolve_workspace_names(input_data or {}, self.artifacts, pkg_name)
         result = tool.run(
-            input_data or {},
+            resolved_input, 
             artifacts=self.artifacts,   # always the registry
             package_name=pkg_name,      # explicit package scope
             **kwargs
@@ -264,6 +575,11 @@ class AgentCore:
             ann = self._latest_non_conversation_announce(pkg_name)
             if ann:
                 result.setdefault("artifact_message", ann)
+
+        # 🔸 honor contract-switch requests from any tool
+        if isinstance(result, dict):
+            self._handle_tool_switch(result)
+
     
         return result
 
@@ -371,11 +687,12 @@ class AgentCore:
 
 
     def _build_enriched_context(self):
-        tools_map = self.tools.list_tools()  # name -> meta dict
+        tools_list = self.list_tools()  # ← use AgentCore.list_tools()
         tool_lines = []
-        for name in sorted(tools_map.keys()):
-            meta = tools_map[name]
-            hint = self._tool_action_hint(name, meta)
+        for t in tools_list:
+            name = t["name"]
+            meta = self.tools.get(name)  # registry meta dict
+            hint = self._tool_action_hint(name, meta or {})
             tool_lines.append(f"- {name}\n{hint}")
     
 
@@ -541,7 +858,7 @@ class AgentCore:
             extras = {k:v for k,v in result.items() if k not in known}
             if rendered and extras:
                 try:
-                    display(Markdown("**Debug payload**"))
+                    display(Markdown("**Payload**"))
                     display(Markdown(f"```json\n{json.dumps(extras, ensure_ascii=False, indent=2)}\n```"))
                 except Exception:
                     pass
@@ -624,6 +941,13 @@ class AgentCore:
         file_dropdown.observe(load_file, names="value")
         enriched_context = self._build_enriched_context()  # call this each turn
         self.chat_history_msgs = [{"role": "system", "content": enriched_context}]
+
+
+
+
+
+        
+        
         
         def send_message(_):
 
@@ -652,33 +976,49 @@ class AgentCore:
                     # 🔹 If the tool returned a one-shot injection, append to messages for the next LLM turn
                     if isinstance(tool_result, dict) and tool_result.get("inject_once"):
                         self.chat_history_msgs.append({"role": "system", "content": tool_result["inject_once"]})
-
+                    self._handle_tool_switch(tool_result)
                     return  # Prevent fallthrough to LLM branch
         
             # --- Normal LLM chat flow ---
             self.chat_history_msgs.append({"role": "user", "content": prompt})
             enriched_context = self._build_enriched_context()
         
-            with chat_history:
-            # 🔹 Optional governance: keep total prompt under control
+            # --- Normal / Session-aware chat flow --- 
+            if self.contract_mode == "SESSION":
+                # Route through the session state machine
+                res = self._session_tick(prompt)
+                out = ""
+                if isinstance(res, dict):
+                    out = res.get("ui") or res.get("message") or ""
+                else:
+                    out = str(res)
+                if out:
+                    with chat_history:
+                        display(Markdown(f"**Assistant:** {out}"))
+                # optional: refresh bottom panes
                 try:
-                    from se_agent.core.prompt_guard import enforce_prompt_budget
-                    guard = enforce_prompt_budget(self.chat_history_msgs)
-                    if not guard["ok"]:
-                        display(Markdown(guard["message"]))
-                        return
+                    if getattr(self, "_bottom_windows", None):
+                        self._bottom_windows.refresh()
                 except Exception:
                     pass
-
+                return  # do NOT fall through to llm_chat
+            
+            # otherwise, default LLM chat as before
+            self.chat_history_msgs.append({"role": "user", "content": prompt}) 
+            enriched_context = self._build_enriched_context()
+            
+            with chat_history:
+                ...
                 result = self.run("llm_chat", package_name, input_data={
                     "prompt": prompt,
                     "context": enriched_context,
                     "messages": self.chat_history_msgs
                 })
-        
+            
                 response = result.get("response", "")
                 self.chat_history_msgs.append({"role": "assistant", "content": response})
-                display(Markdown(f"**Assistant:** {response}"))
+                display(Markdown(f"**Assistant:** {response}")) 
+
         
                 # --- Parse sequential actions (planning mode) ---
                 import re
@@ -715,7 +1055,8 @@ class AgentCore:
 
                         time.sleep(0.3)
 
-        
+
+            
         def exit_chat(_):
             self.chat_active = False
     

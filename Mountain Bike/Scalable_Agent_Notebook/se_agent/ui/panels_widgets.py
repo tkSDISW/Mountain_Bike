@@ -1,7 +1,7 @@
 # widgets (safe inside VBox/HBox.children)
 from ipywidgets import (
     VBox, HBox, Output, Button,  Checkbox, Layout, ToggleButtons,
-    Textarea, Select, Text, HTML as WHTML, Accordion
+    Textarea, Select, Text, HTML as WHTML, Select, SelectMultiple, Accordion
 )
 from IPython.display import display
 from .panels import (
@@ -24,7 +24,7 @@ class BottomWindows:
       Right = Preview + actions (Insert template, Render with tool)
     """
     def __init__(self, agent, artifacts, tool_registry_like, package_name=None,
-                 border=True, height_px=320,
+                 border=True, height_px=500,
                  user_input_widget=None,
                  system_hint_setter=None,
                  tool_runner=None):
@@ -80,8 +80,139 @@ class BottomWindows:
         self.refresh()
         return box
 
+    def _render_state_mode(self):
+        # 1) collect data
+        ws = _collect_workspace(self.artifacts, self.package_name)
+        af = _collect_artifacts(self.artifacts, self.package_name)
+        tools = _relevant_tools(self.tool_registry_like, ws, af)
+    
+        # 2) LEFT: Workspace (table)
+        with self.col_left:
+            self.col_left.clear_output()
+            _mk_table(ws, ["name", "type"], "⚙️ Workspace (Newest → Oldest)")
+    
+        # 3) MIDDLE: Artifacts table + Start Session controls
+        with self.col_mid:
+            self.col_mid.clear_output()
+            _mk_table(af, ["name", "type"], "📦 Artifacts (Newest → Oldest)")
+    
+            # prompt options: artifacts of prompt-ish type OR dict content with session/steps/vars
+            pkg = self.agent.artifacts.get_active_package()
+            arts = list(pkg.artifacts.values()) if pkg else []
+    
+            def _is_prompt_like(a):
+                t = (a.type or "").lower()
+                if t in {"prompt", "prompt_spec", "prompt_json"}:
+                    return True
+                c = getattr(a, "content", None)
+                return isinstance(c, dict) and any(k in c for k in ("session", "steps", "vars"))
+    
+            prompt_opts = [(a.name, a.name) for a in arts if _is_prompt_like(a)]
+            attach_opts  = [(a.name, a.name) for a in arts]
+    
+            rdisplay(RHTML("<hr><b>Start Guided Session</b>"))
+            rdisplay(RHTML("<i>Prompt (required)</i>"))
+            sel_prompt = Select(options=prompt_opts, layout=Layout(width="100%", height="75px"))
+            rdisplay(sel_prompt)
+    
+            rdisplay(RHTML("<i>Attach artifacts (optional)</i>"))
+            sel_attach = SelectMultiple(options=attach_opts, layout=Layout(width="100%", height="75px"))
+            rdisplay(sel_attach)
+    
+            btn_start = Button(description="Start Session (Agent)", layout=Layout(width="100%"))
+            rdisplay(btn_start)
 
+            # Ensure a default selection so .value isn't None
+            if not sel_prompt.value and sel_prompt.options:
+                sel_prompt.value = sel_prompt.options[0][1]  # (label, name)
+            
+            status = Output()
+            rdisplay(status)
 
+            def _on_start(_b=None):
+                with status:
+                    status.clear_output()
+            
+                    # sanity: tool registered?
+                    if not getattr(self.agent.tools, "get", None) or not self.agent.tools.get("execute_prompt_for_session"):
+                        print("❌ Tool 'execute_prompt_for_session' is not registered/imported.")
+                        return
+            
+                    p = sel_prompt.value
+                    if not p:
+                        print("⚠️ Select a prompt artifact first.")
+                        return
+                    names = list(sel_attach.value or [])
+            
+                    # call the tool
+                    res = self.agent.run(
+                        tool_name="execute_prompt_for_session",
+                        input_data={
+                            "prompt_artifact_name": p,
+                            "include_artifact_names": names
+                        }
+                    ) or {}
+                   
+                    # render any confirmation / errors so the user sees them
+                    ui = (res.get("ui") or res.get("message")) if isinstance(res, dict) else str(res)
+                    if ui:
+                        rdisplay(RHTML(f"<div style='margin-top:6px'>{ui}</div>"))
+            
+                    # only refresh if a session is now active (otherwise leave the message visible)
+                    if self._session_status().get("active"):
+                        self.refresh()
+
+            btn_start.on_click(_on_start)
+    
+        # 4) RIGHT: Tools list OR Conclude/Cancel if a session is active
+        sess = self._session_status()
+        with self.col_right:
+            self.col_right.clear_output()
+            if not sess.get("active"):
+                rdisplay(RHTML("<b>🧰 Runnable Tools (A → Z)</b>"))
+                _mk_table([{"name": n} for n in tools], ["name"], None)
+            else:
+                info = (
+                    f"<b>Guided Session</b><br>"
+                    f"Type: {sess['type'].title()}<br>"
+                    f"Prompt: {sess.get('prompt') or '—'}<br>"
+                    f"Progress: {sess['step']}/{sess['total']}"
+                )
+                rdisplay(RHTML(info))
+                btn_finish = Button(description="Conclude Session", button_style="success", layout=Layout(width="100%"))
+                btn_cancel = Button(description="Cancel Session", layout=Layout(width="100%"))
+                rdisplay(btn_finish); rdisplay(btn_cancel)
+                rdisplay(RHTML("<small>Tools are disabled during session.</small>"))
+    
+                def _on_finish(_b=None):
+                    self.agent.handle_user_message("__finish__")
+                    self.refresh()
+    
+                def _on_cancel(_b=None):
+                    self.agent.handle_user_message("cancel")
+                    self.refresh()
+    
+                btn_finish.on_click(_on_finish)
+                btn_cancel.on_click(_on_cancel)
+
+    
+    def _session_status(self):
+        from se_agent.tools.workspace_store import _load_ws
+        pkg = self.agent.artifacts.get_active_package()
+        if not pkg: return {"active": False}
+        _, ws = _load_ws(self.agent.artifacts, pkg.name)
+        sid = (ws or {}).get("pending_session_sid")
+        sess = (ws or {}).get("sessions", {}).get(sid or "")
+        if not sess: return {"active": False}
+        stps = (sess.get("spec", {}).get("session", {}) or {}).get("steps") or sess.get("spec", {}).get("steps") or []
+        return {"active": True, "sid": sid, "type": sess.get("type","interview"), "step": int(sess.get("step",0)),
+                "total": len(stps), "prompt": sess.get("prompt_name","")}
+    
+
+    def _toast(self, msg: str):
+        # lightweight notice in right column
+        with self.col_right:
+            rdisplay(RHTML(f"<div style='color:#b35; font-size:12px; margin-top:4px;'>⚠️ {msg}</div>"))
     
     def refresh(self):
         try:
@@ -99,21 +230,6 @@ class BottomWindows:
     def _on_mode_change(self, change):
         self.refresh()
 
-    # ---- STATE MODE (unchanged) ----
-    def _render_state_mode(self):
-        ws = _collect_workspace(self.artifacts, self.package_name)
-        af = _collect_artifacts(self.artifacts, self.package_name)
-        tools = _relevant_tools(self.tool_registry_like, ws, af)
-
-        with self.col_left:
-            self.col_left.clear_output()
-            _mk_table(ws, ["name", "type"], "⚙️ Workspace (Newest → Oldest)")
-        with self.col_mid:
-            self.col_mid.clear_output()
-            _mk_table(af, ["name", "type"], "📦 Artifacts (Newest → Oldest)")
-        with self.col_right:
-            self.col_right.clear_output()
-            _mk_table([{"name": n} for n in tools], ["name"], "🧰 Runnable Tools (A → Z)")
 
     # ---- PROMPTS MODE ----
 
